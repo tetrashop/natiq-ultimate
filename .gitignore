@@ -63,3 +63,5 @@ build/
 # Exclude system-specific files
 *.orig
 *.rej
+.vercel
+.env*.local
