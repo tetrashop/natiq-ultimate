@@ -206,3 +206,52 @@ server.listen(PORT, () => {
 server.on('error', (err) => {
     console.error('❌ خطای سرور:', err.message);
 });
+
+// API جزئیات مقاله - بعد از API جستجو اضافه کن
+if (req.url.startsWith('/api/article/')) {
+    try {
+        const id = parseInt(req.url.split('/')[3]);
+        const article = articles.find(a => a.id === id);
+        
+        if (article) {
+            // مقالات مرتبط (بر اساس دسته‌بندی)
+            const related = articles
+                .filter(a => a.id !== id && a.category === article.category)
+                .slice(0, 5)
+                .map(a => ({
+                    id: a.id,
+                    title: a.title,
+                    excerpt: a.excerpt || a.content?.substring(0, 100) + '...'
+                }));
+            
+            res.end(JSON.stringify({
+                success: true,
+                article: {
+                    id: article.id,
+                    title: article.title,
+                    content: article.content || 'محتوایی موجود نیست',
+                    excerpt: article.excerpt,
+                    author: article.author || 'ناشناس',
+                    category: article.category || 'عمومی',
+                    tags: article.tags || [],
+                    views: article.views || 0,
+                    likes: article.likes || 0,
+                    created_at: article.created_at || '2024-01-01'
+                },
+                related: related,
+                totalRelated: related.length
+            }, null, 2));
+        } else {
+            res.end(JSON.stringify({
+                success: false,
+                error: `مقاله با شناسه ${id} یافت نشد`
+            }, null, 2));
+        }
+    } catch (error) {
+        res.end(JSON.stringify({
+            success: false,
+            error: 'خطا در پردازش درخواست'
+        }, null, 2));
+    }
+    return;
+}

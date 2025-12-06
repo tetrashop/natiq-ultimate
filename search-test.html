@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 تست جستجوی نطق مصطلح</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Vazirmatn', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .test-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .test-section h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-box button {
+            padding: 15px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-box button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .quick-search {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .quick-search .tag {
+            padding: 10px 20px;
+            background: var(--light);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .quick-search .tag:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            margin-top: 30px;
+            display: grid;
+            gap: 20px;
+        }
+        
+        .result-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .result-item h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .result-item .meta {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .result-item .meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .result-item .excerpt {
+            color: #555;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--primary);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ddd;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffecec;
+            color: var(--danger);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 4px solid var(--danger);
+        }
+        
+        .api-test {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .api-test pre {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            direction: ltr;
+        }
+        
+        .api-test button {
+            margin: 5px;
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .api-test button:hover {
+            background: #2980b9;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- هدر -->
+        <div class="header">
+            <h1>🧪 تست جستجوی نطق مصطلح</h1>
+            <div class="subtitle">بررسی کامل عملکرد API جستجو قبل از دیپلوی</div>
+        </div>
+        
+        <!-- بخش تست جستجو -->
+        <div class="test-section">
+            <h2>🔍 تست جستجوی مقالات</h2>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="عبارت مورد نظر را وارد کنید (حداقل ۲ کاراکتر)...">
+                <button onclick="performSearch()">
+                    <span>🔎</span> جستجو
+                </button>
+            </div>
+            
+            <div class="quick-search">
+                <span class="tag" onclick="quickSearch('NLP')">🔤 NLP</span>
+                <span class="tag" onclick="quickSearch('پردازش زبان')">💬 پردازش زبان</span>
+                <span class="tag" onclick="quickSearch('هوش مصنوعی')">🤖 هوش مصنوعی</span>
+                <span class="tag" onclick="quickSearch('یادگیری ماشین')">🧠 یادگیری ماشین</span>
+                <span class="tag" onclick="quickSearch('پایتون')">🐍 پایتون</span>
+                <span class="tag" onclick="quickSearch('داده')">📊 داده</span>
+                <span class="tag" onclick="quickSearch('مقاله 203')">🎯 مقاله 203</span>
+            </div>
+            
+            <div id="resultsContainer">
+                <!-- نتایج اینجا نمایش داده می‌شود -->
+                <div class="loading" id="initialLoading">در حال بارگذاری...</div>
+            </div>
+        </div>
+        
+        <!-- بخش آمار -->
+        <div class="test-section">
+            <h2>📊 آمار سیستم</h2>
+            <div id="statsContainer">
+                <div class="loading">در حال بارگذاری آمار...</div>
+            </div>
+        </div>
+        
+        <!-- بخش تست API -->
+        <div class="test-section">
+            <h2>⚙️ تست API ها</h2>
+            <div class="api-test">
+                <p>بررسی وضعیت endpointهای مختلف:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
+                    <button onclick="testAPI('health')">✅ تست سلامت</button>
+                    <button onclick="testAPI('articles')">📄 لیست مقالات</button>
+                    <button onclick="testAPI('article-203')">🎯 مقاله 203</button>
+                    <button onclick="testAPI('search-nlp')">🔍 جستجوی NLP</button>
+                </div>
+                <pre id="apiResult">نتیجه تست API اینجا نمایش داده می‌شود...</pre>
+            </div>
+        </div>
+        
+        <!-- بخش گزارش -->
+        <div class="test-section">
+            <h2>📋 گزارش تست</h2>
+            <div id="testReport">
+                <div class="loading">در حال بررسی سیستم...</div>
+            </div>
+        </div>
+        
+        <!-- فوتر -->
+        <div class="footer">
+            <p>نطق مصطلح - تست کامل جستجو و API</p>
+            <p>آدرس سرور: <code id="serverAddress">http://localhost:3000</code></p>
+        </div>
+    </div>
+
+    <script>
+        // آدرس سرور
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // تابع اصلی جستجو
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '<div class="error">❌ عبارت جستجو باید حداقل ۲ کاراکتر باشد</div>';
+                return;
+            }
+            
+            resultsContainer.innerHTML = '<div class="loading">در حال جستجو...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '';
+                    
+                    if (data.results.length === 0) {
+                        html = `<div class="error">🔍 هیچ نتیجه‌ای برای "${query}" یافت نشد</div>`;
+                    } else {
+                        html = `
+                            <h3 style="color: var(--secondary); margin-bottom: 20px;">
+                                🔍 نتایج جستجو برای "${query}" (${data.totalResults} نتیجه)
+                            </h3>
+                            <div class="results">
+                        `;
+                        
+                        data.results.forEach((result, index) => {
+                            const article = result.article;
+                            html += `
+                                <div class="result-item">
+                                    <h3>${article.title}</h3>
+                                    <div class="meta">
+                                        <span>👤 ${article.author}</span>
+                                        <span>📂 ${article.category}</span>
+                                        <span>#${article.id}</span>
+                                    </div>
+                                    <div class="excerpt">${article.excerpt}</div>
+                                    <div style="margin-top: 15px;">
+                                        <button onclick="viewArticle(${article.id})" style="
+                                            padding: 8px 16px;
+                                            background: var(--primary);
+                                            color: white;
+                                            border: none;
+                                            border-radius: 5px;
+                                            cursor: pointer;
+                                        ">مشاهده مقاله</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `</div>`;
+                    }
+                    
+                    resultsContainer.innerHTML = html;
+                } else {
+                    resultsContainer.innerHTML = `<div class="error">❌ خطا: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `<div class="error">❌ خطای شبکه: ${error.message}</div>`;
+            }
+        }
+        
+        // جستجوی سریع
+        function quickSearch(term) {
+            document.getElementById('searchInput').value = term;
+            performSearch();
+        }
+        
+        // مشاهده مقاله
+        function viewArticle(id) {
+            window.open(`article.html?id=${id}`, '_blank');
+        }
+        
+        // بارگیری آمار سیستم
+        async function loadStats() {
+            const container = document.getElementById('statsContainer');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    container.innerHTML = `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <h3>مقالات کل</h3>
+                                <div class="value">${data.totalArticles}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>بازدید کل</h3>
+                                <div class="value">${data.totalViews.toLocaleString()}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>لایک کل</h3>
+                                <div class="value">${data.totalLikes.toLocaleString()}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>میانگین بازدید</h3>
+                                <div class="value">${data.avgViews}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">❌ خطا در بارگیری آمار</div>`;
+            }
+        }
+        
+        // تست API ها
+        async function testAPI(type) {
+            const resultElement = document.getElementById('apiResult');
+            resultElement.innerHTML = '<div class="loading">در حال تست...</div>';
+            
+            try {
+                let url = '';
+                let title = '';
+                
+                switch(type) {
+                    case 'health':
+                        url = `${API_BASE}/health`;
+                        title = 'تست سلامت';
+                        break;
+                    case 'articles':
+                        url = `${API_BASE}/articles?page=1&limit=3`;
+                        title = 'لیست مقالات';
+                        break;
+                    case 'article-203':
+                        url = `${API_BASE}/article/203`;
+                        title = 'مقاله 203';
+                        break;
+                    case 'search-nlp':
+                        url = `${API_BASE}/search?q=NLP`;
+                        title = 'جستجوی NLP';
+                        break;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let displayData = {
+                    endpoint: url,
+                    timestamp: new Date().toISOString(),
+                    status: 'success',
+                    ...data
+                };
+                
+                resultElement.innerHTML = `
+                    <strong>${title}:</strong>
+                    <div style="color: var(--success); margin: 10px 0;">✅ تست موفقیت‌آمیز</div>
+                    <code>${JSON.stringify(displayData, null, 2)}</code>
+                `;
+                
+                updateTestReport(type, true);
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <strong>تست ${type}:</strong>
+                    <div style="color: var(--danger); margin: 10px 0;">❌ خطا: ${error.message}</div>
+                `;
+                updateTestReport(type, false);
+            }
+        }
+        
+        // گزارش تست
+        const testResults = {};
+        
+        function updateTestReport(testName, success) {
+            testResults[testName] = success;
+            updateReportDisplay();
+        }
+        
+        function updateReportDisplay() {
+            const reportContainer = document.getElementById('testReport');
+            const tests = [
+                { id: 'health', name: 'سلامت سیستم' },
+                { id: 'articles', name: 'لیست مقالات' },
+                { id: 'article-203', name: 'مقاله 203' },
+                { id: 'search-nlp', name: 'جستجوی NLP' }
+            ];
+            
+            let html = '<div style="display: grid; gap: 10px;">';
+            tests.forEach(test => {
+                const status = testResults[test.id];
+                html += `
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 15px;
+                        background: white;
+                        border-radius: 8px;
+                        border-left: 4px solid ${status === undefined ? '#f39c12' : status ? '#27ae60' : '#e74c3c'};
+                    ">
+                        <span>${test.name}</span>
+                        <span>${status === undefined ? '⏳ منتظر تست' : status ? '✅ موفق' : '❌ ناموفق'}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            reportContainer.innerHTML = html;
+        }
+        
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', async () => {
+            // بارگیری آمار
+            loadStats();
+            
+            // بارگیری اولین لیست مقالات
+            try {
+                const response = await fetch(`${API_BASE}/articles?page=1&limit=5`);
+                const data = await response.json();
+                
+                if (data.success && data.articles.length > 0) {
+                    let html = '<h3>📄 آخرین مقالات:</h3><div class="results">';
+                    
+                    data.articles.forEach(article => {
+                        html += `
+                            <div class="result-item">
+                                <h3>${article.title}</h3>
+                                <div class="meta">
+                                    <span>👤 ${article.author}</span>
+                                    <span>📂 ${article.category}</span>
+                                    <span>📅 ${new Date(article.date).toLocaleDateString('fa-IR')}</span>
+                                </div>
+                                <div class="excerpt">${article.excerpt}</div>
+                                <button onclick="viewArticle(${article.id})" style="
+                                    margin-top: 10px;
+                                    padding: 8px 16px;
+                                    background: var(--primary);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                ">مطالعه مقاله</button>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    document.getElementById('resultsContainer').innerHTML = html;
+                }
+            } catch (error) {
+                document.getElementById('resultsContainer').innerHTML = 
+                    `<div class="error">❌ خطا در بارگیری مقالات: ${error.message}</div>`;
+            }
+            
+            // فعال کردن جستجو با Enter
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // شروع تست خودکار
+            setTimeout(() => testAPI('health'), 1000);
+            setTimeout(() => testAPI('articles'), 2000);
+        });
+    </script>
+</body>
+</html>

@@ -49,6 +49,27 @@
 
     <script>
         async function search() {
+async function listArticles() {
+    try {
+        const response = await fetch("http://localhost:3000/api/articles?page=1&limit=5");
+        const data = await response.json();
+        
+        let html = "<h3>آخرین مقالات:</h3>";
+        data.articles.forEach(article => {
+            html += `
+                <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px;">
+                    <h4>${article.title}</h4>
+                    <p>${article.excerpt}</p>
+                    <a href="article.html?id=${article.id}" style="color: #3498db;">مطالعه کامل</a>
+                </div>
+            `;
+        });
+        
+        document.getElementById("resultsContainer").innerHTML = html;
+    } catch (error) {
+        document.getElementById("resultsContainer").innerHTML = `<p style="color: red;">خطا: ${error.message}</p>`;
+    }
+}
             const query = document.getElementById('searchInput').value;
             const resultsContainer = document.getElementById('resultsContainer');
             const stats = document.getElementById('stats');

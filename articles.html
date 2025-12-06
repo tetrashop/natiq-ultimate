@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>تست نهایی نطق مصطلح</title>
+    <style>
+        body { font-family: Tahoma; padding: 20px; }
+        input { padding: 10px; width: 300px; }
+        button { padding: 10px 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🎯 تست نهایی API نطق مصطلح</h1>
+    
+    <div>
+        <input type="text" id="query" placeholder="عبارت جستجو..." value="پردازش">
+        <button onclick="search()">🔍 جستجو</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        async function search() {
+            const query = document.getElementById('query').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>در حال جستجو...</p>';
+            
+            try {
+                // روش صحیح: encodeURIComponent
+                const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                let html = `<h3>نتایج جستجو برای "${query}":</h3>`;
+                
+                if (data.success) {
+                    html += `<p>✅ ${data.totalResults} مقاله یافت شد</p>`;
+                    
+                    if (data.results.length > 0) {
+                        data.results.forEach(item => {
+                            html += `
+                                <div class="result">
+                                    <strong>${item.article.title}</strong><br>
+                                    <small>${item.article.excerpt}</small><br>
+                                    <em>نویسنده: ${item.article.author}</em>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    html += `<p style="color: red;">❌ ${data.error}</p>`;
+                }
+                
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color: red;">❌ خطا: ${error.message}</p>`;
+            }
+        }
+        
+        // تست خودکار
+        setTimeout(search, 1000);
+    </script>
+</body>
+</html>

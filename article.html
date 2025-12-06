@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>مقاله - نطق مصطلح</title>
+    <style>
+        body { font-family: Tahoma; padding: 20px; max-width: 800px; margin: auto; }
+        .article-title { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .article-meta { color: #7f8c8d; margin: 15px 0; }
+        .article-content { line-height: 1.8; text-align: justify; }
+        .related-article { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .back-link { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="article-container">
+        <p>در حال بارگذاری مقاله...</p>
+    </div>
+    
+    <div id="related-container" style="margin-top: 40px; display: none;">
+        <h3>مقالات مرتبط</h3>
+        <div id="related-articles"></div>
+    </div>
+    
+    <a href="index.html" class="back-link">← بازگشت به صفحه اصلی</a>
+
+    <script>
+        // گرفتن ID از URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id') || 1;
+        
+        async function loadArticle() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/article/${articleId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const article = data.article;
+                    
+                    // نمایش مقاله
+                    document.getElementById('article-container').innerHTML = `
+                        <h1 class="article-title">${article.title}</h1>
+                        <div class="article-meta">
+                            نویسنده: ${article.author} | 
+                            دسته‌بندی: ${article.category} | 
+                            بازدید: ${article.views} | 
+                            لایک: ${article.likes}
+                        </div>
+                        <div class="article-content">
+                            ${article.content.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                    
+                    // نمایش مقالات مرتبط
+                    if (data.related && data.related.length > 0) {
+                        document.getElementById('related-container').style.display = 'block';
+                        let relatedHtml = '';
+                        data.related.forEach(related => {
+                            relatedHtml += `
+                                <div class="related-article">
+                                    <a href="article.html?id=${related.id}" style="color: #2c3e50; text-decoration: none;">
+                                        <h4>${related.title}</h4>
+                                        <p>${related.excerpt}</p>
+                                    </a>
+                                </div>
+                            `;
+                        });
+                        document.getElementById('related-articles').innerHTML = relatedHtml;
+                    }
+                } else {
+                    document.getElementById('article-container').innerHTML = `
+                        <h3>خطا</h3>
+                        <p>${data.error}</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('article-container').innerHTML = `
+                    <h3>خطا در بارگذاری</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        loadArticle();
+    </script>
+</body>
+</html>
