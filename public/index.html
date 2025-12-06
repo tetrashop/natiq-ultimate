@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نطق مصطلح | مدیریت ۱۹۹ مقاله NLP فارسی</title>
+    
+    <!-- استایل‌های اصلی -->
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Font Awesome برای آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- فونت Vazirmatn برای نمایش بهتر فارسی -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    
+    <style>
+        /* استایل‌های اضافی برای فونت فارسی */
+        body {
+            font-family: Vazirmatn, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        
+        /* استایل‌های اضافی برای بهتر شدن نمایش */
+        .persian-numbers {
+            font-feature-settings: "ss01";
+        }
+    </style>
+</head>
+<body>
+    <!-- هدر -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>نطق مصطلح</span>
+                </a>
+                
+                <nav class="nav">
+                    <a href="/" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        خانه
+                    </a>
+                    <a href="#articles" class="nav-link">
+                        <i class="fas fa-newspaper"></i>
+                        مقالات
+                    </a>
+                    <a href="#stats" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        آمار
+                    </a>
+                    <a href="#about" class="nav-link">
+                        <i class="fas fa-info-circle"></i>
+                        درباره
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- هیرو -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">
+                <span class="gradient-text">نطق مصطلح</span>
+                <br>سیستم مدیریت مقالات NLP فارسی
+            </h1>
+            
+            <p class="hero-description">
+                مدیریت، جستجو و تحلیل <strong>۱۹۹ مقاله تخصصی</strong> در حوزه پردازش زبان طبیعی
+                با قابلیت‌های پیشرفته و رابط کاربری مدرن
+            </p>
+            
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" 
+                           id="search-input"
+                           class="search-input"
+                           placeholder="جستجو در مقالات NLP فارسی...">
+                </div>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-number" id="total-articles">۱۹۹</div>
+                        <div class="stat-label">مقاله NLP</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-number">۳.۰</div>
+                        <div class="stat-label">نسخه سیستم</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-number">۱۰۰٪</div>
+                        <div class="stat-label">امنیت</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- مقالات -->
+    <main class="main-content">
+        <div class="container">
+            <section id="articles" class="articles-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-newspaper"></i>
+                        مقالات تخصصی NLP
+                    </h2>
+                    
+                    <div class="section-actions">
+                        <select id="category-filter" class="category-select">
+                            <option value="">همه دسته‌بندی‌ها</option>
+                            <option value="آموزش">آموزش</option>
+                            <option value="پروژه">پروژه</option>
+                            <option value="تحلیل">تحلیل</option>
+                            <option value="اخبار">اخبار</option>
+                            <option value="کتابخانه">کتابخانه</option>
+                            <option value="توسعه">توسعه</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="article-grid" id="articles-container">
+                    <!-- مقالات اینجا بارگذاری می‌شوند -->
+                    <div class="loading">در حال بارگذاری مقالات...</div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- صفحه‌بندی -->
+                </div>
+            </section>
+            
+            <!-- آمار -->
+            <section id="stats" class="stats-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        آمار سیستم
+                    </h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-number" id="stats-total-articles">۱۹۹</div>
+                        <div class="stat-label">مقالات کل</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-number" id="stats-total-views">۰</div>
+                        <div class="stat-label">بازدید کل</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-number" id="stats-total-likes">۰</div>
+                        <div class="stat-label">لایک کل</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-share"></i>
+                        </div>
+                        <div class="stat-number" id="stats-total-shares">۰</div>
+                        <div class="stat-label">اشتراک‌گذاری کل</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- درباره -->
+            <section id="about" class="about-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        درباره نطق مصطلح
+                    </h2>
+                </div>
+                
+                <div class="about-content">
+                    <div class="about-card">
+                        <h3>هدف پروژه</h3>
+                        <p>
+                            نطق مصطلح یک سیستم کامل مدیریت مقالات تخصصی در حوزه پردازش زبان طبیعی فارسی است.
+                            این پروژه با هدف ارائه‌ی ۱۹۹ مقاله آموزشی و تخصصی در زمینه NLP طراحی شده است.
+                        </p>
+                    </div>
+                    
+                    <div class="about-card">
+                        <h3>ویژگی‌ها</h3>
+                        <ul>
+                            <li>۱۹۹ مقاله کامل NLP فارسی</li>
+                            <li>رابط کاربری مدرن و ریسپانسیو</li>
+                            <li>جستجوی پیشرفته در مقالات</li>
+                            <li>سیستم آمار و گزارش‌گیری</li>
+                            <li>API کامل برای توسعه‌دهندگان</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="about-card">
+                        <h3>تکنولوژی‌ها</h3>
+                        <div class="tech-stack">
+                            <span class="tech-tag">Node.js</span>
+                            <span class="tech-tag">Express</span>
+                            <span class="tech-tag">JSON</span>
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- فوتر -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>نطق مصطلح</h3>
+                    <p>سیستم مدیریت مقالات تخصصی در حوزه پردازش زبان طبیعی فارسی</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-link"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>لینک‌های مفید</h3>
+                    <ul class="footer-links">
+                        <li><a href="/">خانه</a></li>
+                        <li><a href="#articles">مقالات</a></li>
+                        <li><a href="#stats">آمار</a></li>
+                        <li><a href="/api/health">وضعیت سیستم</a></li>
+                        <li><a href="/api/articles">API مقالات</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>تماس با ما</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> team@natiq.ir</li>
+                        <li><i class="fas fa-globe"></i> https://natiq.ir</li>
+                        <li><i class="fas fa-map-marker-alt"></i> ایران</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© ۲۰۲۴ نطق مصطلح. تمامی حقوق محفوظ است.</p>
+                <p class="version">نسخه ۳.۰.۰</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- اسکریپت‌های اصلی -->
+    <script src="/js/app.js"></script>
+    
+    <!-- اسکریپت برای به‌روزرسانی آمار -->
+    <script>
+        // تابع برای به‌روزرسانی آمار
+        async function updateAllStats() {
+            try {
+                const response = await fetch('/api/articles');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const totalViews = data.data.reduce((sum, article) => sum + article.views, 0);
+                    const totalLikes = data.data.reduce((sum, article) => sum + article.likes, 0);
+                    const totalShares = data.data.reduce((sum, article) => sum + article.shares, 0);
+                    
+                    // به‌روزرسانی عناصر آمار
+                    const formatNumber = num => new Intl.NumberFormat('fa-IR').format(num);
+                    
+                    const viewsElement = document.getElementById('stats-total-views');
+                    const likesElement = document.getElementById('stats-total-likes');
+                    const sharesElement = document.getElementById('stats-total-shares');
+                    
+                    if (viewsElement) viewsElement.textContent = formatNumber(totalViews);
+                    if (likesElement) likesElement.textContent = formatNumber(totalLikes);
+                    if (sharesElement) sharesElement.textContent = formatNumber(totalShares);
+                }
+            } catch (error) {
+                console.error('خطا در دریافت آمار:', error);
+            }
+        }
+        
+        // بارگذاری آمار هنگام لود صفحه
+        document.addEventListener('DOMContentLoaded', updateAllStats);
+        
+        // به‌روزرسانی آمار هر 30 ثانیه
+        setInterval(updateAllStats, 30000);
+    </script>
+</body>
+</html>

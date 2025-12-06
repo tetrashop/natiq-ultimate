@@ -1,0 +1,16 @@
+{
+  "name": "natiq-ultimate",
+  "version": "3.2.0",
+  "description": "سیستم کامل نطق مصطلح با جستجوی واقعی",
+  "main": "src/server/simple-server.js",
+  "scripts": {
+    "start": "node src/server/simple-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["nlp", "persian", "search", "articles"],
+  "author": "تیم نطق مصطلح",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
