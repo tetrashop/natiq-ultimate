@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست پرسش و پاسخ - نسخه اصلاح شده</title>
+    <style>
+        body { font-family: Tahoma; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .question-box { margin-bottom: 20px; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; }
+        .success { border-color: #2ecc71; background: #e8f8ef; }
+        .error { border-color: #e74c3c; background: #fdedec; }
+        .loading { text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 تست پرسش و پاسخ نطق مصطلح</h1>
+        <p>نسخه اصلاح شده - الگوریتم‌های ساده و پایدار</p>
+        
+        <div class="question-box">
+            <h3>سوال خود را بپرسید:</h3>
+            <textarea id="question" rows="3" placeholder="مثال: پردازش زبان طبیعی چیست؟">پردازش زبان طبیعی چیست؟</textarea>
+            
+            <h4>الگوریتم:</h4>
+            <div>
+                <input type="radio" id="auto" name="algorithm" value="auto" checked>
+                <label for="auto">🤖 خودکار (پیشنهادی)</label>
+                
+                <input type="radio" id="keyword" name="algorithm" value="keyword">
+                <label for="keyword">🔑 کلیدواژه</label>
+                
+                <input type="radio" id="semantic" name="algorithm" value="semantic">
+                <label for="semantic">🧠 معنایی</label>
+                
+                <input type="radio" id="nlp" name="algorithm" value="nlp">
+                <label for="nlp">💬 پردازش زبان</label>
+            </div>
+            
+            <button onclick="askQuestion()" style="margin-top: 10px; padding: 12px 30px; font-size: 16px;">
+                📨 ارسال سوال
+            </button>
+        </div>
+        
+        <div id="resultContainer">
+            <!-- نتیجه اینجا می‌آید -->
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #f0f8ff; border-radius: 5px;">
+            <h4>💡 نمونه سوالات:</h4>
+            <div>
+                <button onclick="setQuestion('پردازش زبان طبیعی چیست؟')" style="margin: 5px; padding: 8px 15px;">NLP چیست؟</button>
+                <button onclick="setQuestion('مقاله 203 درباره چیست؟')" style="margin: 5px; padding: 8px 15px;">مقاله 203</button>
+                <button onclick="setQuestion('چگونه پایتون یاد بگیرم؟')" style="margin: 5px; padding: 8px 15px;">یادگیری پایتون</button>
+                <button onclick="setQuestion('تفاوت AI و ML چیست؟')" style="margin: 5px; padding: 8px 15px;">تفاوت AI و ML</button>
+                <button onclick="setQuestion('آیا سیستم کار می‌کند؟')" style="margin: 5px; padding: 8px 15px;">تست سیستم</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api/qna';
+        
+        function setQuestion(question) {
+            document.getElementById('question').value = question;
+        }
+        
+        async function askQuestion() {
+            const question = document.getElementById('question').value.trim();
+            const algorithm = document.querySelector('input[name="algorithm"]:checked').value;
+            const resultContainer = document.getElementById('resultContainer');
+            
+            if (!question || question.length < 2) {
+                alert('لطفا سوال معتبری وارد کنید (حداقل ۲ کاراکتر)');
+                return;
+            }
+            
+            resultContainer.innerHTML = `
+                <div class="loading">
+                    <p>⏳ در حال پردازش سوال...</p>
+                    <p><small>الگوریتم: ${algorithm}</small></p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_BASE}/ask?q=${encodeURIComponent(question)}&algorithm=${algorithm}`);
+                const data = await response.json();
+                
+                let resultHtml = '';
+                
+                if (data.success) {
+                    resultHtml = `
+                        <div class="result success">
+                            <h3>✅ پاسخ سیستم:</h3>
+                            <div style="white-space: pre-line; line-height: 1.6; margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                                ${data.answer}
+                            </div>
+                            <div style="background: #e1f5fe; padding: 10px; border-radius: 5px; font-size: 14px;">
+                                <strong>📊 اطلاعات فنی:</strong><br>
+                                الگوریتم: ${data.algorithm || algorithm}<br>
+                                اعتماد سیستم: ${data.confidence || 0}%<br>
+                                مقالات یافت شده: ${data.articlesFound || 0}<br>
+                                زمان پردازش: ${data.processingTime || '?'} میلی‌ثانیه<br>
+                                ${data.matchedArticle ? `مقاله اصلی: ${data.matchedArticle}` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultHtml = `
+                        <div class="result error">
+                            <h3>❌ خطا:</h3>
+                            <p>${data.error || 'خطای ناشناخته'}</p>
+                            ${data.answer ? `<p>${data.answer}</p>` : ''}
+                        </div>
+                    `;
+                }
+                
+                resultContainer.innerHTML = resultHtml;
+                
+            } catch (error) {
+                resultContainer.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ خطای ارتباطی:</h3>
+                        <p>${error.message}</p>
+                        <p>مطمئن شوید سرور در حال اجرا است (پورت 3002)</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // تست خودکار هنگام لود
+        window.onload = function() {
+            setTimeout(askQuestion, 500);
+        };
+    </script>
+</body>
+</html>

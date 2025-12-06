@@ -1,64 +1,57 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تست نهایی نطق مصطلح</title>
+    <title>تست ساده پرسش و پاسخ</title>
     <style>
         body { font-family: Tahoma; padding: 20px; }
-        input { padding: 10px; width: 300px; }
-        button { padding: 10px 20px; }
-        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        #result { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>🎯 تست نهایی API نطق مصطلح</h1>
-    
-    <div>
-        <input type="text" id="query" placeholder="عبارت جستجو..." value="پردازش">
-        <button onclick="search()">🔍 جستجو</button>
-    </div>
-    
-    <div id="results"></div>
+    <h1>سوال خود را بپرسید:</h1>
+    <input type="text" id="question" style="width: 300px; padding: 5px;">
+    <button onclick="ask()">بپرس</button>
+    <div id="result">پاسخ اینجا نمایش داده می‌شود...</div>
     
     <script>
-        async function search() {
-            const query = document.getElementById('query').value;
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<p>در حال جستجو...</p>';
+        async function ask() {
+            const question = document.getElementById('question').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'در حال پردازش...';
             
             try {
-                // روش صحیح: encodeURIComponent
-                const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+                const response = await fetch(
+                    `http://localhost:3002/api/qna/ask?q=${encodeURIComponent(question)}`
+                );
                 const data = await response.json();
                 
-                let html = `<h3>نتایج جستجو برای "${query}":</h3>`;
-                
                 if (data.success) {
-                    html += `<p>✅ ${data.totalResults} مقاله یافت شد</p>`;
-                    
-                    if (data.results.length > 0) {
-                        data.results.forEach(item => {
-                            html += `
-                                <div class="result">
-                                    <strong>${item.article.title}</strong><br>
-                                    <small>${item.article.excerpt}</small><br>
-                                    <em>نویسنده: ${item.article.author}</em>
-                                </div>
-                            `;
-                        });
-                    }
+                    resultDiv.innerHTML = `
+                        <h3>✅ پاسخ:</h3>
+                        <p>${data.answer.replace(/\n/g, '<br>')}</p>
+                        <small>الگوریتم: ${data.algorithm} | اعتماد: ${data.confidence || '?'}%</small>
+                    `;
                 } else {
-                    html += `<p style="color: red;">❌ ${data.error}</p>`;
+                    resultDiv.innerHTML = `
+                        <h3>❌ خطا:</h3>
+                        <p>${data.error}</p>
+                    `;
                 }
-                
-                resultsDiv.innerHTML = html;
             } catch (error) {
-                resultsDiv.innerHTML = `<p style="color: red;">❌ خطا: ${error.message}</p>`;
+                resultDiv.innerHTML = `
+                    <h3>❌ خطای ارتباطی:</h3>
+                    <p>${error.message}</p>
+                    <p>مطمئن شوید سرور در حال اجرا است (پورت 3002)</p>
+                `;
             }
         }
         
-        // تست خودکار
-        setTimeout(search, 1000);
+        // تست خودکار هنگام لود صفحه
+        window.onload = function() {
+            document.getElementById('question').value = "پردازش زبان طبیعی چیست؟";
+            setTimeout(ask, 1000);
+        };
     </script>
 </body>
 </html>
