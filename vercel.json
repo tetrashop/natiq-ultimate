@@ -1,37 +1,28 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
+      "src": "backend/server.py",
       "use": "@vercel/python"
     },
     {
-      "src": "public/**",
+      "src": "frontend/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "src": "/static/(.*)",
+      "dest": "/frontend/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "backend/server.py"
     }
   ],
   "env": {
-    "PYTHON_VERSION": "3.9",
-    "ENABLE_API": "true",
-    "MODEL_CACHE_DIR": "/tmp/natiq-models"
+    "PYTHONPATH": "/var/task/backend"
   },
-  "regions": ["fra1"],
-  "build": {
-    "env": {
-      "PYTHON_VERSION": "3.9",
-      "NLTK_DATA": "/tmp/nltk_data",
-      "TRANSFORMERS_CACHE": "/tmp/transformers_cache"
-    }
-  }
+  "buildCommand": "cd backend && pip install -r requirements.txt",
+  "outputDirectory": "backend"
 }
 

@@ -9,114 +9,173 @@
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- وضعیت اتصال - همیشه قابل مشاهده -->
+    <div class="connection-alert" id="connectionAlert">
+        <span id="alertText"><i class="fas fa-wifi"></i> در حال بررسی اتصال به سرور...</span>
+        <button id="retryBtn" class="retry-btn" style="display:none;">
+            <i class="fas fa-redo"></i> تلاش مجدد
+        </button>
+    </div>
+
     <div class="container">
         <!-- هدر -->
         <header class="header">
             <div class="logo">
                 <i class="fas fa-robot"></i>
                 <h1>natiq-ultimate</h1>
-                <span class="version">نسخه ۲.۰</span>
+                <span class="version">نسخه ۲.۱</span>
             </div>
-            <div class="status">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">در حال اتصال...</span>
+            <div class="header-controls">
+                <button class="icon-btn" id="toggleSidebar" title="نمایش/مخفی کردن پنل">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="icon-btn" id="themeToggle" title="تغییر حالت تاریک/روشن">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </header>
 
-        <!-- پیام‌های چت -->
-        <div class="chat-container" id="chatContainer">
-            <div class="welcome-message">
-                <div class="message bot">
-                    <div class="avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="content">
-                        <div class="text">
-                            سلام! من <strong>natiq-ultimate</strong> هستم، دستیار هوشمند فارسی شما. 
-                            خوشحالم که شما رو می‌بینم! 🤖
+        <div class="main-content">
+            <!-- پیام‌های چت -->
+            <div class="chat-container" id="chatContainer">
+                <!-- پیام خوش‌آمدگویی - با انیمیشن -->
+                <div class="welcome-message">
+                    <div class="message bot">
+                        <div class="avatar pulse">
+                            <i class="fas fa-robot"></i>
                         </div>
-                        <div class="time">همین الان</div>
+                        <div class="content">
+                            <div class="text">
+                                <h3>سلام! من <strong>natiq-ultimate</strong> هستم. 🤖</h3>
+                                <p>دستیار هوشمند فارسی شما که می‌تواند:</p>
+                                <ul class="features">
+                                    <li><i class="fas fa-check-circle"></i> به سوالات فارسی پاسخ دهد</li>
+                                    <li><i class="fas fa-check-circle"></i> از شما یاد بگیرد (<code>یاد بگیر سوال|پاسخ</code>)</li>
+                                    <li><i class="fas fa-check-circle"></i> آمار گفتگو را نگهداری کند</li>
+                                </ul>
+                                <p class="hint"><i class="fas fa-info-circle"></i> وضعیت اتصال در نوار بالای صفحه نمایش داده می‌شود.</p>
+                            </div>
+                            <div class="time">همین الان</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- پانل کناری (با قابلیت نمایش/مخفی‌سازی) -->
+            <div class="sidebar active" id="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-chart-bar"></i> آمار زنده</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">سوالات این جلسه:</span>
+                            <span class="stat-value" id="statQuestions">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">موضوعات پوشش داده‌شده:</span>
+                            <span class="stat-value" id="statTopics">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">شناسه جلسه:</span>
+                            <span class="stat-value session-id" id="sessionId" title="کپی" onclick="natiqApp.copySessionId()">...</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">وضعیت اتصال:</span>
+                            <span class="stat-value">
+                                <span class="connection-status" id="sidebarStatus">
+                                    <span class="status-dot"></span> در حال اتصال
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-bolt"></i> اقدام سریع</h3>
+                    <div class="quick-grid">
+                        <button class="quick-action" data-action="test-api">
+                            <i class="fas fa-plug"></i> تست اتصال API
+                        </button>
+                        <button class="quick-action" data-action="clear-chat">
+                            <i class="fas fa-trash"></i> پاک کردن چت
+                        </button>
+                        <button class="quick-action" data-action="export-chat">
+                            <i class="fas fa-download"></i> ذخیره گفتگو
+                        </button>
+                        <button class="quick-action" data-action="view-logs">
+                            <i class="fas fa-clipboard-list"></i> مشاهده لاگ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-graduation-cap"></i> آموزش فوری</h3>
+                    <div class="tutorial">
+                        <p>برای آموزش به من بگویید:</p>
+                        <div class="code-block">
+                            <code>یاد بگیر پایتون چیست؟|پایتون یک زبان برنامه‌نویسی قدرتمند است.</code>
+                            <button class="copy-btn" onclick="natiqApp.copyText(this)"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <p>یا نام خود را تنظیم کنید:</p>
+                        <div class="code-block">
+                            <code>اسم من [نام شما]</code>
+                            <button class="copy-btn" onclick="natiqApp.copyText(this)"><i class="fas fa-copy"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ورودی کاربر -->
+        <!-- ورودی کاربر - پیشرفته‌تر -->
         <div class="input-container">
             <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="سوال خود را اینجا تایپ کنید..."
-                    autocomplete="off"
-                >
-                <button id="sendButton">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="quick-actions">
-                <button class="quick-btn" data-question="هوش مصنوعی چیست؟">
-                    <i class="fas fa-brain"></i> هوش مصنوعی چیست؟
-                </button>
-                <button class="quick-btn" data-question="پایتون چه کاربردی دارد؟">
-                    <i class="fab fa-python"></i> پایتون
-                </button>
-                <button class="quick-btn" data-question="اسم من چیست؟">
-                    <i class="fas fa-user"></i> نام من
-                </button>
-                <button class="quick-btn" id="clearChat">
-                    <i class="fas fa-trash"></i> پاک کردن
-                </button>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="سوال خود را اینجا بنویسید یا از دکمه‌های زیر استفاده کنید..."
+                        autocomplete="off"
+                        autofocus
+                    >
+                    <div class="input-actions">
+                        <button id="sendButton" class="send-btn" title="ارسال (Enter)">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <button id="voiceBtn" class="icon-btn" title="ضبط صوتی (به زودی)">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="suggestions">
+                    <p class="suggestion-title"><i class="fas fa-lightbulb"></i> پیشنهاد سوال:</p>
+                    <div class="suggestion-buttons">
+                        <button class="suggestion-btn" data-question="هوش مصنوعی چیست؟">
+                            هوش مصنوعی چیست؟
+                        </button>
+                        <button class="suggestion-btn" data-question="اسم تو چیست؟">
+                            اسم تو چیست؟
+                        </button>
+                        <button class="suggestion-btn" data-question="چگونه می‌توانم برنامه‌نویس شوم؟">
+                            چگونه برنامه‌نویس شوم؟
+                        </button>
+                        <button class="suggestion-btn" data-question="آمار این جلسه را نشان بده">
+                            <i class="fas fa-chart-bar"></i> نمایش آمار
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- پانل کناری (برای موبایل مخفی) -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <h3><i class="fas fa-chart-bar"></i> آمار جلسه</h3>
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-label">سوالات:</span>
-                        <span class="stat-value" id="statQuestions">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">موضوعات:</span>
-                        <span class="stat-value" id="statTopics">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">کاربر:</span>
-                        <span class="stat-value" id="statUser">ناشناس</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3><i class="fas fa-lightbulb"></i> نکات سریع</h3>
-                <ul class="tips">
-                    <li>می‌توانید بگویید: <code>اسم من [نام]</code></li>
-                    <li>می‌توانید آموزش دهید: <code>یاد بگیر سوال|پاسخ</code></li>
-                    <li>برای آمار بگویید: <code>آمار</code></li>
-                    <li>برای موضوعات بگویید: <code>موضوعات</code></li>
-                </ul>
-            </div>
-
-            <div class="sidebar-section">
-                <h3><i class="fas fa-cogs"></i> تنظیمات</h3>
-                <div class="settings">
-                    <label class="switch">
-                        <input type="checkbox" id="soundToggle" checked>
-                        <span class="slider"></span>
-                        <span class="label">صدای اعلان</span>
-                    </label>
-                    <label class="switch">
-                        <input type="checkbox" id="typingIndicatorToggle" checked>
-                        <span class="slider"></span>
-                        <span class="label">نمایش تایپ</span>
-                    </label>
-                    <button class="btn-outline" id="resetSession">
-                        <i class="fas fa-redo"></i> شروع جلسه جدید
-                    </button>
-                </div>
+    <!-- پنل لاگ و عیب‌یابی -->
+    <div class="debug-panel" id="debugPanel">
+        <div class="debug-header">
+            <h4><i class="fas fa-bug"></i> لاگ سیستم و عیب‌یابی</h4>
+            <button class="close-debug" id="closeDebug">×</button>
+        </div>
+        <div class="debug-content" id="debugContent">
+            <div class="log-entry info">
+                <span class="log-time">[۱۲:۰۰:۰۰]</span> سیستم راه‌اندازی شد...
             </div>
         </div>
     </div>
