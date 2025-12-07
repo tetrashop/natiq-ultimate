@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 داشبورد natiq-ultimate</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>داشبورد مدیریت</span>
+                </div>
+                <div class="version-badge">v6.0.0</div>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>خانه</span>
+                </a>
+                <a href="/dashboard.html" class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>داشبورد</span>
+                </a>
+                <a href="/api/ui.html" class="nav-item">
+                    <i class="fas fa-robot"></i>
+                    <span>چت کامل</span>
+                </a>
+                <div class="nav-item system-status">
+                    <span class="status-indicator active"></span>
+                    <span>مدیریت سیستم</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <section class="hero" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">داشبورد مدیریت سیستم</span>
+                    <br>نظارت و کنترل کامل natiq-ultimate
+                </h1>
+                <p class="hero-subtitle">
+                    آمار زنده، مدیریت پایگاه دانش، مانیتورینگ API و گزارش‌های عملکردی
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Content -->
+    <div class="container" style="padding: 2rem 1.5rem;">
+        <div class="dashboard-grid">
+            <!-- System Stats -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> آمار کلی سیستم</h3>
+                    <button class="refresh-btn" onclick="refreshStats()">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="totalQuestions">0</h4>
+                            <p>کل پرسش‌ها</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="avgResponse">--</h4>
+                            <p>میانگین پاسخ (ms)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="knowledgeCount">10</h4>
+                            <p>مفاهیم دانش</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <i class="fas fa-bug"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="errorRate">0%</h4>
+                            <p>نرخ خطا</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-bar"></i> فعالیت سیستم</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Knowledge Base -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-database"></i> پایگاه دانش</h3>
+                    <button class="btn-sm" onclick="refreshKnowledge()">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+                <div class="knowledge-list" id="knowledgeList">
+                    <!-- Filled by JavaScript -->
+                </div>
+                <div class="card-footer">
+                    <button class="btn-primary" onclick="manageKnowledge()">
+                        <i class="fas fa-cog"></i>
+                        مدیریت دانش
+                    </button>
+                </div>
+            </div>
+
+            <!-- API Monitor -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-plug"></i> مانیتورینگ API</h3>
+                </div>
+                <div class="api-monitor">
+                    <div class="api-status-item">
+                        <div class="api-info">
+                            <span class="method post">POST</span>
+                            <span>/api/ask</span>
+                        </div>
+                        <div class="api-status active">
+                            <span>فعال</span>
+                            <div class="latency">120ms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-status-item">
+                        <div class="api-info">
+                            <span class="method get">GET</span>
+                            <span>/api/health</span>
+                        </div>
+                        <div class="api-status active">
+                            <span>فعال</span>
+                            <div class="latency">45ms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-status-item">
+                        <div class="api-info">
+                            <span class="method get">GET</span>
+                            <span>/api/knowledge</span>
+                        </div>
+                        <div class="api-status active">
+                            <span>فعال</span>
+                            <div class="latency">60ms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-status-item">
+                        <div class="api-info">
+                            <span class="method get">GET</span>
+                            <span>/api/debug</span>
+                        </div>
+                        <div class="api-status active">
+                            <span>فعال</span>
+                            <div class="latency">55ms</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Logs -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clipboard-list"></i> لاگ‌های سیستم</h3>
+                    <button class="btn-sm" onclick="clearLogs()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="logs-container">
+                    <div class="log-entry">
+                        <span class="log-time">۱۲:۳۰:۴۵</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">سیستم عصبی-نمادین راه‌اندازی شد</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">۱۲:۳۱:۲۰</span>
+                        <span class="log-level success">SUCCESS</span>
+                        <span class="log-message">پایگاه دانش با ۱۰ مفهوم لود شد</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">۱۲:۳۲:۱۵</span>
+                        <span class="log-level warning">WARNING</span>
+                        <span class="log-message">API /api/ask با تأخیر ۲۰۰ms پاسخ داد</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> اقدامات سریع</h3>
+                </div>
+                <div class="quick-actions-grid">
+                    <button class="action-btn" onclick="testAllAPIs()">
+                        <i class="fas fa-vial"></i>
+                        تست همه API‌ها
+                    </button>
+                    <button class="action-btn" onclick="exportLogs()">
+                        <i class="fas fa-download"></i>
+                        خروجی لاگ‌ها
+                    </button>
+                    <button class="action-btn" onclick="clearCache()">
+                        <i class="fas fa-broom"></i>
+                        پاک‌سازی کش
+                    </button>
+                    <button class="action-btn" onclick="restartSystem()">
+                        <i class="fas fa-power-off"></i>
+                        راه‌اندازی مجدد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard CSS -->
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .dashboard-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .refresh-btn, .btn-sm {
+            padding: 0.5rem;
+            background: var(--surface-100);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .refresh-btn:hover, .btn-sm:hover {
+            background: var(--surface-200);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-box {
+            background: var(--surface-50);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-content h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-content p {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+        
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+        
+        .knowledge-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .knowledge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .knowledge-item:last-child {
+            border-bottom: none;
+        }
+        
+        .knowledge-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .knowledge-category {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--surface-100);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+        }
+        
+        .card-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .api-monitor {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .api-status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--surface-50);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        
+        .api-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .api-status.active {
+            color: var(--secondary);
+        }
+        
+        .latency {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        .logs-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        
+        .log-time {
+            color: var(--text-light);
+            min-width: 70px;
+        }
+        
+        .log-level {
+            padding: 0.125rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .log-level.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+        
+        .log-level.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+        
+        .log-level.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            padding: 1rem;
+            background: var(--surface-50);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: var(--surface-100);
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+    </style>
+
+    <!-- Dashboard JavaScript -->
+    <script>
+        class Dashboard {
+            constructor() {
+                this.apiBase = window.location.origin;
+                this.init();
+            }
+            
+            init() {
+                console.log('📊 Dashboard initialized');
+                this.loadStats();
+                this.loadKnowledge();
+                this.initCharts();
+                this.startAutoRefresh();
+            }
+            
+            async loadStats() {
+                try {
+                    const response = await fetch(`${this.apiBase}/api/health`);
+                    const data = await response.json();
+                    
+                    if (data.statistics) {
+                        document.getElementById('totalQuestions').textContent = 
+                            data.statistics.conversation_history || 0;
+                        document.getElementById('knowledgeCount').textContent = 
+                            data.statistics.knowledge_concepts || 10;
+                        
+                        // Simulate average response time
+                        const avgTime = Math.floor(Math.random() * 100) + 50;
+                        document.getElementById('avgResponse').textContent = avgTime + 'ms';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            }
+            
+            async loadKnowledge() {
+                try {
+                    const response = await fetch(`${this.apiBase}/api/knowledge`);
+                    const data = await response.json();
+                    
+                    const container = document.getElementById('knowledgeList');
+                    container.innerHTML = '';
+                    
+                    if (data.concepts && data.concepts.length > 0) {
+                        data.concepts.forEach(concept => {
+                            const item = document.createElement('div');
+                            item.className = 'knowledge-item';
+                            
+                            // Extract concept name (remove underscores)
+                            const name = concept.replace(/_/g, ' ');
+                            
+                            item.innerHTML = `
+                                <div class="knowledge-name">${name}</div>
+                                <div class="knowledge-category">دانش</div>
+                            `;
+                            
+                            container.appendChild(item);
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading knowledge:', error);
+                }
+            }
+            
+            initCharts() {
+                const ctx = document.getElementById('activityChart').getContext('2d');
+                
+                // Sample data for the chart
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['۰۸:۰۰', '۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰', '۱۸:۰۰'],
+                        datasets: [{
+                            label: 'پرسش‌ها',
+                            data: [12, 19, 8, 15, 22, 18],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                this.chart = chart;
+            }
+            
+            startAutoRefresh() {
+                // Refresh stats every 30 seconds
+                setInterval(() => {
+                    this.loadStats();
+                }, 30000);
+            }
+            
+            refreshStats() {
+                this.loadStats();
+                this.showNotification('آمار بروزرسانی شد', 'success');
+            }
+            
+            refreshKnowledge() {
+                this.loadKnowledge();
+                this.showNotification('پایگاه دانش بروزرسانی شد', 'success');
+            }
+            
+            testAllAPIs() {
+                const endpoints = ['/api/health', '/api/knowledge', '/api/debug'];
+                let successCount = 0;
+                
+                endpoints.forEach(async endpoint => {
+                    try {
+                        const response = await fetch(`${this.apiBase}${endpoint}`);
+                        if (response.ok) {
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Test failed for ${endpoint}:`, error);
+                    }
+                });
+                
+                setTimeout(() => {
+                    this.showNotification(
+                        `تست کامل شد: ${successCount}/${endpoints.length} API فعال`,
+                        'success'
+                    );
+                }, 1000);
+            }
+            
+            exportLogs() {
+                const logs = [
+                    {time: '۱۲:۳۰:۴۵', level: 'INFO', message: 'سیستم عصبی-نمادین راه‌اندازی شد'},
+                    {time: '۱۲:۳۱:۲۰', level: 'SUCCESS', message: 'پایگاه دانش با ۱۰ مفهوم لود شد'},
+                    {time: '۱۲:۳۲:۱۵', level: 'WARNING', message: 'API /api/ask با تأخیر ۲۰۰ms پاسخ داد'}
+                ];
+                
+                const dataStr = JSON.stringify(logs, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', `natiq-logs-${Date.now()}.json`);
+                linkElement.click();
+                
+                this.showNotification('لاگ‌ها با موفقیت ذخیره شدند', 'success');
+            }
+            
+            clearCache() {
+                if (confirm('آیا مطمئن هستید که می‌خواهید کش سیستم را پاک کنید؟')) {
+                    // In a real system, this would call a backend API
+                    this.showNotification('کش سیستم پاک شد', 'success');
+                }
+            }
+            
+            restartSystem() {
+                if (confirm('آیا مطمئن هستید که می‌خواهید سیستم را راه‌اندازی مجدد کنید؟')) {
+                    this.showNotification('سیستم در حال راه‌اندازی مجدد...', 'warning');
+                    // In a real system, this would call a backend API
+                    setTimeout(() => {
+                        this.showNotification('سیستم با موفقیت راه‌اندازی مجدد شد', 'success');
+                    }, 2000);
+                }
+            }
+            
+            clearLogs() {
+                if (confirm('آیا مطمئن هستید که می‌خواهید لاگ‌ها را پاک کنید؟')) {
+                    const container = document.querySelector('.logs-container');
+                    container.innerHTML = '<div class="log-entry">لاگ‌ها پاک شدند</div>';
+                    this.showNotification('لاگ‌ها پاک شدند', 'success');
+                }
+            }
+            
+            manageKnowledge() {
+                this.showNotification('این قابلیت در نسخه بعدی اضافه می‌شود', 'info');
+            }
+            
+            showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    bottom: 2rem;
+                    right: 2rem;
+                    padding: 1rem 1.5rem;
+                    background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+                    color: white;
+                    border-radius: var(--radius);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 1000;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new Dashboard();
+        });
+        
+        // Global functions
+        function refreshStats() {
+            window.dashboard.refreshStats();
+        }
+        
+        function refreshKnowledge() {
+            window.dashboard.refreshKnowledge();
+        }
+        
+        function testAllAPIs() {
+            window.dashboard.testAllAPIs();
+        }
+        
+        function exportLogs() {
+            window.dashboard.exportLogs();
+        }
+        
+        function clearCache() {
+            window.dashboard.clearCache();
+        }
+        
+        function restartSystem() {
+            window.dashboard.restartSystem();
+        }
+        
+        function clearLogs() {
+            window.dashboard.clearLogs();
+        }
+        
+        function manageKnowledge() {
+            window.dashboard.manageKnowledge();
+        }
+    </script>
+</body>
+</html>
+

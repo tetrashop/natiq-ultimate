@@ -3,314 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نطق مصطلح | مدیریت ۱۹۹ مقاله NLP فارسی</title>
-    
-    <!-- استایل‌های اصلی -->
-    <link rel="stylesheet" href="/css/style.css">
-    
-    <!-- Font Awesome برای آیکون‌ها -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- فونت Vazirmatn برای نمایش بهتر فارسی -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
-    
-    <style>
-        /* استایل‌های اضافی برای فونت فارسی */
-        body {
-            font-family: Vazirmatn, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        }
-        
-        /* استایل‌های اضافی برای بهتر شدن نمایش */
-        .persian-numbers {
-            font-feature-settings: "ss01";
-        }
-    </style>
+    <title>🧠 natiq-ultimate - سیستم هوش مصنوعی عصبی-نمادین</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- هدر -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo">
+    <!-- Header Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
                     <i class="fas fa-brain"></i>
-                    <span>نطق مصطلح</span>
+                    <span>natiq-ultimate</span>
+                </div>
+                <div class="version-badge">v6.0.0</div>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>خانه</span>
                 </a>
-                
-                <nav class="nav">
-                    <a href="/" class="nav-link active">
-                        <i class="fas fa-home"></i>
-                        خانه
-                    </a>
-                    <a href="#articles" class="nav-link">
-                        <i class="fas fa-newspaper"></i>
-                        مقالات
-                    </a>
-                    <a href="#stats" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        آمار
-                    </a>
-                    <a href="#about" class="nav-link">
-                        <i class="fas fa-info-circle"></i>
-                        درباره
-                    </a>
-                </nav>
+                <a href="/dashboard.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>داشبورد</span>
+                </a>
+                <a href="#features" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>قابلیت‌ها</span>
+                </a>
+                <a href="#api" class="nav-item">
+                    <i class="fas fa-code"></i>
+                    <span>API</span>
+                </a>
+                <div class="nav-item system-status">
+                    <span class="status-indicator active"></span>
+                    <span>سیستم فعال</span>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <!-- هیرو -->
+    <!-- Hero Section -->
     <section class="hero">
-        <div class="container">
-            <h1 class="hero-title">
-                <span class="gradient-text">نطق مصطلح</span>
-                <br>سیستم مدیریت مقالات NLP فارسی
-            </h1>
-            
-            <p class="hero-description">
-                مدیریت، جستجو و تحلیل <strong>۱۹۹ مقاله تخصصی</strong> در حوزه پردازش زبان طبیعی
-                با قابلیت‌های پیشرفته و رابط کاربری مدرن
-            </p>
-            
-            <div class="search-section">
-                <div class="search-container">
-                    <input type="text" 
-                           id="search-input"
-                           class="search-input"
-                           placeholder="جستجو در مقالات NLP فارسی...">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">سیستم هوش مصنوعی عصبی-نمادین</span>
+                    <br>نسخه کامل با تمام قابلیت‌ها
+                </h1>
+                <p class="hero-subtitle">
+                    ترکیب قدرت پردازش عصبی با دانش نمادین برای پاسخ‌های دقیق و هوشمند
+                </p>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-project-diagram"></i>
+                        <div>
+                            <h3>۱۰+</h3>
+                            <p>مفهوم دانش</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <h3>۵+</h3>
+                            <p>API فعال</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-layer-group"></i>
+                        <div>
+                            <h3>۲</h3>
+                            <p>لایه پردازش</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-rocket"></i>
+                        <div>
+                            <h3>۱۰۰٪</h3>
+                            <p>آماده سرویس</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="scrollToChat()">
+                        <i class="fas fa-comment-dots"></i>
+                        شروع مکالمه
+                    </button>
+                    <a href="/dashboard.html" class="btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i>
+                        مشاهده داشبورد
+                    </a>
                 </div>
             </div>
             
-            <div class="hero-stats">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <div class="stat-number" id="total-articles">۱۹۹</div>
-                        <div class="stat-label">مقاله NLP</div>
+            <div class="hero-visual">
+                <div class="neural-network">
+                    <div class="node node-1">
+                        <i class="fas fa-search"></i>
+                        <span>تحلیل عصبی</span>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <div class="stat-number">۳.۰</div>
-                        <div class="stat-label">نسخه سیستم</div>
+                    <div class="connection"></div>
+                    <div class="node node-2">
+                        <i class="fas fa-database"></i>
+                        <span>جستجوی دانش</span>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div class="stat-number">۱۰۰٪</div>
-                        <div class="stat-label">امنیت</div>
+                    <div class="connection"></div>
+                    <div class="node node-3">
+                        <i class="fas fa-brain"></i>
+                        <span>یکپارچه‌سازی</span>
+                    </div>
+                    <div class="connection"></div>
+                    <div class="node node-4">
+                        <i class="fas fa-comment"></i>
+                        <span>پاسخ هوشمند</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- مقالات -->
-    <main class="main-content">
+    <!-- Chat Interface -->
+    <section class="chat-section" id="chat">
         <div class="container">
-            <section id="articles" class="articles-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-newspaper"></i>
-                        مقالات تخصصی NLP
-                    </h2>
-                    
-                    <div class="section-actions">
-                        <select id="category-filter" class="category-select">
-                            <option value="">همه دسته‌بندی‌ها</option>
-                            <option value="آموزش">آموزش</option>
-                            <option value="پروژه">پروژه</option>
-                            <option value="تحلیل">تحلیل</option>
-                            <option value="اخبار">اخبار</option>
-                            <option value="کتابخانه">کتابخانه</option>
-                            <option value="توسعه">توسعه</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="article-grid" id="articles-container">
-                    <!-- مقالات اینجا بارگذاری می‌شوند -->
-                    <div class="loading">در حال بارگذاری مقالات...</div>
-                </div>
-                
-                <div class="pagination" id="pagination">
-                    <!-- صفحه‌بندی -->
-                </div>
-            </section>
+            <div class="section-header">
+                <h2><i class="fas fa-robot"></i> مکالمه با سیستم عصبی-نمادین</h2>
+                <p>هر سوالی درباره هوش مصنوعی، یادگیری ماشین، شبکه عصبی و ... بپرسید</p>
+            </div>
             
-            <!-- آمار -->
-            <section id="stats" class="stats-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-chart-bar"></i>
-                        آمار سیستم
-                    </h2>
+            <div class="chat-container">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-title">
+                        <i class="fas fa-brain"></i>
+                        <div>
+                            <h3>natiq-ultimate v6.0</h3>
+                            <p class="status-text">
+                                <span class="status-dot active"></span>
+                                در حال گوش دادن...
+                            </p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" onclick="clearChat()" title="پاک کردن مکالمه">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="icon-btn" onclick="exportChat()" title="ذخیره مکالمه">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="icon-btn" onclick="toggleDarkMode()" title="تغییر تم">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-database"></i>
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="avatar">
+                            <i class="fas fa-brain"></i>
                         </div>
-                        <div class="stat-number" id="stats-total-articles">۱۹۹</div>
-                        <div class="stat-label">مقالات کل</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-eye"></i>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="sender">سیستم عصبی-نمادین</span>
+                                <span class="time">همین الان</span>
+                            </div>
+                            <div class="message-body">
+                                🎉 **به natiq-ultimate v6.0 خوش آمدید!**
+                                <br><br>
+                                من یک سیستم هوش مصنوعی ترکیبی هستم که:
+                                <br>
+                                • از **پردازش عصبی** برای فهم سوال شما استفاده می‌کنم
+                                <br>
+                                • از **دانش نمادین** برای استخراج اطلاعات دقیق کمک می‌گیرم
+                                <br>
+                                • این دو را **یکپارچه** می‌کنم تا بهترین پاسخ را ارائه دهم
+                                <br><br>
+                                💡 **موضوعاتی که می‌توانید بپرسید:**
+                                <br>
+                                • تعاریف (هوش مصنوعی چیست؟)
+                                <br>
+                                • مقایسه‌ها (تفاوت AI و ML چیست؟)
+                                <br>
+                                • کاربردها (شبکه عصبی کجا استفاده می‌شود؟)
+                                <br>
+                                • روش‌ها (چگونه با پایتون AI بسازیم؟)
+                            </div>
                         </div>
-                        <div class="stat-number" id="stats-total-views">۰</div>
-                        <div class="stat-label">بازدید کل</div>
                     </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <div class="stat-number" id="stats-total-likes">۰</div>
-                        <div class="stat-label">لایک کل</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-share"></i>
-                        </div>
-                        <div class="stat-number" id="stats-total-shares">۰</div>
-                        <div class="stat-label">اشتراک‌گذاری کل</div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- درباره -->
-            <section id="about" class="about-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-info-circle"></i>
-                        درباره نطق مصطلح
-                    </h2>
                 </div>
                 
-                <div class="about-content">
-                    <div class="about-card">
-                        <h3>هدف پروژه</h3>
-                        <p>
-                            نطق مصطلح یک سیستم کامل مدیریت مقالات تخصصی در حوزه پردازش زبان طبیعی فارسی است.
-                            این پروژه با هدف ارائه‌ی ۱۹۹ مقاله آموزشی و تخصصی در زمینه NLP طراحی شده است.
-                        </p>
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <div class="quick-questions">
+                        <span>سوالات سریع:</span>
+                        <button class="quick-btn" onclick="askQuestion('هوش مصنوعی چیست؟')">
+                            هوش مصنوعی چیست؟
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('تفاوت AI و ML چیست؟')">
+                            تفاوت AI و ML
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('کاربردهای شبکه عصبی چیست؟')">
+                            کاربردهای شبکه عصبی
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('چگونه با پایتون هوش مصنوعی بسازیم؟')">
+                            ساخت AI با پایتون
+                        </button>
                     </div>
                     
-                    <div class="about-card">
-                        <h3>ویژگی‌ها</h3>
-                        <ul>
-                            <li>۱۹۹ مقاله کامل NLP فارسی</li>
-                            <li>رابط کاربری مدرن و ریسپانسیو</li>
-                            <li>جستجوی پیشرفته در مقالات</li>
-                            <li>سیستم آمار و گزارش‌گیری</li>
-                            <li>API کامل برای توسعه‌دهندگان</li>
-                        </ul>
+                    <div class="input-group">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="سوال خود را اینجا بنویسید... (Enter برای ارسال، Shift+Enter برای خط جدید)"
+                            rows="3"
+                            onkeydown="handleKeyDown(event)"
+                        ></textarea>
+                        <button class="send-btn" onclick="sendMessage()" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                            ارسال به سیستم
+                        </button>
                     </div>
                     
-                    <div class="about-card">
-                        <h3>تکنولوژی‌ها</h3>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Node.js</span>
-                            <span class="tech-tag">Express</span>
-                            <span class="tech-tag">JSON</span>
-                            <span class="tech-tag">HTML5</span>
-                            <span class="tech-tag">CSS3</span>
-                            <span class="tech-tag">JavaScript</span>
+                    <div class="input-footer">
+                        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                            سیستم در حال پردازش عصبی...
+                        </div>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 1000 کاراکتر
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
-    </main>
+    </section>
 
-    <!-- فوتر -->
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-cogs"></i> قابلیت‌های سیستم</h2>
+                <p>تمامی امکانات سیستم عصبی-نمادین در یک پلتفرم</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon neural">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>پردازش عصبی</h3>
+                    <p>تشخیص هوشمند هدف سوال، استخراج مفاهیم و تحلیل معنایی با سیستم عصبی پیشرفته</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> تشخیص خودکار نوع سوال</li>
+                        <li><i class="fas fa-check"></i> استخراج موجودیت‌ها</li>
+                        <li><i class="fas fa-check"></i> تحلیل احساس و تن</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon knowledge">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>دانش نمادین</h3>
+                    <p>دسترسی به پایگاه دانش تخصصی با ۱۰+ مفهوم در حوزه هوش مصنوعی و یادگیری ماشین</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> گراف دانش مفهومی</li>
+                        <li><i class="fas fa-check"></i> روابط سلسله‌مراتبی</li>
+                        <li><i class="fas fa-check"></i> جستجوی هوشمند</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon integration">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3>یکپارچه‌سازی</h3>
+                    <p>ترکیب نتایج عصبی و دانشی برای تولید پاسخ‌های دقیق، کامل و قابل اعتماد</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> تلفیق خودکار</li>
+                        <li><i class="fas fa-check"></i> اولویت‌بندی نتایج</li>
+                        <li><i class="fas fa-check"></i> تولید پاسخ ترکیبی</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon api">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>API کامل</h3>
+                    <p>۵+ endpoint فعال برای توسعه‌دهندگان و سیستم‌های خارجی</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> REST API استاندارد</li>
+                        <li><i class="fas fa-check"></i> مستندات کامل</li>
+                        <li><i class="fas fa-check"></i> پشتیبانی از JSON</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section class="api-section" id="api">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-plug"></i> API Documentation</h2>
+                <p>اتصال سیستم‌های خارجی به natiq-ultimate</p>
+            </div>
+            
+            <div class="api-endpoints">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <h3>/api/ask</h3>
+                        <span class="status active">فعال</span>
+                    </div>
+                    <p class="endpoint-desc">پرسش و پاسخ هوش مصنوعی - اصلی‌ترین endpoint سیستم</p>
+                    
+                    <div class="endpoint-example">
+                        <div class="example-header">
+                            <span>Request:</span>
+                            <button onclick="copyCode('askRequest')" class="copy-btn">
+                                <i class="far fa-copy"></i> کپی
+                            </button>
+                        </div>
+                        <pre id="askRequest"><code>{
+  "question": "هوش مصنوعی چیست؟",
+  "session_id": "optional_session_id"
+}</code></pre>
+                    </div>
+                    
+                    <div class="endpoint-example">
+                        <div class="example-header">
+                            <span>Response:</span>
+                        </div>
+                        <pre><code>{
+  "success": true,
+  "question": "هوش مصنوعی چیست؟",
+  "response": "شاخه‌ای از علوم کامپیوتر که...",
+  "analysis": {
+    "neural": { ... },
+    "confidence": 0.95
+  }
+}</code></pre>
+                    </div>
+                    
+                    <button class="test-btn" onclick="testEndpoint('/api/ask')">
+                        <i class="fas fa-vial"></i>
+                        تست این endpoint
+                    </button>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <h3>/api/health</h3>
+                        <span class="status active">فعال</span>
+                    </div>
+                    <p class="endpoint-desc">بررسی سلامت سیستم و دریافت آمار لحظه‌ای</p>
+                    
+                    <div class="endpoint-example">
+                        <pre><code>curl https://natiq-ultimate.vercel.app/api/health</code></pre>
+                    </div>
+                    
+                    <button class="test-btn" onclick="testEndpoint('/api/health')">
+                        <i class="fas fa-vial"></i>
+                        تست سلامت
+                    </button>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <h3>/api/knowledge</h3>
+                        <span class="status active">فعال</span>
+                    </div>
+                    <p class="endpoint-desc">لیست مفاهیم موجود در پایگاه دانش</p>
+                    
+                    <button class="test-btn" onclick="testEndpoint('/api/knowledge')">
+                        <i class="fas fa-vial"></i>
+                        مشاهده دانش
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Status -->
+    <section class="status-section">
+        <div class="container">
+            <div class="status-card">
+                <div class="status-header">
+                    <h3><i class="fas fa-heartbeat"></i> وضعیت لحظه‌ای سیستم</h3>
+                    <span class="last-update" id="lastUpdate">در حال بروزرسانی...</span>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-info">
+                            <h4>سیستم عصبی</h4>
+                            <p>پردازش زبان و تحلیل</p>
+                        </div>
+                        <div class="status-indicator active">
+                            <span>فعال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-info">
+                            <h4>پایگاه دانش</h4>
+                            <p>۱۰ مفهوم فعال</p>
+                        </div>
+                        <div class="status-indicator active">
+                            <span>فعال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-info">
+                            <h4>API Gateway</h4>
+                            <p>۵ endpoint</p>
+                        </div>
+                        <div class="status-indicator active">
+                            <span>فعال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-info">
+                            <h4>یکپارچه‌سازی</h4>
+                            <p>ترکیب عصبی-نمادین</p>
+                        </div>
+                        <div class="status-indicator active">
+                            <span>فعال</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-footer">
+                    <button class="refresh-btn" onclick="checkSystemStatus()">
+                        <i class="fas fa-redo"></i>
+                        بروزرسانی وضعیت
+                    </button>
+                    <div class="uptime">
+                        <i class="fas fa-clock"></i>
+                        <span>آپتایم: <span id="uptime">۱۰۰٪</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>نطق مصطلح</h3>
-                    <p>سیستم مدیریت مقالات تخصصی در حوزه پردازش زبان طبیعی فارسی</p>
-                    <div class="social-links">
-                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
-                        <a href="#" class="social-link"><i class="fas fa-envelope"></i></a>
+                    <div class="footer-logo">
+                        <i class="fas fa-brain"></i>
+                        <span>natiq-ultimate</span>
                     </div>
+                    <p class="footer-description">
+                        سیستم هوش مصنوعی عصبی-نمادین با معماری ترکیبی و قابلیت‌های کامل
+                    </p>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>لینک‌های مفید</h3>
-                    <ul class="footer-links">
-                        <li><a href="/">خانه</a></li>
-                        <li><a href="#articles">مقالات</a></li>
-                        <li><a href="#stats">آمار</a></li>
-                        <li><a href="/api/health">وضعیت سیستم</a></li>
-                        <li><a href="/api/articles">API مقالات</a></li>
-                    </ul>
+                    <h4>لینک‌های سریع</h4>
+                    <a href="/">صفحه اصلی</a>
+                    <a href="/dashboard.html">داشبورد</a>
+                    <a href="#api">مستندات API</a>
+                    <a href="#features">قابلیت‌ها</a>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>تماس با ما</h3>
-                    <ul class="footer-links">
-                        <li><i class="fas fa-envelope"></i> team@natiq.ir</li>
-                        <li><i class="fas fa-globe"></i> https://natiq.ir</li>
-                        <li><i class="fas fa-map-marker-alt"></i> ایران</li>
-                    </ul>
+                    <h4>API Endpoints</h4>
+                    <a href="/api/health">/api/health</a>
+                    <a href="/api/knowledge">/api/knowledge</a>
+                    <a href="/api/debug">/api/debug</a>
+                    <a href="/api/history">/api/history</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>سیستم</h4>
+                    <div class="system-info">
+                        <div class="info-item">
+                            <span>نسخه:</span>
+                            <strong>v6.0.0</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>معماری:</span>
+                            <strong>عصبی-نمادین</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>وضعیت:</span>
+                            <strong class="status-text">فعال</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>© ۲۰۲۴ نطق مصطلح. تمامی حقوق محفوظ است.</p>
-                <p class="version">نسخه ۳.۰.۰</p>
+                <p>© 2024 natiq-ultimate. تمامی حقوق محفوظ است.</p>
+                <div class="footer-links">
+                    <a href="#" onclick="showAbout()">درباره سیستم</a>
+                    <a href="#" onclick="showTerms()">شرایط استفاده</a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- اسکریپت‌های اصلی -->
-    <script src="/js/app.js"></script>
-    
-    <!-- اسکریپت برای به‌روزرسانی آمار -->
-    <script>
-        // تابع برای به‌روزرسانی آمار
-        async function updateAllStats() {
-            try {
-                const response = await fetch('/api/articles');
-                const data = await response.json();
-                
-                if (data.success && data.data.length > 0) {
-                    const totalViews = data.data.reduce((sum, article) => sum + article.views, 0);
-                    const totalLikes = data.data.reduce((sum, article) => sum + article.likes, 0);
-                    const totalShares = data.data.reduce((sum, article) => sum + article.shares, 0);
-                    
-                    // به‌روزرسانی عناصر آمار
-                    const formatNumber = num => new Intl.NumberFormat('fa-IR').format(num);
-                    
-                    const viewsElement = document.getElementById('stats-total-views');
-                    const likesElement = document.getElementById('stats-total-likes');
-                    const sharesElement = document.getElementById('stats-total-shares');
-                    
-                    if (viewsElement) viewsElement.textContent = formatNumber(totalViews);
-                    if (likesElement) likesElement.textContent = formatNumber(totalLikes);
-                    if (sharesElement) sharesElement.textContent = formatNumber(totalShares);
-                }
-            } catch (error) {
-                console.error('خطا در دریافت آمار:', error);
-            }
-        }
-        
-        // بارگذاری آمار هنگام لود صفحه
-        document.addEventListener('DOMContentLoaded', updateAllStats);
-        
-        // به‌روزرسانی آمار هر 30 ثانیه
-        setInterval(updateAllStats, 30000);
-    </script>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="neural-loader">
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+                <div class="node"></div>
+            </div>
+            <h3>در حال بارگذاری سیستم عصبی...</h3>
+            <p>لطفاً چند لحظه صبر کنید</p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script src="/assets/js/app.js"></script>
 </body>
 </html>
+
