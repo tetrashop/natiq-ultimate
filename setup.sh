@@ -1,88 +1,140 @@
 #!/bin/bash
-# اسکریپت راه‌اندازی خودکار natiq-ultimate در Termux
+# natiq-ultimate v6.0 Setup Script
 
-set -e  # در صورت خطا توقف کن
+echo "🧠 natiq-ultimate v6.0 Setup"
+echo "============================="
 
-echo "🚀 شروع راه‌اندازی natiq-ultimate"
-echo "======================================"
+# Check Python version
+echo "🔍 Checking Python version..."
+python_version=$(python3 --version 2>&1 | cut -d' ' -f2)
+required_version="3.8"
 
-# بررسی وجود پایتون
-if ! command -v python3 &> /dev/null; then
-    echo "❌ پایتون یافت نشد. در حال نصب..."
-    pkg install python -y
+if [ "$(printf '%s\n' "$required_version" "$python_version" | sort -V | head -n1)" = "$required_version" ]; then
+    echo "✅ Python $python_version detected"
+else
+    echo "❌ Python 3.8 or higher is required"
+    echo "📦 Install Python 3.8+ from: https://www.python.org/downloads/"
+    exit 1
 fi
 
-# به‌روزرسانی pip
-echo "🔧 به‌روزرسانی pip..."
-python3 -m pip install --upgrade pip
+# Create project structure
+echo "📁 Creating project structure..."
+mkdir -p public/assets/css public/assets/js api
 
-# نصب PyTorch برای Termux (مخصوص معماری aarch64)
-echo "🧠 نصب PyTorch برای Termux..."
-pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
+# Copy files (assuming files are in current directory)
+echo "📦 Copying files..."
 
-# نصب سایر نیازمندی‌ها
-echo "📦 نصب نیازمندی‌های پایتون..."
-pip install -r requirements_termux.txt
-
-# ایجاد ساختار پوشه‌ها
-echo "📁 ایجاد ساختار پوشه‌ها..."
-mkdir -p models data logs
-
-# دانلود مدل اولیه (اگر اینترنت وجود دارد)
-read -p "آیا می‌خواهید مدل فارسی را دانلود کنید؟ (بله/خیر) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[بب]$ ]]; then
-    echo "📥 در حال دانلود مدل فارسی..."
-    python3 << 'END'
-from transformers import AutoTokenizer, AutoModel
-import os
-
-model_name = "HooshvareLab/bert-base-parsbert-uncased"
-save_path = "./models/fa-bert"
-
-print(f"دانلود مدل: {model_name}")
-print(f"ذخیره در: {save_path}")
-
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
-
-# ذخیره محلی
-tokenizer.save_pretrained(save_path)
-model.save_pretrained(save_path)
-print("✅ مدل با موفقیت دانلود و ذخیره شد")
-END
+# Check if files exist
+if [ -f "index.html" ]; then
+    cp index.html public/
+    echo "✅ index.html copied"
 fi
 
-# تست محیط
-echo "🧪 تست محیط اجرا..."
-python3 -c "
-import sys
-print(f'پایتون {sys.version}')
+if [ -f "dashboard.html" ]; then
+    cp dashboard.html public/
+    echo "✅ dashboard.html copied"
+fi
 
-try:
-    import torch
-    print(f'✅ PyTorch {torch.__version__}')
-except ImportError as e:
-    print(f'❌ PyTorch: {e}')
+if [ -f "style.css" ]; then
+    cp style.css public/assets/css/
+    echo "✅ style.css copied"
+fi
 
-try:
-    import transformers
-    print(f'✅ Transformers {transformers.__version__}')
-except ImportError as e:
-    print(f'❌ Transformers: {e}')
-"
+if [ -f "app.js" ]; then
+    cp app.js public/assets/js/
+    echo "✅ app.js copied"
+fi
 
-# تنظیم مجوزهای اجرا
-chmod +x src/main.py
+if [ -f "api/index.py" ]; then
+    echo "✅ API files already exist"
+fi
+
+# Create default API files if they don't exist
+if [ ! -f "api/index.py" ]; then
+    echo "⚡ Creating default API structure..."
+    
+    # Create minimal API file
+    cat > api/index.py << 'PYEOF'
+"""
+natiq-ultimate v6.0 - Minimal API
+"""
+import json
+from http.server import BaseHTTPRequestHandler
+from datetime import datetime
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/api/health':
+            self.send_json_response({
+                'status': 'active',
+                'system': 'natiq-ultimate',
+                'version': '6.0.0',
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            self.send_error(404, "Not Found")
+    
+    def send_json_response(self, data):
+        response = json.dumps(data, ensure_ascii=False)
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response.encode())
+
+if __name__ == "__main__":
+    from http.server import HTTPServer
+    server = HTTPServer(('localhost', 3000), Handler)
+    print("🚀 Server running on http://localhost:3000")
+    server.serve_forever()
+PYEOF
+    echo "✅ Created minimal API"
+fi
+
+# Create vercel.json
+if [ ! -f "vercel.json" ]; then
+    cat > vercel.json << 'JSONEOF'
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/dashboard.html",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    }
+  ]
+}
+JSONEOF
+    echo "✅ Created vercel.json"
+fi
 
 echo ""
-echo "======================================"
-echo "✅ راه‌اندازی کامل شد!"
+echo "🎉 Setup completed!"
 echo ""
-echo "دستورات اجرا:"
-echo "  cd ~/natiq-ultimate"
-echo "  python src/main.py"
+echo "🚀 To run locally:"
+echo "   python api/index.py"
 echo ""
-echo "برای تست سریع:"
-echo "  python -c \"from src.core.nlp_processor import NLPProcessor; p = NLPProcessor(); print(p.process('سلام'))\""
+echo "🌐 Then open: http://localhost:3000"
 echo ""
+echo "📦 To deploy to Vercel:"
+echo "   npm i -g vercel"
+echo "   vercel"
+echo ""
+echo "🧠 natiq-ultimate v6.0 is ready!"

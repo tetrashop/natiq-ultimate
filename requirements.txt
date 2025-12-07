@@ -1,2 +1,20 @@
-# natiq-ultimate v6.0
-# بدون نیاز به پکیج خارجی - تماماً پایتون استاندارد
+# natiq-ultimate v6.0 - Requirements
+# No external dependencies required - Pure Python Standard Library
+
+# Required Python version
+python_version >= "3.8"
+
+# Features included:
+# - Neural processing system
+# - Knowledge graph database
+# - REST API server
+# - Full web interface
+
+# Built with:
+# - http.server (HTTP server)
+# - json (data serialization)
+# - datetime (timestamps)
+# - re (regular expressions)
+# - math (mathematical operations)
+# - random (random number generation)
+# - hashlib (hashing functions)
