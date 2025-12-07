@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 natiq-ultimate | هوش مصنوعی فارسی</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- هدر -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>natiq-ultimate</h1>
+                <span class="version">نسخه ۲.۰</span>
+            </div>
+            <div class="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">در حال اتصال...</span>
+            </div>
+        </header>
+
+        <!-- پیام‌های چت -->
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <div class="message bot">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="content">
+                        <div class="text">
+                            سلام! من <strong>natiq-ultimate</strong> هستم، دستیار هوشمند فارسی شما. 
+                            خوشحالم که شما رو می‌بینم! 🤖
+                        </div>
+                        <div class="time">همین الان</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ورودی کاربر -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="سوال خود را اینجا تایپ کنید..."
+                    autocomplete="off"
+                >
+                <button id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-btn" data-question="هوش مصنوعی چیست؟">
+                    <i class="fas fa-brain"></i> هوش مصنوعی چیست؟
+                </button>
+                <button class="quick-btn" data-question="پایتون چه کاربردی دارد؟">
+                    <i class="fab fa-python"></i> پایتون
+                </button>
+                <button class="quick-btn" data-question="اسم من چیست؟">
+                    <i class="fas fa-user"></i> نام من
+                </button>
+                <button class="quick-btn" id="clearChat">
+                    <i class="fas fa-trash"></i> پاک کردن
+                </button>
+            </div>
+        </div>
+
+        <!-- پانل کناری (برای موبایل مخفی) -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3><i class="fas fa-chart-bar"></i> آمار جلسه</h3>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">سوالات:</span>
+                        <span class="stat-value" id="statQuestions">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">موضوعات:</span>
+                        <span class="stat-value" id="statTopics">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">کاربر:</span>
+                        <span class="stat-value" id="statUser">ناشناس</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-lightbulb"></i> نکات سریع</h3>
+                <ul class="tips">
+                    <li>می‌توانید بگویید: <code>اسم من [نام]</code></li>
+                    <li>می‌توانید آموزش دهید: <code>یاد بگیر سوال|پاسخ</code></li>
+                    <li>برای آمار بگویید: <code>آمار</code></li>
+                    <li>برای موضوعات بگویید: <code>موضوعات</code></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-cogs"></i> تنظیمات</h3>
+                <div class="settings">
+                    <label class="switch">
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span class="slider"></span>
+                        <span class="label">صدای اعلان</span>
+                    </label>
+                    <label class="switch">
+                        <input type="checkbox" id="typingIndicatorToggle" checked>
+                        <span class="slider"></span>
+                        <span class="label">نمایش تایپ</span>
+                    </label>
+                    <button class="btn-outline" id="resetSession">
+                        <i class="fas fa-redo"></i> شروع جلسه جدید
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- اسکریپت‌ها -->
+    <script src="js/app.js"></script>
+</body>
+</html>
