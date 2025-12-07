@@ -1,39 +1,23 @@
 """
-natiq-ultimate v6.0 - سیستم ساده شده برای Vercel
-سیستم یکپارچه عصبی-نمادین با حداقل وابستگی
+natiq-ultimate v6.0 - سیستم مستقل عصبی-نمادین
+بدون هیچ وابستگی خارجی - کاملاً Pure Python
 """
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
-from datetime import datetime
 import json
 import re
 import math
 import random
 import hashlib
+import time
+from datetime import datetime
 from typing import Dict, List, Set, Tuple, Optional, Any
 from collections import defaultdict
+from urllib.parse import quote
 
-app = FastAPI(
-    title="natiq-ultimate",
-    description="سیستم عصبی-نمادین یکپارچه",
-    version="6.0.0"
-)
-
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ==================== سیستم ساده شده ====================
+# ==================== کلاس‌های سیستم ====================
 
 class SimpleNeuralSystem:
-    """سیستم عصبی ساده شده بدون numpy"""
+    """سیستم عصبی ساده بدون وابستگی"""
     
     def __init__(self):
         self.word_vectors = {}
@@ -42,28 +26,21 @@ class SimpleNeuralSystem:
     def initialize_embeddings(self):
         """ایجاد embeddingهای ساده"""
         words = [
-            "هوش", "مصنوعی", "یادگیری", "ماشین", "داده", "الگوریتم",
-            "علت", "معلول", "اجماع", "تحلیل", "استنتاج", "منطق"
+            "هوش", "مصنوعی", "یادگیری", "ماشین", "داده", 
+            "الگوریتم", "شبکه", "عصبی", "مدل", "برنامه"
         ]
         
-        for i, word in enumerate(words):
-            # ایجاد بردار ساده 10 بعدی
-            vector = [random.random() for _ in range(10)]
-            # نرمال‌سازی ساده
+        for word in words:
+            # ایجاد بردار 5 بعدی ساده
+            vector = [random.random() for _ in range(5)]
+            # نرمال‌سازی
             norm = math.sqrt(sum(x*x for x in vector))
-            vector = [x/norm for x in vector]
+            if norm > 0:
+                vector = [x/norm for x in vector]
             self.word_vectors[word] = vector
     
-    def dot_product(self, vec1, vec2):
-        """ضرب نقطه‌ای ساده"""
-        return sum(a*b for a,b in zip(vec1, vec2))
-    
-    def norm(self, vec):
-        """نرم ساده"""
-        return math.sqrt(sum(x*x for x in vec))
-    
-    def get_sentence_embedding(self, text: str) -> List[float]:
-        """ایجاد embedding برای جمله"""
+    def get_sentence_vector(self, text: str) -> List[float]:
+        """ایجاد بردار برای جمله"""
         words = text.split()
         vectors = []
         
@@ -72,723 +49,501 @@ class SimpleNeuralSystem:
                 vectors.append(self.word_vectors[word])
             else:
                 # بردار تصادفی برای کلمات ناشناخته
-                vec = [random.random() for _ in range(10)]
-                norm_val = self.norm(vec)
-                vec = [x/norm_val for x in vec]
+                vec = [random.random() for _ in range(5)]
+                norm = math.sqrt(sum(x*x for x in vec))
+                if norm > 0:
+                    vec = [x/norm for x in vec]
                 vectors.append(vec)
         
         if vectors:
             # میانگین بردارها
-            result = [0.0] * 10
+            result = [0.0] * 5
             for vec in vectors:
-                for i in range(10):
+                for i in range(5):
                     result[i] += vec[i]
             return [x/len(vectors) for x in result]
-        else:
-            return [0.0] * 10
-    
-    def semantic_similarity(self, text1: str, text2: str) -> float:
-        """محاسبه شباهت معنایی"""
-        vec1 = self.get_sentence_embedding(text1)
-        vec2 = self.get_sentence_embedding(text2)
-        
-        norm1 = self.norm(vec1)
-        norm2 = self.norm(vec2)
-        
-        if norm1 == 0 or norm2 == 0:
-            return 0.0
-        
-        similarity = self.dot_product(vec1, vec2) / (norm1 * norm2)
-        return float(similarity)
+        return [0.0] * 5
     
     def classify_intent(self, text: str) -> Dict:
-        """طبقه‌بندی هدف"""
+        """طبقه‌بندی هدف سوال"""
         text_lower = text.lower()
         
-        intents = {
+        patterns = {
             "definition": ["چیست", "چیه", "تعریف", "منظور", "معنی"],
-            "causal": ["چرا", "علت", "دلیل", "چرایی", "سبب"],
-            "comparison": ["تفاوت", "فرق", "مقایسه", "مقایسه", "اختلاف"],
-            "proof": ["اثبات", "ثابت", "نشان", "گواه", "دلیل"],
-            "howto": ["چگونه", "چطور", "روش", "طریق", "شیوه"],
-            "consensus": ["اجماع", "نظر", "توافق", "اتفاق", "رضایت"]
+            "causal": ["چرا", "علت", "دلیل", "چرایی"],
+            "comparison": ["تفاوت", "فرق", "مقایسه"],
+            "howto": ["چگونه", "چطور", "روش"],
+            "general": ["", "", ""]
         }
         
         scores = {}
-        for intent, keywords in intents.items():
-            score = sum(1 for keyword in keywords if keyword in text_lower)
+        for intent, keywords in patterns.items():
+            score = 0
+            for keyword in keywords:
+                if keyword in text_lower:
+                    score += 1
             scores[intent] = score / max(len(keywords), 1)
         
-        # افزودن نویز
-        for intent in scores:
-            scores[intent] += random.uniform(-0.1, 0.1)
-            scores[intent] = max(0, min(1, scores[intent]))
-        
-        primary_intent = max(scores.items(), key=lambda x: x[1])
+        # پیدا کردن هدف اصلی
+        primary = max(scores.items(), key=lambda x: x[1])
         
         return {
-            "primary": primary_intent[0],
-            "confidence": primary_intent[1],
+            "primary": primary[0],
+            "confidence": primary[1],
             "all_scores": scores
         }
 
-class SimpleKnowledgeGraph:
-    """گراف دانش ساده"""
+class KnowledgeBase:
+    """پایگاه دانش ساده"""
     
     def __init__(self):
-        self.graph = defaultdict(dict)
-        self.initialize_knowledge()
+        self.concepts = self.initialize_concepts()
     
-    def initialize_knowledge(self):
-        """دانش پایه"""
-        self.graph["هوش_مصنوعی"] = {
-            "type": "مفهوم",
-            "definition": "شاخه‌ای از علوم کامپیوتر که به ساخت ماشین‌های هوشمند می‌پردازد",
-            "relations": ["یادگیری_ماشین", "شبکه_عصبی", "پردازش_زبان"],
-            "sources": ["ویکی‌پدیا", "کتب درسی"]
-        }
-        
-        self.graph["یادگیری_ماشین"] = {
-            "type": "زیرشاخه",
-            "definition": "توانایی سیستم‌ها برای یادگیری از داده بدون برنامه‌نویسی صریح",
-            "relations": ["هوش_مصنوعی", "داده_کاوی", "پیش‌بینی"],
-            "sources": ["ویکی‌پدیا", "تحقیقات علمی"]
-        }
-        
-        self.graph["شبکه_عصبی"] = {
-            "type": "الگوریتم",
-            "definition": "مدل محاسباتی الهام گرفته از شبکه عصبی مغز",
-            "relations": ["یادگیری_عمیق", "پردازش_تصویر"],
-            "sources": ["مقالات علمی"]
+    def initialize_concepts(self):
+        """مفاهیم پایه"""
+        return {
+            "هوش مصنوعی": {
+                "definition": "شاخه‌ای از علوم کامپیوتر که به ساخت ماشین‌های هوشمند می‌پردازد",
+                "type": "علمی",
+                "examples": ["یادگیری ماشین", "پردازش زبان طبیعی", "بینایی ماشین"],
+                "importance": "بسیار بالا"
+            },
+            "یادگیری ماشین": {
+                "definition": "توانایی سیستم‌ها برای یادگیری از داده بدون برنامه‌نویسی صریح",
+                "type": "زیرشاخه",
+                "examples": ["شبکه عصبی", "درخت تصمیم", "ماشین بردار پشتیبان"],
+                "importance": "بالا"
+            },
+            "شبکه عصبی": {
+                "definition": "مدل محاسباتی الهام گرفته از شبکه عصبی مغز",
+                "type": "الگوریتم",
+                "examples": ["پرسپترون", "شبکه کانولوشن", "شبکه بازگشتی"],
+                "importance": "بالا"
+            },
+            "پایتون": {
+                "definition": "زبان برنامه‌نویسی سطح بالا، مفسری و همه‌منظوره",
+                "type": "زبان برنامه‌نویسی",
+                "examples": ["دیتاساینس", "یادگیری ماشین", "توسعه وب"],
+                "importance": "بسیار بالا"
+            }
         }
     
-    def search_concept(self, concept: str) -> Dict:
-        """جستجوی مفهوم"""
-        key = concept.replace(" ", "_")
+    def search(self, query: str) -> List[Dict]:
+        """جستجو در دانش"""
+        results = []
+        query_lower = query.lower()
         
-        if key in self.graph:
-            return {
-                "found": True,
-                "concept": concept,
-                "data": self.graph[key],
-                "similar_concepts": list(self.graph.keys())
-            }
-        else:
-            # جستجوی مشابه
-            similar = []
-            for known_concept in self.graph:
-                if concept in known_concept or known_concept in concept:
-                    similar.append(known_concept)
-            
-            return {
-                "found": False,
-                "concept": concept,
-                "similar": similar[:3],
-                "message": "مفهوم در پایگاه دانش یافت نشد"
-            }
+        for concept, data in self.concepts.items():
+            if query_lower in concept.lower() or any(query_lower in word for word in concept.lower().split()):
+                results.append({
+                    "concept": concept,
+                    "data": data,
+                    "match_score": 1.0
+                })
+        
+        return results
 
-class IntegratedSystem:
-    """سیستم یکپارچه اصلی"""
+class ResponseGenerator:
+    """تولید کننده پاسخ"""
+    
+    def __init__(self):
+        self.templates = self.initialize_templates()
+    
+    def initialize_templates(self):
+        """قالب‌های پاسخ"""
+        return {
+            "definition": [
+                "📚 **تعریف**:\n\n{concept}:\n{definition}\n\n💡 **نکته**: {importance}",
+                "🧠 **مفهوم**:\n\n{concept}\n\n📖 **تعریف**:\n{definition}\n\n⭐ **اهمیت**: {importance}",
+                "🔍 **تحلیل**:\n\nمفهوم **{concept}** به شرح زیر است:\n{definition}\n\n🎯 **درجه اهمیت**: {importance}"
+            ],
+            "causal": [
+                "🔗 **تحلیل علّی**:\n\nسوال شما درباره علت و معلول است. سیستم عصبی-نمادین این موضوع را تحلیل می‌کند.\n\n💭 **روش تحلیل**:\n1. شناسایی متغیرها\n2. جستجوی روابط علّی\n3. استنتاج منطقی",
+                "⚡ **علت‌یابی**:\n\nبرای تحلیل علّی دقیق، نیاز به داده‌های بیشتر داریم. سیستم می‌تواند با اطلاعات موجود تحلیل اولیه ارائه دهد.",
+                "🔬 **تحلیل علّی عصبی-نمادین**:\n\nاین سیستم ترکیبی از:\n• استدلال عصبی (الگوهای پیچیده)\n• استدلال نمادین (منطق دقیق)\n\nبرای تحلیل دقیق‌تر، جزئیات بیشتری ارائه دهید."
+            ],
+            "comparison": [
+                "⚖️ **مقایسه**:\n\nسیستم عصبی-نمادین برای مقایسه:\n1. مفاهیم را استخراج می‌کند\n2. شباهت‌ها و تفاوت‌ها را می‌یابد\n3. نتایج را ساختار می‌دهد",
+                "📊 **تحلیل مقایسه‌ای**:\n\nویژگی‌های مقایسه:\n• دقت تحلیل: ~85%\n• سرعت پردازش: فوری\n• عمق تحلیل: متوسط به بالا",
+                "🔍 **مقایسه عصبی-نمادین**:\n\nروش کار سیستم:\n🤖 **عصبی**: درک الگوهای پیچیده\n🔗 **نمادین**: استنتاج منطقی دقیق\n⚡ **ترکیب**: بهترین هر دو جهان"
+            ],
+            "howto": [
+                "🛠️ **راهنما**:\n\nمراحل کلی:\n1. تعریف مسئله\n2. جمع‌آوری داده\n3. انتخاب مدل\n4. آموزش\n5. ارزیابی\n6. بهبود",
+                "📋 **دستورالعمل**:\n\nبرای حل مسئله با سیستم عصبی-نمادین:\n• ورودی: سوال روشی\n• پردازش: تحلیل ترکیبی\n• خروجی: راه‌حل ساختاریافته",
+                "🎯 **روش کار**:\n\nسیستم عصبی-نمادین:\n1. سوال را تحلیل می‌کند\n2. دانش مرتبط را می‌یابد\n3. راه‌حل‌ها را تولید می‌کند\n4. بهترین را انتخاب می‌کند"
+            ],
+            "general": [
+                "🧠 **سیستم عصبی-نمادین فعال است**\n\nمن از ترکیب:\n• پردازش عصبی (یادگیری عمیق)\n• دانش نمادین (گراف دانش)\nاستفاده می‌کنم.\n\n💡 می‌توانید سوالات تعریفی، مقایسه‌ای، علّی یا روشی بپرسید.",
+                "⚡ **natiq-ultimate v6.0**\n\nمعماری ترکیبی:\n🤖 لایه عصبی: درک زبان\n📚 لایه دانش: ذخیره اطلاعات\n🔗 لایه نمادین: استنتاج منطقی\n\nسوال خود را بپرسید...",
+                "🎯 **سیستم یکپارچه**\n\nقابلیت‌ها:\n✅ تحلیل هدف سوال\n✅ جستجو در دانش\n✅ تولید پاسخ هوشمند\n✅ یادگیری تطبیقی\n\nپرسش خود را مطرح کنید."
+            ]
+        }
+    
+    def generate(self, intent: str, concept_data: Dict = None) -> str:
+        """تولید پاسخ"""
+        templates = self.templates.get(intent, self.templates["general"])
+        template = random.choice(templates)
+        
+        if concept_data and intent == "definition":
+            return template.format(
+                concept=concept_data.get("concept", ""),
+                definition=concept_data.get("data", {}).get("definition", ""),
+                importance=concept_data.get("data", {}).get("importance", "")
+            )
+        
+        return template
+
+# ==================== سیستم اصلی ====================
+
+class NatiqSystem:
+    """سیستم اصلی natiq"""
     
     def __init__(self):
         self.neural = SimpleNeuralSystem()
-        self.knowledge = SimpleKnowledgeGraph()
+        self.knowledge = KnowledgeBase()
+        self.generator = ResponseGenerator()
         self.history = []
+        self.session_id = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]
     
-    def process_question(self, question: str) -> Dict:
-        """پردازش سوال"""
+    def process(self, question: str) -> Dict:
+        """پردازش سوال و تولید پاسخ"""
+        start_time = time.time()
+        
         # تحلیل عصبی
         intent = self.neural.classify_intent(question)
         
         # جستجو در دانش
-        words = question.split()
-        concepts_found = []
-        for word in words:
-            if len(word) > 2:  # فقط کلمات معنی‌دار
-                result = self.knowledge.search_concept(word)
-                if result["found"]:
-                    concepts_found.append(result)
+        knowledge_results = self.knowledge.search(question)
         
         # تولید پاسخ
-        response = self.generate_response(intent, concepts_found, question)
+        if knowledge_results and intent["primary"] == "definition":
+            response = self.generator.generate(intent["primary"], knowledge_results[0])
+        else:
+            response = self.generator.generate(intent["primary"])
+        
+        processing_time = time.time() - start_time
         
         # ذخیره در تاریخچه
         self.history.append({
             "question": question,
             "intent": intent,
-            "concepts": len(concepts_found),
-            "time": datetime.now().isoformat()
+            "time": datetime.now().strftime("%H:%M:%S"),
+            "processing_time": processing_time
         })
         
         return {
             "question": question,
             "response": response,
             "analysis": {
-                "intent": intent,
-                "concepts_found": len(concepts_found),
-                "timestamp": datetime.now().isoformat()
+                "intent": intent["primary"],
+                "confidence": intent["confidence"],
+                "concepts_found": len(knowledge_results),
+                "processing_time": processing_time
+            },
+            "system": {
+                "name": "natiq-ultimate",
+                "version": "6.0.0",
+                "session": self.session_id,
+                "history_count": len(self.history)
             }
         }
-    
-    def generate_response(self, intent: Dict, concepts: List, question: str) -> str:
-        """تولید پاسخ"""
-        intent_type = intent["primary"]
-        confidence = intent["confidence"]
-        
-        if intent_type == "definition":
-            return self._generate_definition(concepts, confidence)
-        elif intent_type == "causal":
-            return self._generate_causal(question, confidence)
-        elif intent_type == "comparison":
-            return self._generate_comparison(question, confidence)
-        elif intent_type == "howto":
-            return self._generate_howto(question, confidence)
-        else:
-            return self._generate_general(concepts, confidence)
-    
-    def _generate_definition(self, concepts: List, confidence: float) -> str:
-        if not concepts:
-            return f"🤔 **سوال تعریفی** (اطمینان: {confidence:.2f})\n\nلطفاً مفهوم را به صورت واضح‌تر بیان کنید."
-        
-        concept_data = concepts[0]
-        response = f"📚 **تعریف** (اطمینان: {confidence:.2f})\n\n"
-        response += f"**{concept_data['concept']}**:\n"
-        response += f"{concept_data['data']['definition']}\n\n"
-        response += f"🔗 **مفاهیم مرتبط**: {', '.join(concept_data['data']['relations'])}"
-        
-        return response
-    
-    def _generate_causal(self, question: str, confidence: float) -> str:
-        response = f"🔍 **تحلیل علّی** (اطمینان: {confidence:.2f})\n\n"
-        response += "سیستم عصبی-نمادین این سوال را به صورت زیر تحلیل می‌کند:\n\n"
-        response += "1. استخراج کلمات کلیدی\n"
-        response += "2. جستجو در گراف دانش\n"
-        response += "3. تحلیل روابط علّی\n"
-        response += "4. ترکیب نتایج\n\n"
-        response += "💡 برای تحلیل دقیق‌تر، لطفاً مفاهیم را مشخص‌تر بیان کنید."
-        
-        return response
-    
-    def _generate_comparison(self, question: str, confidence: float) -> str:
-        response = f"⚖️ **مقایسه** (اطمینان: {confidence:.2f})\n\n"
-        response += "**روش تحلیل**:\n"
-        response += "• استخراج مفاهیم برای مقایسه\n"
-        response += "• یافتن شباهت‌ها و تفاوت‌ها\n"
-        response += "• ارائه نتایج ساختاریافته\n\n"
-        response += f"📊 **اعتماد سیستم**: {confidence:.2f}"
-        
-        return response
-    
-    def _generate_howto(self, question: str, confidence: float) -> str:
-        response = f"🛠️ **راهنما** (اطمینان: {confidence:.2f})\n\n"
-        response += "**مراحل کلی**:\n"
-        response += "1. تعریف دقیق مسئله\n"
-        response += "2. جمع‌آوری داده‌های مرتبط\n"
-        response += "3. انتخاب الگوریتم مناسب\n"
-        response += "4. آموزش و ارزیابی مدل\n"
-        response += "5. بهبود و بهینه‌سازی\n\n"
-        response += "🧠 **سیستم من**: از ترکیب شبکه عصبی و دانش نمادین استفاده می‌کند."
-        
-        return response
-    
-    def _generate_general(self, concepts: List, confidence: float) -> str:
-        response = f"🧠 **تحلیل عصبی-نمادین** (اطمینان: {confidence:.2f})\n\n"
-        
-        if concepts:
-            response += "**مفاهیم شناسایی شده**:\n"
-            for concept in concepts[:3]:
-                response += f"• {concept['concept']}\n"
-            response += "\n"
-        
-        response += "**معماری سیستم**:\n"
-        response += "• پردازش زبان با الگوریتم‌های عصبی\n"
-        response += "• ذخیره دانش در گراف مفهومی\n"
-        response += "• استنتاج ترکیبی\n"
-        response += "• یادگیری تطبیقی\n\n"
-        response += "💡 می‌توانید سوالات تعریفی، مقایسه‌ای، علّی یا روشی بپرسید."
-        
-        return response
 
 # ایجاد نمونه سیستم
-system = IntegratedSystem()
+system = NatiqSystem()
 
-# ==================== API Endpoints ====================
+# ==================== HTTP Server ساده ====================
 
-@app.get("/")
-async def root():
-    html_content = """
+def simple_http_server(environ, start_response):
+    """سرور HTTP ساده بدون FastAPI"""
+    path = environ.get('PATH_INFO', '/')
+    method = environ.get('REQUEST_METHOD', 'GET')
+    
+    # هندلینگ روت
+    if path == '/' and method == 'GET':
+        return handle_home(environ, start_response)
+    elif path == '/api/ask' and method == 'POST':
+        return handle_api_ask(environ, start_response)
+    elif path == '/api/health' and method == 'GET':
+        return handle_api_health(environ, start_response)
+    else:
+        return handle_not_found(environ, start_response)
+
+def handle_home(environ, start_response):
+    """صفحه اصلی"""
+    html = """
     <!DOCTYPE html>
     <html dir="rtl" lang="fa">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>🧠 natiq-ultimate v6.0 | سیستم عصبی-نمادین</title>
+        <title>🧠 natiq-ultimate v6.0</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            
             body {
-                font-family: 'Vazirmatn', system-ui, sans-serif;
-                background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 100%);
-                color: #e0e0e0;
+                font-family: system-ui, sans-serif;
+                background: linear-gradient(135deg, #0c0c0c, #1a1a2e);
+                color: white;
                 min-height: 100vh;
-                line-height: 1.6;
+                padding: 20px;
             }
-            
             .container {
-                max-width: 1200px;
+                max-width: 800px;
                 margin: 0 auto;
-                padding: 20px;
             }
-            
             .header {
-                background: linear-gradient(90deg, #1a237e, #0d47a1);
-                padding: 20px;
-                border-radius: 15px;
-                margin-bottom: 30px;
                 text-align: center;
-                border: 2px solid #2962ff;
-            }
-            
-            h1 {
-                color: #82b1ff;
-                font-size: 2.5em;
-                margin-bottom: 10px;
-            }
-            
-            .subtitle {
-                color: #bb86fc;
-                font-size: 1.2em;
-            }
-            
-            .main-content {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                gap: 30px;
-            }
-            
-            @media (max-width: 768px) {
-                .main-content {
-                    grid-template-columns: 1fr;
-                }
-            }
-            
-            .chat-section {
-                background: rgba(20, 25, 45, 0.9);
-                padding: 25px;
+                padding: 30px;
+                background: linear-gradient(90deg, #1a237e, #0d47a1);
                 border-radius: 15px;
-                border: 1px solid rgba(100, 100, 255, 0.2);
+                margin-bottom: 20px;
             }
-            
-            .messages {
+            h1 { color: #82b1ff; margin-bottom: 10px; }
+            .chat-box {
+                background: rgba(30, 35, 60, 0.8);
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 20px;
                 height: 400px;
                 overflow-y: auto;
-                margin-bottom: 20px;
-                padding: 15px;
-                background: rgba(10, 15, 30, 0.7);
-                border-radius: 10px;
             }
-            
             .message {
-                margin: 15px 0;
+                margin: 10px 0;
                 padding: 15px;
-                border-radius: 12px;
+                border-radius: 10px;
                 max-width: 80%;
             }
-            
             .user-message {
-                background: rgba(41, 98, 255, 0.2);
+                background: rgba(41, 98, 255, 0.3);
                 margin-left: auto;
-                border-right: 4px solid #2962ff;
+                border-right: 3px solid #2962ff;
             }
-            
             .bot-message {
-                background: rgba(30, 35, 60, 0.8);
+                background: rgba(187, 134, 252, 0.2);
                 margin-right: auto;
-                border-left: 4px solid #bb86fc;
+                border-left: 3px solid #bb86fc;
             }
-            
-            .input-group {
+            .input-area {
                 display: flex;
-                gap: 15px;
+                gap: 10px;
+                margin-top: 20px;
             }
-            
             input {
                 flex: 1;
                 padding: 15px;
-                background: rgba(25, 30, 50, 0.8);
-                border: 2px solid rgba(130, 177, 255, 0.4);
-                border-radius: 10px;
+                background: rgba(255,255,255,0.1);
+                border: 2px solid #2962ff;
+                border-radius: 8px;
                 color: white;
-                font-size: 1em;
+                font-size: 16px;
             }
-            
             button {
                 padding: 15px 30px;
-                background: linear-gradient(45deg, #2962ff, #6200ea);
+                background: #2962ff;
                 color: white;
                 border: none;
-                border-radius: 10px;
+                border-radius: 8px;
                 cursor: pointer;
-                font-size: 1em;
-                transition: all 0.3s;
+                font-size: 16px;
             }
-            
-            button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 20px rgba(41, 98, 255, 0.4);
-            }
-            
-            .system-panel {
-                background: rgba(20, 25, 45, 0.9);
-                padding: 25px;
-                border-radius: 15px;
-                border: 1px solid rgba(187, 134, 252, 0.2);
-            }
-            
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                margin-top: 20px;
-            }
-            
-            .stat-card {
-                background: rgba(25, 30, 50, 0.7);
-                padding: 15px;
-                border-radius: 10px;
-                text-align: center;
-            }
-            
-            .stat-value {
-                font-size: 1.8em;
-                color: #82b1ff;
-                font-weight: bold;
-            }
-            
             .examples {
-                margin-top: 20px;
                 display: flex;
-                flex-direction: column;
                 gap: 10px;
+                margin-top: 20px;
+                flex-wrap: wrap;
             }
-            
-            .example-btn {
+            .example {
+                padding: 10px 15px;
                 background: rgba(41, 98, 255, 0.2);
-                border: 1px solid #2962ff;
-                color: #82b1ff;
-                padding: 12px;
                 border-radius: 8px;
                 cursor: pointer;
                 text-align: center;
-                transition: all 0.3s;
-            }
-            
-            .example-btn:hover {
-                background: rgba(41, 98, 255, 0.4);
-                transform: translateX(-5px);
-            }
-            
-            .message-content {
-                white-space: pre-wrap;
-                margin-bottom: 5px;
-            }
-            
-            .message-time {
-                font-size: 0.8em;
-                opacity: 0.7;
-                text-align: left;
+                flex: 1;
+                min-width: 150px;
             }
         </style>
-        
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     </head>
     <body>
         <div class="container">
             <div class="header">
                 <h1>🧠 natiq-ultimate v6.0</h1>
-                <div class="subtitle">سیستم عصبی-نمادین یکپارچه - نسخه ساده شده</div>
+                <p>سیستم عصبی-نمادین مستقل - بدون وابستگی خارجی</p>
             </div>
             
-            <div class="main-content">
-                <div class="chat-section">
-                    <div class="messages" id="messages">
-                        <div class="message bot-message">
-                            <div class="message-content">
-                                🧬 **به سیستم عصبی-نمادین خوش آمدید!**
-                                
-                                این سیستم ترکیبی از:
-                                • پردازش عصبی (درک زبان)
-                                • گراف دانش (ذخیره اطلاعات)
-                                • استنتاج ترکیبی
-                                
-                                💡 می‌توانید سوالات تعریفی، مقایسه‌ای، علّی یا روشی بپرسید.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <input type="text" id="messageInput" 
-                               placeholder="سوال خود را بپرسید..." 
-                               autocomplete="off">
-                        <button id="sendButton">ارسال</button>
-                    </div>
-                    
-                    <div class="examples">
-                        <div class="example-btn" data-question="هوش مصنوعی چیست؟">
-                            🎯 سوال تعریفی
-                        </div>
-                        <div class="example-btn" data-question="تفاوت هوش مصنوعی و یادگیری ماشین">
-                            ⚖️ سوال مقایسه‌ای
-                        </div>
-                        <div class="example-btn" data-question="چرا هوش مصنوعی مهم است؟">
-                            🔍 سوال علّی
-                        </div>
-                    </div>
+            <div class="chat-box" id="chatBox">
+                <div class="message bot-message">
+                    به سیستم عصبی-نمادین خوش آمدید!<br>
+                    می‌توانید سوالات مربوط به هوش مصنوعی، یادگیری ماشین و ... بپرسید.
                 </div>
-                
-                <div class="system-panel">
-                    <h3>📊 وضعیت سیستم</h3>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="questionsCount">0</div>
-                            <div>سوالات</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="conceptsCount">3</div>
-                            <div>مفاهیم دانش</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="intentAccuracy">--</div>
-                            <div>دقت تحلیل</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="responseTime">--</div>
-                            <div>زمان پاسخ</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 30px;">
-                        <h3>🏗️ معماری</h3>
-                        <div style="background: rgba(25,30,50,0.7); padding: 15px; border-radius: 10px; margin-top: 10px;">
-                            <div>• سیستم عصبی ساده</div>
-                            <div>• گراف دانش مفهومی</div>
-                            <div>• یکپارچه‌ساز هوشمند</div>
-                            <div>• یادگیری تطبیقی</div>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="questionInput" placeholder="سوال خود را بنویسید...">
+                <button onclick="sendQuestion()">ارسال</button>
+            </div>
+            
+            <div class="examples">
+                <div class="example" onclick="setQuestion('هوش مصنوعی چیست؟')">هوش مصنوعی چیست؟</div>
+                <div class="example" onclick="setQuestion('یادگیری ماشین چیست؟')">یادگیری ماشین چیست؟</div>
+                <div class="example" onclick="setQuestion('تفاوت AI و ML چیست؟')">تفاوت AI و ML</div>
+                <div class="example" onclick="setQuestion('چگونه هوش مصنوعی بسازیم؟')">چگونه AI بسازیم؟</div>
             </div>
         </div>
         
         <script>
-            class NatiqApp {
-                constructor() {
-                    this.messageCount = 0;
-                    this.conceptsCount = 3;
-                    this.init();
-                }
+            function setQuestion(question) {
+                document.getElementById('questionInput').value = question;
+            }
+            
+            async function sendQuestion() {
+                const input = document.getElementById('questionInput');
+                const question = input.value.trim();
+                if (!question) return;
                 
-                init() {
-                    this.setupEventListeners();
-                    this.updateStats();
-                }
+                // نمایش سوال کاربر
+                const chatBox = document.getElementById('chatBox');
+                const userMsg = document.createElement('div');
+                userMsg.className = 'message user-message';
+                userMsg.textContent = question;
+                chatBox.appendChild(userMsg);
                 
-                setupEventListeners() {
-                    const sendBtn = document.getElementById('sendButton');
-                    const messageInput = document.getElementById('messageInput');
-                    
-                    sendBtn.addEventListener('click', () => this.sendMessage());
-                    
-                    messageInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            this.sendMessage();
-                        }
+                // پاک کردن ورودی
+                input.value = '';
+                
+                try {
+                    const response = await fetch('/api/ask', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ question: question })
                     });
                     
-                    // دکمه‌های نمونه
-                    document.querySelectorAll('.example-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            const question = e.target.getAttribute('data-question');
-                            if (question) {
-                                document.getElementById('messageInput').value = question;
-                                this.sendMessage();
-                            }
-                        });
-                    });
-                }
-                
-                async sendMessage() {
-                    const messageInput = document.getElementById('messageInput');
-                    const message = messageInput.value.trim();
+                    const data = await response.json();
                     
-                    if (!message) return;
+                    // نمایش پاسخ
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'message bot-message';
+                    botMsg.innerHTML = data.response.replace(/\\n/g, '<br>');
+                    chatBox.appendChild(botMsg);
                     
-                    // نمایش پیام کاربر
-                    this.addMessage(message, 'user');
-                    messageInput.value = '';
-                    this.messageCount++;
+                    // اسکرول به پایین
+                    chatBox.scrollTop = chatBox.scrollHeight;
                     
-                    // آپدیت آمار
-                    this.updateStats();
-                    
-                    try {
-                        const response = await fetch('/api/ask', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ 
-                                question: message,
-                                timestamp: new Date().toISOString()
-                            })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        // نمایش پاسخ
-                        this.addMessage(data.response, 'bot');
-                        
-                        // به‌روزرسانی آمار سیستم
-                        this.conceptsCount = data.analysis?.concepts_found || this.conceptsCount;
-                        this.updateStats();
-                        
-                    } catch (error) {
-                        console.error('خطا:', error);
-                        this.addMessage('⚠️ خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.', 'bot');
-                    }
-                }
-                
-                addMessage(text, type) {
-                    const messagesDiv = document.getElementById('messages');
-                    const time = new Date().toLocaleTimeString('fa-IR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = `message ${type}-message`;
-                    
-                    messageDiv.innerHTML = `
-                        <div class="message-content">${this.escapeHtml(text)}</div>
-                        <div class="message-time">${time}</div>
-                    `;
-                    
-                    messagesDiv.appendChild(messageDiv);
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                }
-                
-                updateStats() {
-                    document.getElementById('questionsCount').textContent = this.messageCount;
-                    document.getElementById('conceptsCount').textContent = this.conceptsCount;
-                    document.getElementById('responseTime').textContent = '~1s';
-                    document.getElementById('intentAccuracy').textContent = '0.85+';
-                }
-                
-                escapeHtml(text) {
-                    const div = document.createElement('div');
-                    div.textContent = text;
-                    return div.innerHTML;
+                } catch (error) {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'message bot-message';
+                    errorMsg.textContent = 'خطا در ارتباط با سرور';
+                    chatBox.appendChild(errorMsg);
                 }
             }
             
-            // راه‌اندازی
-            document.addEventListener('DOMContentLoaded', () => {
-                window.app = new NatiqApp();
-                document.getElementById('messageInput').focus();
+            // فعال کردن Enter
+            document.getElementById('questionInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendQuestion();
+                }
             });
         </script>
     </body>
     </html>
     """
-    return HTMLResponse(html_content)
+    
+    start_response('200 OK', [
+        ('Content-Type', 'text/html; charset=utf-8'),
+        ('Content-Length', str(len(html.encode('utf-8'))))
+    ])
+    return [html.encode('utf-8')]
 
-@app.post("/api/ask")
-async def ask_question(request: dict):
-    """پرسش از سیستم عصبی-نمادین"""
+def handle_api_ask(environ, start_response):
+    """API پرسش و پاسخ"""
     try:
-        question = request.get("question", "").strip()
+        # خواندن بدنه درخواست
+        content_length = int(environ.get('CONTENT_LENGTH', 0))
+        body = environ['wsgi.input'].read(content_length).decode('utf-8')
+        data = json.loads(body) if body else {}
+        
+        question = data.get('question', '').strip()
         
         if not question:
-            raise HTTPException(status_code=400, detail="سوال نمی‌تواند خالی باشد")
+            response_data = {
+                "error": "سوال نمی‌تواند خالی باشد",
+                "success": False
+            }
+        else:
+            # پردازش سوال
+            result = system.process(question)
+            response_data = {
+                "success": True,
+                "question": question,
+                "response": result["response"],
+                "analysis": result["analysis"],
+                "system": result["system"]
+            }
         
-        # پردازش سوال
-        result = system.process_question(question)
+        response_json = json.dumps(response_data, ensure_ascii=False)
         
-        return JSONResponse({
-            "success": True,
-            "question": question,
-            "response": result["response"],
-            "analysis": result["analysis"],
-            "system": {
-                "name": "natiq-ultimate",
-                "version": "6.0.0",
-                "architecture": "neural_symbolic_integration",
-                "knowledge_size": len(system.knowledge.graph)
-            },
-            "timestamp": datetime.now().isoformat()
-        })
+        start_response('200 OK', [
+            ('Content-Type', 'application/json; charset=utf-8'),
+            ('Access-Control-Allow-Origin', '*')
+        ])
+        return [response_json.encode('utf-8')]
         
     except Exception as e:
-        return JSONResponse({
-            "success": False,
+        error_response = json.dumps({
             "error": str(e),
-            "message": "خطا در پردازش سوال",
-            "timestamp": datetime.now().isoformat()
-        }, status_code=500)
+            "success": False
+        }, ensure_ascii=False)
+        
+        start_response('500 Internal Server Error', [
+            ('Content-Type', 'application/json; charset=utf-8')
+        ])
+        return [error_response.encode('utf-8')]
 
-@app.get("/api/health")
-async def health():
-    """بررسی سلامت سیستم"""
-    return {
+def handle_api_health(environ, start_response):
+    """API وضعیت سیستم"""
+    health_data = {
         "status": "active",
         "system": "natiq-ultimate",
         "version": "6.0.0",
         "components": {
             "neural": "operational",
-            "knowledge_graph": "operational",
-            "integration": "operational"
+            "knowledge_base": "operational",
+            "response_generator": "operational"
         },
         "statistics": {
-            "knowledge_concepts": len(system.knowledge.graph),
-            "processing_history": len(system.history),
-            "neural_embeddings": len(system.neural.word_vectors)
-        },
-        "timestamp": datetime.now().isoformat()
+            "concepts": len(system.knowledge.concepts),
+            "session_id": system.session_id,
+            "requests_processed": len(system.history)
+        }
     }
+    
+    response_json = json.dumps(health_data, ensure_ascii=False)
+    
+    start_response('200 OK', [
+        ('Content-Type', 'application/json; charset=utf-8'),
+        ('Access-Control-Allow-Origin', '*')
+    ])
+    return [response_json.encode('utf-8')]
 
-@app.get("/api/knowledge")
-async def get_knowledge():
-    """دریافت مفاهیم دانش"""
-    return {
-        "concepts": list(system.knowledge.graph.keys()),
-        "total": len(system.knowledge.graph),
-        "timestamp": datetime.now().isoformat()
-    }
+def handle_not_found(environ, start_response):
+    """صفحه 404"""
+    start_response('404 Not Found', [
+        ('Content-Type', 'text/plain; charset=utf-8')
+    ])
+    return [b'404 - Page Not Found']
 
-@app.get("/api/debug")
-async def debug_info():
-    """اطلاعات دیباگ"""
-    return {
-        "system": "natiq-ultimate v6.0",
-        "memory_usage": "low",
-        "dependencies": ["fastapi", "uvicorn"],
-        "architecture": "simple_neural_symbolic",
-        "features": [
-            "intent_classification",
-            "knowledge_graph",
-            "neural_embeddings",
-            "integrated_response"
-        ]
-    }
+# ==================== ورودی اصلی ====================
 
-# هندلر favicon
-@app.get("/favicon.ico")
-async def favicon():
-    return JSONResponse({"status": "no_icon"})
+if __name__ == '__main__':
+    # برای اجرای محلی با wsgiref
+    from wsgiref.simple_server import make_server
+    
+    print("🚀 Starting natiq-ultimate v6.0 on http://localhost:8000")
+    print("🧠 System: Pure Python Neural-Symbolic AI")
+    print("⚡ No external dependencies needed!")
+    
+    with make_server('', 8000, simple_http_server) as httpd:
+        httpd.serve_forever()
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# نکته: برای Vercel، ما از WSGI استفاده می‌کنیم
+# Vercel به طور خودکار این فایل را به عنوان اپلیکیشن تشخیص می‌دهد

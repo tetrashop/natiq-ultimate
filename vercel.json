@@ -1,21 +1,13 @@
 {
-  "builds": [
-    {
-      "src": "backend/server.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "(.*)",
-      "dest": "backend/server.py"
-    }
-  ],
   "functions": {
     "backend/server.py": {
-      "runtime": "python3.9",
-      "memory": 1024,
-      "maxDuration": 60
+      "runtime": "python3.9"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "backend/server.py"
+    }
+  ]
 }
