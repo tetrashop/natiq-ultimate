@@ -1,1 +1,1 @@
-# No dependencies required - Pure Python
+# این سیستم بدون وابستگی خارجی کار می‌کند
