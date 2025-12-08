@@ -1,113 +1,119 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional
 import json
-import os
 
 app = FastAPI(title="natiq-ultimate API", version="6.0")
 
-# فعال کردن CORS - بسیار مهم برای Vercel
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # در تولید بهتر است دامنه خاصی بگذارید
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# مدل داده برای درخواست سوال
-class QuestionRequest(BaseModel):
-    question: str
-    session_id: Optional[str] = None
-
-# ============ ENDPOINTها ============
+@app.get("/")
+async def root():
+    return {"message": "natiq-ultimate API is running"}
 
 @app.get("/api/health")
 async def health_check():
-    """بررسی سلامت سیستم"""
     return {
         "status": "healthy",
         "version": "6.0",
         "service": "natiq-ultimate",
-        "environment": os.environ.get("VERCEL_ENV", "production")
-    }
-
-@app.get("/api/knowledge")
-async def get_knowledge():
-    """لیست دانش پایه"""
-    return {
-        "success": True,
-        "count": 5,
-        "knowledge": [
-            {"id": 1, "question": "هوش مصنوعی چیست؟", "answer": "شاخه‌ای از علوم کامپیوتر برای ساخت ماشین‌های هوشمند"},
-            {"id": 2, "question": "NLP چیست؟", "answer": "پردازش زبان طبیعی برای تعامل کامپیوتر با زبان انسان"}
-        ]
+        "environment": "production"
     }
 
 @app.post("/api/ask")
-async def ask_question(request: QuestionRequest):
-    """دریافت پاسخ برای سوال - SIMPLE VERSION"""
+async def ask_question(request: dict):  # استفاده از dict به جای Pydantic model
+    """
+    دریافت سوال و پاسخ دادن
+    """
     try:
-        question = request.question.lower().strip()
+        print(f"📥 درخواست دریافت شد: {request}")
+        
+        # استخراج سوال
+        question = request.get("question", "").strip()
+        session_id = request.get("session_id", "default-session")
+        
+        if not question:
+            return {
+                "success": False,
+                "response": "لطفاً یک سوال وارد کنید.",
+                "error": "Empty question"
+            }
         
         # پایگاه دانش ساده
-        responses = {
+        knowledge = {
             "سلام": "سلام! به natiq-ultimate خوش آمدید. چطور می‌توانم کمک کنم؟",
             "هوش مصنوعی": "هوش مصنوعی (AI) شاخه‌ای از علوم کامپیوتر است که به ساخت ماشین‌های هوشمند می‌پردازد.",
             "nlp": "پردازش زبان طبیعی (NLP) شاخه‌ای از هوش مصنوعی برای تعامل با زبان انسان است.",
             "یادگیری ماشین": "یادگیری ماشین (ML) زیرشاخه‌ای از AI که به سیستم‌ها توانایی یادگیری خودکار می‌دهد.",
-            "شبکه عصبی": "شبکه عصبی مصنوعی از نورون‌های مصنوعی برای پردازش اطلاعات استفاده می‌کند.",
             "چطوری": "خوبم ممنون! شما چطورید؟",
             "اسمت چیه": "من natiq-ultimate هستم، یک سیستم عصبی-نمادین هوشمند.",
-            "چکار میتونی بکنی": "می‌توانم به سوالات شما درباره هوش مصنوعی، یادگیری ماشین، NLP و موضوعات مرتبط پاسخ دهم."
+            "test": "This is a test response from Vercel API.",
+            "تست": "این یک پاسخ تست از API ورسل است."
         }
         
-        # پیدا کردن پاسخ مناسب
+        # جستجوی پاسخ
         answer = None
-        for key in responses:
-            if key in question:
-                answer = responses[key]
+        question_lower = question.lower()
+        
+        for key in knowledge:
+            if key.lower() in question_lower:
+                answer = knowledge[key]
                 break
         
+        # اگر پاسخ پیدا نشد
         if not answer:
-            answer = f"""شما پرسیدید: "{request.question}"
+            answer = f"""شما پرسیدید: "{question}"
 
 من natiq-ultimate هستم، یک سیستم عصبی-نمادین.
-می‌توانم در مورد این موضوعات کمک کنم:
+می‌توانم در مورد موضوعات زیر کمک کنم:
 • هوش مصنوعی و یادگیری ماشین
 • پردازش زبان طبیعی (NLP)
 • شبکه‌های عصبی
 • سیستم‌های مبتنی بر دانش
 
 لطفاً سوال خود را با جزئیات بیشتری بپرسید."""
-
+        
+        print(f"📤 پاسخ ارسال می‌شود: {answer[:50]}...")
+        
         return {
             "success": True,
             "response": answer,
-            "question": request.question,
-            "session_id": request.session_id or "vercel-session"
+            "question": question,
+            "session_id": session_id,
+            "source": "vercel-api"
         }
         
     except Exception as e:
+        print(f"❌ خطا در /api/ask: {str(e)}")
         return {
             "success": False,
             "response": "متأسفانه در پردازش سوال شما مشکلی رخ داد.",
             "error": str(e),
-            "question": request.question if 'request' in locals() else "unknown"
+            "question": question if 'question' in locals() else "unknown"
         }
 
-@app.get("/api/debug")
-async def debug_info():
-    """اطلاعات دیباگ"""
-    import platform
+@app.get("/api/knowledge")
+async def get_knowledge():
     return {
-        "python": platform.python_version(),
-        "platform": platform.platform(),
-        "env": dict(os.environ)
+        "success": True,
+        "count": 2,
+        "knowledge": [
+            {"id": 1, "topic": "AI", "description": "هوش مصنوعی"},
+            {"id": 2, "topic": "NLP", "description": "پردازش زبان طبیعی"}
+        ]
     }
 
-# برای تست محلی
+@app.get("/api/test")
+async def test_endpoint():
+    """Endpoint تست ساده"""
+    return {"message": "Test successful", "status": "working"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8081)
