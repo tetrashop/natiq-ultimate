@@ -5,6 +5,11 @@ from typing import Optional
 from datetime import datetime
 import os
 
+# بخش خواندن کلید (این باید وجود داشته باشد)
+import os
+api_key = os.getenv("OPENAI_API_KEY")  # روش صحیح
+# api_key = "sk-..."  # روش غلط (کلید در کد نوشته شده)
+
 app = FastAPI(title="Natiq Ultimate API", version="6.0")
 
 # CORS
