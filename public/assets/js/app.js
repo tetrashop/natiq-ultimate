@@ -2,7 +2,7 @@
 async function loadSystemStatus() {
     try {
         console.log('درخواست وضعیت سیستم...');
-        const response = await fetch('http://localhost:8081/api/health');
+        const response = await fetch('window.location.origin/api/health');
         const data = await response.json();
         
         const statusElement = document.getElementById('systemStatus');

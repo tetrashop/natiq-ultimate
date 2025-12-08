@@ -1,6 +1,6 @@
 class NatiqChat {
     constructor() {
-        this.apiBase = 'http://localhost:8081';  // تغییر به پورت 8081
+        this.apiBase = window.location.origin;  // تغییر به پورت 8081
         this.sessionId = 'session_' + Date.now();
         this.conversation = [];
         this.messageCount = 0;
@@ -76,7 +76,7 @@ class NatiqChat {
         this.isProcessing = true;
         
         try {
-            const response = await fetch(`${this.apiBase}/api/ask`, {
+            const response = await fetch(`window.location.origin + '/api/ask'`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
