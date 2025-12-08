@@ -1,16 +1,0 @@
-📌 آدرس‌های API مورد نیاز رابط کاربری:
-
-1. سلامت سیستم:
-   GET http://localhost:3000/api/health
-
-2. جستجوی مقالات:
-   GET http://localhost:3000/api/search?q=عبارت
-
-3. لیست مقالات (صفحه‌بندی):
-   GET http://localhost:3000/api/articles?page=1&limit=10
-
-4. آمار سیستم:
-   GET http://localhost:3000/api/stats
-
-5. جزئیات مقاله:
-   GET http://localhost:3000/api/article/{id}

@@ -62,3 +62,63 @@ keys/
 *.pem
 *.key
 *.crt
+
+# فایل‌های حساس پروژه ما
+.env
+.env.local
+.env.*
+!.env.example
+
+# لاگ‌ها
+*.log
+logs/
+monitor.log
+error.log
+server-main.log
+server-qna.log
+natiq.log
+
+# فایل‌های موقت
+*.tmp
+*.temp
+*~
+
+# آرشیوهای بزرگ
+*.tar.gz
+*.zip
+*.rar
+
+# فایل‌های پشتیبان
+backup_*/
+backups/
+*.bak
+
+# پکیج‌های آفلاین
+offline_packages/
+natiq-offline-bundle.tar.gz
+
+# محیط مجازی
+venv/
+.venv/
+
+# Vercel
+.vercel/
+
+# Termux-specific
+termux/
+
+# فایل‌های اشتباه
+earch*
+tall*
+'earch*'
+'tall*'
+
+# فایل‌های سیستم
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

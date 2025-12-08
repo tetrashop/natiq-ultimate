@@ -1,7 +1,0 @@
-{
-  "name": "natiq-search-deps",
-  "dependencies": {
-    "natural": "^5.2.4",
-    "stopword": "^2.0.8"
-  }
-}
