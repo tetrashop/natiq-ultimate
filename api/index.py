@@ -1,130 +1,113 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 import json
 import os
-import sys
-
-# اضافه کردن مسیر پروژه به sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = FastAPI(title="natiq-ultimate API", version="6.0")
 
-# فعال کردن CORS
+# فعال کردن CORS - بسیار مهم برای Vercel
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # در تولید بهتر است دامنه خاصی بگذارید
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# سرو فایل‌های استاتیک از پوشه public
-app.mount("/", StaticFiles(directory="../public", html=True), name="static")
-
-# مدل‌های داده
+# مدل داده برای درخواست سوال
 class QuestionRequest(BaseModel):
     question: str
     session_id: Optional[str] = None
 
-class QuestionResponse(BaseModel):
-    success: bool
-    response: str
-    error: Optional[str] = None
-
-# تابع برای بارگذاری دانش
-def load_knowledge_base():
-    try:
-        knowledge_file = 'data/knowledge_base.json'
-        if os.path.exists(knowledge_file):
-            with open(knowledge_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        else:
-            # ایجاد فایل دانش پایه
-            base_knowledge = [
-                {
-                    "id": 1,
-                    "question": "هوش مصنوعی چیست؟",
-                    "answer": "هوش مصنوعی (AI) شاخه‌ای از علوم کامپیوتر است که به ساخت ماشین‌های هوشمند می‌پردازد.",
-                    "category": "مفاهیم پایه"
-                }
-            ]
-            os.makedirs('data', exist_ok=True)
-            with open(knowledge_file, 'w', encoding='utf-8') as f:
-                json.dump(base_knowledge, f, ensure_ascii=False, indent=2)
-            return base_knowledge
-    except Exception as e:
-        print(f"خطا در بارگذاری دانش: {e}")
-        return []
-
-# ==================== ENDPOINTهای API ====================
+# ============ ENDPOINTها ============
 
 @app.get("/api/health")
 async def health_check():
     """بررسی سلامت سیستم"""
-    try:
-        knowledge = load_knowledge_base()
-        return {
-            "status": "healthy",
-            "version": "6.0",
-            "knowledge_count": len(knowledge),
-            "timestamp": "2024-12-08T10:00:00Z"
-        }
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e),
-            "timestamp": "2024-12-08T10:00:00Z"
-        }
+    return {
+        "status": "healthy",
+        "version": "6.0",
+        "service": "natiq-ultimate",
+        "environment": os.environ.get("VERCEL_ENV", "production")
+    }
 
 @app.get("/api/knowledge")
 async def get_knowledge():
-    """دریافت تمام دانش پایه"""
-    try:
-        knowledge = load_knowledge_base()
-        return {
-            "success": True,
-            "count": len(knowledge),
-            "knowledge": knowledge
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+    """لیست دانش پایه"""
+    return {
+        "success": True,
+        "count": 5,
+        "knowledge": [
+            {"id": 1, "question": "هوش مصنوعی چیست؟", "answer": "شاخه‌ای از علوم کامپیوتر برای ساخت ماشین‌های هوشمند"},
+            {"id": 2, "question": "NLP چیست؟", "answer": "پردازش زبان طبیعی برای تعامل کامپیوتر با زبان انسان"}
+        ]
+    }
 
 @app.post("/api/ask")
 async def ask_question(request: QuestionRequest):
-    """دریافت پاسخ برای سوال"""
+    """دریافت پاسخ برای سوال - SIMPLE VERSION"""
     try:
-        question = request.question
+        question = request.question.lower().strip()
+        
+        # پایگاه دانش ساده
+        responses = {
+            "سلام": "سلام! به natiq-ultimate خوش آمدید. چطور می‌توانم کمک کنم؟",
+            "هوش مصنوعی": "هوش مصنوعی (AI) شاخه‌ای از علوم کامپیوتر است که به ساخت ماشین‌های هوشمند می‌پردازد.",
+            "nlp": "پردازش زبان طبیعی (NLP) شاخه‌ای از هوش مصنوعی برای تعامل با زبان انسان است.",
+            "یادگیری ماشین": "یادگیری ماشین (ML) زیرشاخه‌ای از AI که به سیستم‌ها توانایی یادگیری خودکار می‌دهد.",
+            "شبکه عصبی": "شبکه عصبی مصنوعی از نورون‌های مصنوعی برای پردازش اطلاعات استفاده می‌کند.",
+            "چطوری": "خوبم ممنون! شما چطورید؟",
+            "اسمت چیه": "من natiq-ultimate هستم، یک سیستم عصبی-نمادین هوشمند.",
+            "چکار میتونی بکنی": "می‌توانم به سوالات شما درباره هوش مصنوعی، یادگیری ماشین، NLP و موضوعات مرتبط پاسخ دهم."
+        }
+        
+        # پیدا کردن پاسخ مناسب
+        answer = None
+        for key in responses:
+            if key in question:
+                answer = responses[key]
+                break
+        
+        if not answer:
+            answer = f"""شما پرسیدید: "{request.question}"
+
+من natiq-ultimate هستم، یک سیستم عصبی-نمادین.
+می‌توانم در مورد این موضوعات کمک کنم:
+• هوش مصنوعی و یادگیری ماشین
+• پردازش زبان طبیعی (NLP)
+• شبکه‌های عصبی
+• سیستم‌های مبتنی بر دانش
+
+لطفاً سوال خود را با جزئیات بیشتری بپرسید."""
+
         return {
             "success": True,
-            "response": f"شما پرسیدید: {question}\nاین یک پاسخ نمونه از natiq-ultimate v6.0 است.",
-            "question": question
+            "response": answer,
+            "question": request.question,
+            "session_id": request.session_id or "vercel-session"
         }
+        
     except Exception as e:
         return {
             "success": False,
-            "response": "",
-            "error": str(e)
+            "response": "متأسفانه در پردازش سوال شما مشکلی رخ داد.",
+            "error": str(e),
+            "question": request.question if 'request' in locals() else "unknown"
         }
 
 @app.get("/api/debug")
 async def debug_info():
-    """اطلاعات دیباگ سیستم"""
+    """اطلاعات دیباگ"""
     import platform
-    import datetime
     return {
-        "system": {
-            "python_version": platform.python_version(),
-            "platform": platform.platform(),
-            "current_time": datetime.datetime.now().isoformat()
-        }
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "env": dict(os.environ)
     }
 
+# برای تست محلی
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8081)

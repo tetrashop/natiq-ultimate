@@ -2,12 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "public/**",
-      "use": "@vercel/static"
-    },
-    {
       "src": "api/index.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -19,9 +19,5 @@
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "env": {
-    "PYTHON_VERSION": "3.9",
-    "NODE_ENV": "production"
-  }
+  ]
 }
