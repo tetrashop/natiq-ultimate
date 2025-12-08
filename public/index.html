@@ -3,536 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 natiq-ultimate - سیستم هوش مصنوعی عصبی-نمادین</title>
+    <title>natiq-ultimate v6.0 | سیستم عصبی-نمادین</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
-    <!-- Header Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
+<body class="light-mode">
+    <div class="app-container">
+        <!-- ناوبری -->
+        <nav class="navbar">
             <div class="nav-brand">
-                <div class="logo">
-                    <i class="fas fa-brain"></i>
-                    <span>natiq-ultimate</span>
-                </div>
-                <div class="version-badge">v6.0.0</div>
+                <i class="fas fa-brain"></i>
+                <h1>natiq-ultimate <span class="version">v6.0</span></h1>
             </div>
-            
-            <div class="nav-menu">
-                <a href="/" class="nav-item active">
-                    <i class="fas fa-home"></i>
-                    <span>خانه</span>
-                </a>
-                <a href="/dashboard.html" class="nav-item">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>داشبورد</span>
-                </a>
-                <a href="#features" class="nav-item">
-                    <i class="fas fa-star"></i>
-                    <span>قابلیت‌ها</span>
-                </a>
-                <a href="#api" class="nav-item">
-                    <i class="fas fa-code"></i>
-                    <span>API</span>
-                </a>
-                <div class="nav-item system-status">
-                    <span class="status-indicator active"></span>
-                    <span>سیستم فعال</span>
-                </div>
+            <div class="nav-links">
+                <a href="/" class="active"><i class="fas fa-comment"></i> چت هوشمند</a>
+                <a href="/dashboard.html"><i class="fas fa-tachometer-alt"></i> داشبورد</a>
+                <a href="/api/health" target="_api"><i class="fas fa-heartbeat"></i> سلامت سیستم</a>
             </div>
-        </div>
-    </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    <span class="gradient-text">سیستم هوش مصنوعی عصبی-نمادین</span>
-                    <br>نسخه کامل با تمام قابلیت‌ها
-                </h1>
-                <p class="hero-subtitle">
-                    ترکیب قدرت پردازش عصبی با دانش نمادین برای پاسخ‌های دقیق و هوشمند
-                </p>
-                
-                <div class="hero-stats">
-                    <div class="stat-card">
-                        <i class="fas fa-project-diagram"></i>
-                        <div>
-                            <h3>۱۰+</h3>
-                            <p>مفهوم دانش</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-bolt"></i>
-                        <div>
-                            <h3>۵+</h3>
-                            <p>API فعال</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-layer-group"></i>
-                        <div>
-                            <h3>۲</h3>
-                            <p>لایه پردازش</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-rocket"></i>
-                        <div>
-                            <h3>۱۰۰٪</h3>
-                            <p>آماده سرویس</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="hero-actions">
-                    <button class="btn-primary" onclick="scrollToChat()">
-                        <i class="fas fa-comment-dots"></i>
-                        شروع مکالمه
-                    </button>
-                    <a href="/dashboard.html" class="btn-secondary">
-                        <i class="fas fa-tachometer-alt"></i>
-                        مشاهده داشبورد
-                    </a>
-                </div>
-            </div>
-            
-            <div class="hero-visual">
-                <div class="neural-network">
-                    <div class="node node-1">
-                        <i class="fas fa-search"></i>
-                        <span>تحلیل عصبی</span>
-                    </div>
-                    <div class="connection"></div>
-                    <div class="node node-2">
-                        <i class="fas fa-database"></i>
-                        <span>جستجوی دانش</span>
-                    </div>
-                    <div class="connection"></div>
-                    <div class="node node-3">
-                        <i class="fas fa-brain"></i>
-                        <span>یکپارچه‌سازی</span>
-                    </div>
-                    <div class="connection"></div>
-                    <div class="node node-4">
-                        <i class="fas fa-comment"></i>
-                        <span>پاسخ هوشمند</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Chat Interface -->
-    <section class="chat-section" id="chat">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-robot"></i> مکالمه با سیستم عصبی-نمادین</h2>
-                <p>هر سوالی درباره هوش مصنوعی، یادگیری ماشین، شبکه عصبی و ... بپرسید</p>
-            </div>
-            
+        <!-- محتوای اصلی -->
+        <div class="main-content">
+            <!-- پنل چت -->
             <div class="chat-container">
-                <!-- Chat Header -->
                 <div class="chat-header">
-                    <div class="chat-title">
-                        <i class="fas fa-brain"></i>
-                        <div>
-                            <h3>natiq-ultimate v6.0</h3>
-                            <p class="status-text">
-                                <span class="status-dot active"></span>
-                                در حال گوش دادن...
-                            </p>
-                        </div>
-                    </div>
-                    <div class="chat-actions">
-                        <button class="icon-btn" onclick="clearChat()" title="پاک کردن مکالمه">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <button class="icon-btn" onclick="exportChat()" title="ذخیره مکالمه">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="icon-btn" onclick="toggleDarkMode()" title="تغییر تم">
-                            <i class="fas fa-moon"></i>
-                        </button>
+                    <h2><i class="fas fa-robot"></i> مکالمه با سیستم عصبی-نمادین</h2>
+                    <div class="system-status">
+                        <span class="status-dot active"></span>
+                        <span>آنلاین</span>
                     </div>
                 </div>
                 
-                <!-- Chat Messages -->
                 <div class="chat-messages" id="chatMessages">
                     <div class="message bot">
-                        <div class="avatar">
-                            <i class="fas fa-brain"></i>
+                        <div class="message-header">
+                            <i class="fas fa-robot"></i>
+                            <span>دستیار natiq-ultimate</span>
+                            <span class="message-time">همین الان</span>
                         </div>
                         <div class="message-content">
-                            <div class="message-header">
-                                <span class="sender">سیستم عصبی-نمادین</span>
-                                <span class="time">همین الان</span>
-                            </div>
-                            <div class="message-body">
-                                🎉 **به natiq-ultimate v6.0 خوش آمدید!**
-                                <br><br>
-                                من یک سیستم هوش مصنوعی ترکیبی هستم که:
-                                <br>
-                                • از **پردازش عصبی** برای فهم سوال شما استفاده می‌کنم
-                                <br>
-                                • از **دانش نمادین** برای استخراج اطلاعات دقیق کمک می‌گیرم
-                                <br>
-                                • این دو را **یکپارچه** می‌کنم تا بهترین پاسخ را ارائه دهم
-                                <br><br>
-                                💡 **موضوعاتی که می‌توانید بپرسید:**
-                                <br>
-                                • تعاریف (هوش مصنوعی چیست؟)
-                                <br>
-                                • مقایسه‌ها (تفاوت AI و ML چیست؟)
-                                <br>
-                                • کاربردها (شبکه عصبی کجا استفاده می‌شود؟)
-                                <br>
-                                • روش‌ها (چگونه با پایتون AI بسازیم؟)
-                            </div>
+                            سلام! من دستیار هوشمند natiq-ultimate هستم. می‌تونم در مورد موضوعات زیر کمک‌تون کنم:
+                            <ul>
+                                <li>هوش مصنوعی و یادگیری ماشین</li>
+                                <li>پردازش زبان طبیعی (NLP)</li>
+                                <li>شبکه‌های عصبی</li>
+                                <li>سیستم‌های عصبی-نمادین</li>
+                            </ul>
+                            چه سوالی دارید؟
                         </div>
                     </div>
                 </div>
                 
-                <!-- Input Area -->
                 <div class="chat-input-area">
                     <div class="quick-questions">
-                        <span>سوالات سریع:</span>
                         <button class="quick-btn" onclick="askQuestion('هوش مصنوعی چیست؟')">
                             هوش مصنوعی چیست؟
                         </button>
                         <button class="quick-btn" onclick="askQuestion('تفاوت AI و ML چیست؟')">
                             تفاوت AI و ML
                         </button>
-                        <button class="quick-btn" onclick="askQuestion('کاربردهای شبکه عصبی چیست؟')">
-                            کاربردهای شبکه عصبی
+                        <button class="quick-btn" onclick="askQuestion('NLP چیست؟')">
+                            NLP چیست؟
                         </button>
-                        <button class="quick-btn" onclick="askQuestion('چگونه با پایتون هوش مصنوعی بسازیم؟')">
-                            ساخت AI با پایتون
+                        <button class="quick-btn" onclick="askQuestion('سیستم عصبی-نمادین چیست؟')">
+                            سیستم عصبی-نمادین
                         </button>
                     </div>
                     
                     <div class="input-group">
-                        <textarea 
-                            id="messageInput" 
-                            placeholder="سوال خود را اینجا بنویسید... (Enter برای ارسال، Shift+Enter برای خط جدید)"
-                            rows="3"
-                            onkeydown="handleKeyDown(event)"
-                        ></textarea>
-                        <button class="send-btn" onclick="sendMessage()" id="sendButton">
-                            <i class="fas fa-paper-plane"></i>
-                            ارسال به سیستم
+                        <textarea id="messageInput" 
+                                  placeholder="سوال خود را درباره هوش مصنوعی، یادگیری ماشین، شبکه عصبی و... بپرسید"
+                                  rows="3"
+                                  onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i> ارسال
                         </button>
                     </div>
                     
-                    <div class="input-footer">
-                        <div class="typing-indicator" id="typingIndicator" style="display: none;">
-                            <i class="fas fa-circle-notch fa-spin"></i>
-                            سیستم در حال پردازش عصبی...
-                        </div>
-                        <div class="char-count">
-                            <span id="charCount">0</span> / 1000 کاراکتر
-                        </div>
+                    <div class="input-hints">
+                        <small><i class="fas fa-lightbulb"></i> می‌توانید از کلید Enter برای ارسال و Shift+Enter برای خط جدید استفاده کنید</small>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features-section" id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-cogs"></i> قابلیت‌های سیستم</h2>
-                <p>تمامی امکانات سیستم عصبی-نمادین در یک پلتفرم</p>
             </div>
             
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon neural">
-                        <i class="fas fa-network-wired"></i>
+            <!-- سایدبار -->
+            <div class="sidebar">
+                <div class="system-info-card">
+                    <h3><i class="fas fa-info-circle"></i> اطلاعات سیستم</h3>
+                    <div class="info-item">
+                        <span>وضعیت:</span>
+                        <span class="status-badge active" id="systemStatus">در حال بررسی...</span>
                     </div>
-                    <h3>پردازش عصبی</h3>
-                    <p>تشخیص هوشمند هدف سوال، استخراج مفاهیم و تحلیل معنایی با سیستم عصبی پیشرفته</p>
-                    <ul>
-                        <li><i class="fas fa-check"></i> تشخیص خودکار نوع سوال</li>
-                        <li><i class="fas fa-check"></i> استخراج موجودیت‌ها</li>
-                        <li><i class="fas fa-check"></i> تحلیل احساس و تن</li>
-                    </ul>
+                    <div class="info-item">
+                        <span>مفاهیم دانش:</span>
+                        <span id="knowledgeCount">...</span>
+                    </div>
+                    <div class="info-item">
+                        <span>پاسخ‌های امروز:</span>
+                        <span id="todayRequests">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span>شناسه جلسه:</span>
+                        <span id="sessionId" class="session-id">...</span>
+                    </div>
                 </div>
                 
-                <div class="feature-card">
-                    <div class="feature-icon knowledge">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h3>دانش نمادین</h3>
-                    <p>دسترسی به پایگاه دانش تخصصی با ۱۰+ مفهوم در حوزه هوش مصنوعی و یادگیری ماشین</p>
-                    <ul>
-                        <li><i class="fas fa-check"></i> گراف دانش مفهومی</li>
-                        <li><i class="fas fa-check"></i> روابط سلسله‌مراتبی</li>
-                        <li><i class="fas fa-check"></i> جستجوی هوشمند</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon integration">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                    <h3>یکپارچه‌سازی</h3>
-                    <p>ترکیب نتایج عصبی و دانشی برای تولید پاسخ‌های دقیق، کامل و قابل اعتماد</p>
-                    <ul>
-                        <li><i class="fas fa-check"></i> تلفیق خودکار</li>
-                        <li><i class="fas fa-check"></i> اولویت‌بندی نتایج</li>
-                        <li><i class="fas fa-check"></i> تولید پاسخ ترکیبی</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon api">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>API کامل</h3>
-                    <p>۵+ endpoint فعال برای توسعه‌دهندگان و سیستم‌های خارجی</p>
-                    <ul>
-                        <li><i class="fas fa-check"></i> REST API استاندارد</li>
-                        <li><i class="fas fa-check"></i> مستندات کامل</li>
-                        <li><i class="fas fa-check"></i> پشتیبانی از JSON</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- API Section -->
-    <section class="api-section" id="api">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-plug"></i> API Documentation</h2>
-                <p>اتصال سیستم‌های خارجی به natiq-ultimate</p>
-            </div>
-            
-            <div class="api-endpoints">
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
+                <div class="api-endpoints-card">
+                    <h3><i class="fas fa-plug"></i> نقاط دسترسی API</h3>
+                    <a href="/api/health" target="_api" class="endpoint-link">
+                        <span class="method get">GET</span>
+                        <span>/api/health</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a href="/api/knowledge" target="_api" class="endpoint-link">
+                        <span class="method get">GET</span>
+                        <span>/api/knowledge</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a href="/api/debug" target="_api" class="endpoint-link">
+                        <span class="method get">GET</span>
+                        <span>/api/debug</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a href="/api/ask" target="_api" class="endpoint-link">
                         <span class="method post">POST</span>
-                        <h3>/api/ask</h3>
-                        <span class="status active">فعال</span>
-                    </div>
-                    <p class="endpoint-desc">پرسش و پاسخ هوش مصنوعی - اصلی‌ترین endpoint سیستم</p>
-                    
-                    <div class="endpoint-example">
-                        <div class="example-header">
-                            <span>Request:</span>
-                            <button onclick="copyCode('askRequest')" class="copy-btn">
-                                <i class="far fa-copy"></i> کپی
-                            </button>
-                        </div>
-                        <pre id="askRequest"><code>{
-  "question": "هوش مصنوعی چیست؟",
-  "session_id": "optional_session_id"
-}</code></pre>
-                    </div>
-                    
-                    <div class="endpoint-example">
-                        <div class="example-header">
-                            <span>Response:</span>
-                        </div>
-                        <pre><code>{
-  "success": true,
-  "question": "هوش مصنوعی چیست؟",
-  "response": "شاخه‌ای از علوم کامپیوتر که...",
-  "analysis": {
-    "neural": { ... },
-    "confidence": 0.95
-  }
-}</code></pre>
-                    </div>
-                    
-                    <button class="test-btn" onclick="testEndpoint('/api/ask')">
-                        <i class="fas fa-vial"></i>
-                        تست این endpoint
-                    </button>
+                        <span>/api/ask</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
                 </div>
                 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method get">GET</span>
-                        <h3>/api/health</h3>
-                        <span class="status active">فعال</span>
-                    </div>
-                    <p class="endpoint-desc">بررسی سلامت سیستم و دریافت آمار لحظه‌ای</p>
-                    
-                    <div class="endpoint-example">
-                        <pre><code>curl https://natiq-ultimate.vercel.app/api/health</code></pre>
-                    </div>
-                    
-                    <button class="test-btn" onclick="testEndpoint('/api/health')">
-                        <i class="fas fa-vial"></i>
-                        تست سلامت
+                <div class="system-actions-card">
+                    <h3><i class="fas fa-cogs"></i> اقدامات سریع</h3>
+                    <button class="action-btn" onclick="clearChat()">
+                        <i class="fas fa-trash"></i> پاک کردن چت
                     </button>
-                </div>
-                
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method get">GET</span>
-                        <h3>/api/knowledge</h3>
-                        <span class="status active">فعال</span>
-                    </div>
-                    <p class="endpoint-desc">لیست مفاهیم موجود در پایگاه دانش</p>
-                    
-                    <button class="test-btn" onclick="testEndpoint('/api/knowledge')">
-                        <i class="fas fa-vial"></i>
-                        مشاهده دانش
+                    <button class="action-btn" onclick="copySessionId()">
+                        <i class="fas fa-copy"></i> کپی شناسه جلسه
+                    </button>
+                    <button class="action-btn" onclick="exportConversation()">
+                        <i class="fas fa-download"></i> ذخیره مکالمه
                     </button>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- System Status -->
-    <section class="status-section">
-        <div class="container">
-            <div class="status-card">
-                <div class="status-header">
-                    <h3><i class="fas fa-heartbeat"></i> وضعیت لحظه‌ای سیستم</h3>
-                    <span class="last-update" id="lastUpdate">در حال بروزرسانی...</span>
-                </div>
-                
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div class="status-info">
-                            <h4>سیستم عصبی</h4>
-                            <p>پردازش زبان و تحلیل</p>
-                        </div>
-                        <div class="status-indicator active">
-                            <span>فعال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="status-item">
-                        <div class="status-info">
-                            <h4>پایگاه دانش</h4>
-                            <p>۱۰ مفهوم فعال</p>
-                        </div>
-                        <div class="status-indicator active">
-                            <span>فعال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="status-item">
-                        <div class="status-info">
-                            <h4>API Gateway</h4>
-                            <p>۵ endpoint</p>
-                        </div>
-                        <div class="status-indicator active">
-                            <span>فعال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="status-item">
-                        <div class="status-info">
-                            <h4>یکپارچه‌سازی</h4>
-                            <p>ترکیب عصبی-نمادین</p>
-                        </div>
-                        <div class="status-indicator active">
-                            <span>فعال</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="status-footer">
-                    <button class="refresh-btn" onclick="checkSystemStatus()">
-                        <i class="fas fa-redo"></i>
-                        بروزرسانی وضعیت
-                    </button>
-                    <div class="uptime">
-                        <i class="fas fa-clock"></i>
-                        <span>آپتایم: <span id="uptime">۱۰۰٪</span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
+        
+        <!-- فوتر -->
+        <footer class="footer">
             <div class="footer-content">
                 <div class="footer-section">
-                    <div class="footer-logo">
-                        <i class="fas fa-brain"></i>
-                        <span>natiq-ultimate</span>
-                    </div>
-                    <p class="footer-description">
-                        سیستم هوش مصنوعی عصبی-نمادین با معماری ترکیبی و قابلیت‌های کامل
-                    </p>
+                    <h4><i class="fas fa-code"></i> natiq-ultimate v6.0</h4>
+                    <p>سیستم عصبی-نمادین هوشمند با قابلیت‌های پیشرفته NLP</p>
                 </div>
-                
                 <div class="footer-section">
-                    <h4>لینک‌های سریع</h4>
-                    <a href="/">صفحه اصلی</a>
-                    <a href="/dashboard.html">داشبورد</a>
-                    <a href="#api">مستندات API</a>
-                    <a href="#features">قابلیت‌ها</a>
+                    <h4><i class="fas fa-link"></i> لینک‌های مفید</h4>
+                    <a href="https://github.com/your-repo" target="_blank">مخزن GitHub</a>
+                    <a href="/api/docs">مستندات API</a>
                 </div>
-                
                 <div class="footer-section">
-                    <h4>API Endpoints</h4>
-                    <a href="/api/health">/api/health</a>
-                    <a href="/api/knowledge">/api/knowledge</a>
-                    <a href="/api/debug">/api/debug</a>
-                    <a href="/api/history">/api/history</a>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>سیستم</h4>
-                    <div class="system-info">
-                        <div class="info-item">
-                            <span>نسخه:</span>
-                            <strong>v6.0.0</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>معماری:</span>
-                            <strong>عصبی-نمادین</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>وضعیت:</span>
-                            <strong class="status-text">فعال</strong>
-                        </div>
+                    <h4><i class="fas fa-shield-alt"></i> وضعیت</h4>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span>همه سیستم‌ها فعال</span>
                     </div>
                 </div>
             </div>
-            
             <div class="footer-bottom">
-                <p>© 2024 natiq-ultimate. تمامی حقوق محفوظ است.</p>
-                <div class="footer-links">
-                    <a href="#" onclick="showAbout()">درباره سیستم</a>
-                    <a href="#" onclick="showTerms()">شرایط استفاده</a>
-                </div>
+                <p>© 2024 natiq-ultimate. ساخته شده با <i class="fas fa-heart" style="color:#e74c3c"></i> و Python + FastAPI</p>
             </div>
-        </div>
-    </footer>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="neural-loader">
-                <div class="node"></div>
-                <div class="node"></div>
-                <div class="node"></div>
-                <div class="node"></div>
-            </div>
-            <h3>در حال بارگذاری سیستم عصبی...</h3>
-            <p>لطفاً چند لحظه صبر کنید</p>
-        </div>
+        </footer>
     </div>
 
-    <!-- Notification -->
-    <div class="notification" id="notification"></div>
-
     <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/chat.js"></script>
 </body>
 </html>
-
