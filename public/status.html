@@ -5,279 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وضعیت سیستم - ناطق اولتیمیت</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-bottom: 5px solid #3730a3;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 30px;
-        }
-        
-        .status-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #4f46e5;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .status-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .status-card h3 {
-            color: #4f46e5;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-list {
-            list-style: none;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            margin: 8px 0;
-            background: #f8fafc;
-            border-radius: 10px;
-            font-size: 0.95rem;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-left: 10px;
-            display: inline-block;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 30px; }
+        .status-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 5px solid #4f46e5; }
+        .status-item { display: flex; align-items: center; padding: 12px; margin: 8px 0; background: #f8fafc; border-radius: 10px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; margin-left: 10px; }
         .success .status-dot { background: #10b981; }
-        .warning .status-dot { background: #f59e0b; }
         .error .status-dot { background: #ef4444; }
-        
-        .success { border-right: 3px solid #10b981; }
-        .warning { border-right: 3px solid #f59e0b; }
-        .error { border-right: 3px solid #ef4444; }
-        
-        .api-info {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-color: #0ea5e9;
-        }
-        
-        .system-info {
-            background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
-            border-color: #d946ef;
-        }
-        
-        .endpoints {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border-color: #22c55e;
-        }
-        
-        .endpoint-list {
-            list-style: none;
-        }
-        
-        .endpoint-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: white;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .endpoint-method {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-left: 10px;
-        }
-        
-        .get { background: #dbeafe; color: #1d4ed8; }
-        .post { background: #dcfce7; color: #166534; }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background: #f8fafc;
-            border-top: 1px solid #e5e7eb;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-        
-        .refresh-btn {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
-            transition: all 0.3s;
-        }
-        
-        .refresh-btn:hover {
-            background: #4338ca;
-            transform: scale(1.05);
-        }
-        
-        @media (max-width: 768px) {
-            .status-grid {
-                grid-template-columns: 1fr;
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
+        .footer { text-align: center; padding: 20px; background: #f8fafc; border-top: 1px solid #e5e7eb; color: #64748b; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 وضعیت سیستم ناطق اولتیمیت</h1>
-            <p>بررسی لحظه‌ای سلامت و عملکرد تمامی سرویس‌ها</p>
+            <h1>📊 وضعیت سیستم ناطق اولتیمیت</h1>
+            <p>بررسی لحظه‌ای سلامت سرویس‌ها</p>
         </div>
-        
-        <div class="status-grid">
-            <div class="status-card api-info">
-                <h3>📊 اطلاعات API</h3>
-                <ul class="status-list">
-                    <li class="status-item" id="apiStatus">
-                        <span class="status-dot"></span> در حال بررسی...
-                    </li>
-                    <li class="status-item" id="apiVersion">
-                        <span>🔖 ورژن: در حال بررسی...</span>
-                    </li>
-                    <li class="status-item" id="connectionStatus">
-                        <span class="status-dot"></span> اتصال: در حال بررسی...
-                    </li>
-                    <li class="status-item">
-                        <span>📈 کیفیت اتصال: <span id="connectionPercent">0%</span></span>
-                    </li>
-                </ul>
+        <div class="status-grid" id="statusGrid">
+            <div class="status-card">
+                <h3>API Status</h3>
+                <div class="status-item" id="apiStatus">در حال بررسی...</div>
+                <div class="status-item" id="apiVersion">ورژن: ...</div>
             </div>
-            
-            <div class="status-card system-info">
-                <h3>⚙️ وضعیت کامپوننت‌ها</h3>
-                <ul class="status-list">
-                    <li class="status-item" id="dbStatus">
-                        <span class="status-dot"></span> پایگاه داده: در حال بررسی...
-                    </li>
-                    <li class="status-item" id="nlpStatus">
-                        <span class="status-dot"></span> موتور NLP: در حال بررسی...
-                    </li>
-                    <li class="status-item" id="authStatus">
-                        <span class="status-dot"></span> احراز هویت: در حال بررسی...
-                    </li>
-                    <li class="status-item" id="storageStatus">
-                        <span class="status-dot"></span> فضای ذخیره‌سازی: در حال بررسی...
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="status-card endpoints">
-                <h3>🔗 endpointهای فعال</h3>
-                <ul class="endpoint-list">
-                    <li class="endpoint-item">
-                        /api/health <span class="endpoint-method get">GET</span>
-                        <div style="font-size: 0.85rem; color: #64748b;">بررسی سلامت API</div>
-                    </li>
-                    <li class="endpoint-item">
-                        /api/ask <span class="endpoint-method post">POST</span>
-                        <div style="font-size: 0.85rem; color: #64748b;">پرسش و پاسخ هوشمند</div>
-                    </li>
-                    <li class="endpoint-item">
-                        /api/status <span class="endpoint-method get">GET</span>
-                        <div style="font-size: 0.85rem; color: #64748b;">وضعیت کامل سیستم</div>
-                    </li>
-                    <li class="endpoint-item">
-                        /api/nlp/posts <span class="endpoint-method get">GET</span>
-                        <div style="font-size: 0.85rem; color: #64748b;">دریافت پست‌های NLP</div>
-                    </li>
-                    <li class="endpoint-item">
-                        /api/test <span class="endpoint-method get">GET</span>
-                        <div style="font-size: 0.85rem; color: #64748b;">تست ارتباط</div>
-                    </li>
-                </ul>
+            <div class="status-card">
+                <h3>System Health</h3>
+                <div class="status-item" id="systemHealth">در حال بررسی...</div>
+                <div class="status-item" id="responseTime">زمان پاسخ: ...</div>
             </div>
         </div>
-        
         <div class="footer">
-            <p>🔄 به‌روزرسانی خودکار هر ۳۰ ثانیه | آخرین بررسی: <span id="lastCheck">هم اکنون</span></p>
-            <p>© 2024 ناطق اولتیمیت - تمامی حقوق محفوظ است</p>
+            <p>آخرین بررسی: <span id="lastCheck">هم اکنون</span></p>
         </div>
     </div>
-    
-    <button class="refresh-btn" onclick="location.reload()">🔄 به‌روزرسانی دستی</button>
-    
-    <script src="/assets/js/status.js"></script>
     <script>
-        // به‌روزرسانی زمان آخرین بررسی
-        function updateLastCheck() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('fa-IR');
-            document.getElementById('lastCheck').textContent = timeString;
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                document.getElementById('apiStatus').innerHTML = `<span class="status-dot"></span> ${data.status}`;
+                document.getElementById('apiStatus').className = 'status-item success';
+                document.getElementById('apiVersion').textContent = `ورژن: ${data.version}`;
+                document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString('fa-IR');
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = '<span class="status-dot"></span> قطع ارتباط';
+                document.getElementById('apiStatus').className = 'status-item error';
+            }
         }
-        
-        updateLastCheck();
-        setInterval(updateLastCheck, 30000);
+        checkStatus();
+        setInterval(checkStatus, 10000);
     </script>
 </body>
 </html>

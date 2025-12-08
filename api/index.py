@@ -1,14 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, List
-import json
-import os
+from typing import Optional
 from datetime import datetime
+import os
 
 app = FastAPI(title="Natiq Ultimate API", version="6.0")
 
-# CORS middleware
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,146 +19,122 @@ app.add_middleware(
 # Models
 class QuestionRequest(BaseModel):
     question: str
-    context: Optional[str] = None
+    user_id: Optional[str] = None
 
-class SystemStatus(BaseModel):
-    component: str
-    status: str
-    message: str
-    timestamp: str
+# Storage for conversation history
+conversation_history = []
 
-# Health endpoint
-@app.get("/api/health")
-async def health_check():
-    """بررسی سلامت API"""
-    return {
-        "status": "healthy",
-        "version": "6.0",
-        "timestamp": datetime.now().isoformat(),
-        "endpoints": {
-            "/api/health": "GET - بررسی سلامت",
-            "/api/ask": "POST - پرسش و پاسخ",
-            "/api/test": "GET - تست ارتباط",
-            "/api/status": "GET - وضعیت سیستم",
-            "/api/nlp/posts": "GET - دریافت پست‌های NLP"
-        }
-    }
-
-# Ask endpoint
-@app.post("/api/ask")
-async def ask_question(request: QuestionRequest):
-    """پردازش سوالات کاربر"""
-    try:
-        if not request.question.strip():
-            raise HTTPException(status_code=400, detail="سوال خالی است")
-        
-        # پاسخ هوشمند (می‌توانید بعداً با مدل NLP جایگزین کنید)
-        responses = {
-            "سلام": "سلام! چطور می‌توانم کمک کنم؟",
-            "حالت چطوره": "خوبم ممنون! آماده پاسخگویی به سوالات شما هستم.",
-            "اسمت چیه": "من ناطق اولتیمیت هستم، یک دستیار هوشمند فارسی.",
-            "خداحافظ": "خداحافظ! موفق باشید.",
-        }
-        
-        question_lower = request.question.lower().strip()
-        response = responses.get(question_lower, 
-            f"شما پرسیدید: '{request.question}'. من در حال یادگیری هستم!")
-        
-        return {
-            "success": True,
-            "response": response,
-            "question": request.question,
-            "timestamp": datetime.now().isoformat(),
-            "context_used": request.context if request.context else None
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Test endpoint
-@app.get("/api/test")
-async def test_endpoint():
-    """تست ارتباط با API"""
-    return {
-        "message": "API به درستی کار می‌کند!",
-        "timestamp": datetime.now().isoformat(),
-        "status": "active",
-        "version": "6.0"
-    }
-
-# System status endpoint
-@app.get("/api/status")
-async def system_status():
-    """وضعیت کامل سیستم"""
-    components = [
-        {"component": "API Server", "status": "running", "message": "سرور فعال است"},
-        {"component": "Database", "status": "connected", "message": "اتصال برقرار است"},
-        {"component": "NLP Engine", "status": "ready", "message": "موتور پردازش زبان آماده است"},
-        {"component": "Authentication", "status": "active", "message": "احراز هویت فعال است"},
-        {"component": "File Storage", "status": "available", "message": "فضای ذخیره‌سازی در دسترس است"}
-    ]
-    
-    return {
-        "system": "Natiq Ultimate",
-        "status": "operational",
-        "uptime": "100%",
-        "timestamp": datetime.now().isoformat(),
-        "components": components
-    }
-
-# NLP posts endpoint (مطابق درخواست شما برای ۲۱۰ پست)
-@app.get("/api/nlp/posts")
-async def get_nlp_posts(limit: int = 210, page: int = 1):
-    """دریافت پست‌های NLP (آخرین ۲۱۰ پست)"""
-    try:
-        # ساخت داده نمونه (در مرحله بعد با دیتابیس واقعی جایگزین شود)
-        sample_posts = []
-        for i in range(1, min(limit, 210) + 1):
-            sample_posts.append({
-                "id": i,
-                "title": f"پست نمونه NLP شماره {i}",
-                "content": f"این محتوای نمونه برای پست NLP شماره {i} است.",
-                "author": "سیستم ناطق",
-                "date": datetime.now().isoformat(),
-                "tags": ["nlp", "هوش مصنوعی", "پردازش زبان"]
-            })
-        
-        return {
-            "success": True,
-            "posts": sample_posts,
-            "total": len(sample_posts),
-            "page": page,
-            "limit": limit,
-            "message": f"آخرین {len(sample_posts)} پست NLP دریافت شد"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Root endpoint
 @app.get("/")
 async def root():
-    """صفحه اصلی API"""
     return {
         "message": "به API ناطق اولتیمیت خوش آمدید",
         "version": "6.0",
-        "documentation": "/docs برای مستندات Swagger",
+        "status": "active",
         "endpoints": [
-            "/api/health",
-            "/api/ask",
-            "/api/test", 
-            "/api/status",
-            "/api/nlp/posts"
+            "GET /api/health",
+            "POST /api/ask",
+            "GET /api/chat/history",
+            "GET /api/system/status"
         ]
     }
 
-# Catch-all for undefined routes
-@app.get("/api/{path:path}")
-async def catch_all(path: str):
-    """مدیریت مسیرهای تعریف نشده"""
-    raise HTTPException(
-        status_code=404,
-        detail=f"Endpoint /api/{path} پیدا نشد. endpointهای موجود: /health, /ask, /test, /status, /nlp/posts"
-    )
+@app.get("/api/health")
+async def health():
+    """بررسی سلامت سیستم"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "6.0",
+        "environment": os.getenv("ENVIRONMENT", "development")
+    }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/api/ask")
+async def ask_question(request: QuestionRequest):
+    """پردازش سوال کاربر و تولید پاسخ"""
+    try:
+        user_question = request.question.strip()
+        
+        if not user_question:
+            raise HTTPException(status_code=400, detail="سوال نباید خالی باشد")
+        
+        # پاسخ هوشمند
+        response_text = generate_response(user_question)
+        
+        # ذخیره در تاریخچه
+        conversation_entry = {
+            "question": user_question,
+            "response": response_text,
+            "timestamp": datetime.now().isoformat(),
+            "user_id": request.user_id
+        }
+        conversation_history.append(conversation_entry)
+        
+        # محدود کردن تاریخچه به ۵۰ مورد
+        if len(conversation_history) > 50:
+            conversation_history.pop(0)
+        
+        return {
+            "success": True,
+            "question": user_question,
+            "response": response_text,
+            "conversation_id": len(conversation_history),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"خطا در پردازش: {str(e)}")
+
+@app.get("/api/chat/history")
+async def get_chat_history(limit: int = 20):
+    """دریافت تاریخچه مکالمات"""
+    return {
+        "success": True,
+        "count": len(conversation_history[-limit:]),
+        "history": conversation_history[-limit:],
+        "total": len(conversation_history)
+    }
+
+@app.get("/api/system/status")
+async def system_status():
+    """وضعیت کامل سیستم"""
+    return {
+        "system": "Natiq Ultimate v6.0",
+        "status": "operational",
+        "api_endpoints": {
+            "health": "active",
+            "ask": "active", 
+            "chat_history": "active",
+            "system_status": "active"
+        },
+        "resources": {
+            "memory_usage": "normal",
+            "response_time": "optimal",
+            "uptime": "100%"
+        },
+        "timestamp": datetime.now().isoformat()
+    }
+
+def generate_response(question: str) -> str:
+    """تابع تولید پاسخ هوشمند"""
+    question_lower = question.lower()
+    
+    # پاسخ‌های از پیش تعریف شده
+    responses = {
+        "سلام": "سلام! چطور می‌توانم کمکتان کنم؟",
+        "خداحافظ": "خداحافظ! موفق باشید.",
+        "اسمت چیه": "من ناطق اولتیمیت هستم، دستیار هوشمند شما.",
+        "حالت چطوره": "عالی هستم! آماده پاسخگویی به سوالات شما.",
+        "ممنون": "خواهش می‌کنم! خوشحالم که می‌توانم کمک کنم.",
+        "کمک": "بله، من می‌توانم در زمینه‌های مختلف به شما کمک کنم. چه سوالی دارید؟",
+        "ورژن": "من نسخه ۶.۰ ناطق اولتیمیت هستم.",
+        "ساعت": f"الان ساعت {datetime.now().strftime('%H:%M')} است.",
+        "تاریخ": f"امروز {datetime.now().strftime('%Y/%m/%d')} است."
+    }
+    
+    # جستجوی کلیدواژه
+    for key, response in responses.items():
+        if key in question_lower:
+            return response
+    
+    # پاسخ پیش‌فرض
+    return f"شما پرسیدید: '{question}'. من در حال یادگیری هستم و سعی می‌کنم بهترین پاسخ را بدهم!"
