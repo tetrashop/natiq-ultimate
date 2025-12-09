@@ -1,0 +1,6 @@
+[32mpython-torchaudio[0m/stable 2.9.0 aarch64
+  Data manipulation and transformation for audio signal processing, powered by PyTorch
+
+[32mpython-torchcodec[0m/stable 0.8.1-1 aarch64
+  PyTorch media decoding and encoding
+

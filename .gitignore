@@ -1,124 +1,41 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environments
-.env
-.venv
-env/
+# محیط‌های مجازی
 venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Vercel
-.vercel
-
-# Logs
-*.log
-
-# فایل‌های حساس
-config.json
-credentials.json
-secrets/
-keys/
-*.pem
-*.key
-*.crt
-
-# فایل‌های حساس پروژه ما
-.env
+env/
+*.env
 .env.local
-.env.*
-!.env.example
 
-# لاگ‌ها
+# توکن‌ها و کلیدها
+*.key
+*.pem
+secrets/
+config/private/
+
+# لاگ‌های سیستم
 *.log
 logs/
-monitor.log
-error.log
-server-main.log
-server-qna.log
-natiq.log
 
 # فایل‌های موقت
 *.tmp
 *.temp
-*~
-
-# آرشیوهای بزرگ
-*.tar.gz
-*.zip
-*.rar
-
-# فایل‌های پشتیبان
-backup_*/
-backups/
-*.bak
-
-# پکیج‌های آفلاین
-offline_packages/
-natiq-offline-bundle.tar.gz
-
-# محیط مجازی
-venv/
-.venv/
-
-# Vercel
-.vercel/
-
-# Termux-specific
-termux/
-
-# فایل‌های اشتباه
-earch*
-tall*
-'earch*'
-'tall*'
-
-# فایل‌های سیستم
-.DS_Store
-Thumbs.db
+__pycache__/
+*.pyc
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+
+# سیستم‌عامل
+.DS_Store
+Thumbs.db
+
+# فایل‌های تولیدی
+*.db
+*.sqlite3
+
+# فایل‌های شخصی
+personal/
+private/
+.vercel
+.env*.local

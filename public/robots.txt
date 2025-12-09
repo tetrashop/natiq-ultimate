@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /logs/
+Disallow: /config/
+
+Sitemap: https://natiq-ultimate.vercel.app/sitemap.xml
