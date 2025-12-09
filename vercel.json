@@ -3,49 +3,13 @@
   "builds": [
     {
       "src": "api/app.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.9"
-      }
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/app.py"
-    },
-    {
-      "src": "/docs",
-      "dest": "api/app.py"
-    },
-    {
-      "src": "/redoc",
-      "dest": "api/app.py"
-    },
-    {
-      "src": "/openapi\\.json",
-      "dest": "api/app.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "public/$1"
+      "dest": "api/app.py"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/docs",
-      "destination": "/api/app.py"
-    },
-    {
-      "source": "/api/redoc",
-      "destination": "/api/app.py"
-    }
-  ],
-  "env": {
-    "PYTHONPATH": "/var/task"
-  }
+  ]
 }
