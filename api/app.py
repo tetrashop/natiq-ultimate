@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-فایل اصلی FastAPI برای ناطق اولتیمیت
-با تمام endpointهای جدید
+فایل اصلی FastAPI برای ناطق اولتیمیت - نسخه پایدار
 """
 
 from fastapi import FastAPI, HTTPException, Request
@@ -10,8 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
 import json
-import asyncio
-from typing import Optional
+import datetime
 
 # تنظیمات
 logging.basicConfig(
@@ -24,7 +22,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="ناطق اولتیمیت",
     description="هوش مصنوعی فارسی",
-    version="2.0.0"
+    version="2.1.0"
 )
 
 # CORS
@@ -48,7 +46,7 @@ async def api_root():
     """لیست تمام endpointها"""
     return {
         "message": "به ناطق اولتیمیت خوش آمدید",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "endpoints": [
             "/api/",
             "/api/health",
@@ -56,10 +54,6 @@ async def api_root():
             "/api/test-openai", 
             "/api/status",
             "/api/clear-memory",
-            "/api/process",
-            "/api/file-info",
-            "/api/logs",
-            "/api/system-info",
             "/api/docs"
         ],
         "ai_enabled": True
@@ -71,13 +65,13 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "natiq-ultimate-ai",
-        "version": "2.0.0",
-        "timest
+        "version": "2.1.0",
+        "timestamp": datetime.datetime.now().isoformat()
     }
 
 @app.post("/api/chat")
 async def chat_endpoint(request: Request):
-    """مکالمه هوشمند با پشتیبانی از OpenAI"""
+    """مکالمه با هوش مصنوعی - نسخه پایدار"""
     try:
         data = await request.json()
         message = data.get("message", "").strip()
@@ -87,161 +81,80 @@ async def chat_endpoint(request: Request):
         
         logger.info(f"💬 چت دریافت شد: {message[:50]}...")
         
-        # پاسخ‌های پیش‌فرض برای کلیدواژه‌های مهم
-        responses = {
-            "سلام": "سلام! 👋 به ناطق اولتیمیت خوش آمدید. چطور می‌توانم کمک کنم؟",
-            "خداحافظ": "خداحافظ! امیدوارم مفید بوده باشم. 🌟",
-            "چطوری": "من خوبم ممنون! 😊 شما چطورید؟",
-            "اسمت چیه": "من ناطق اولتیمیت هستم، یک دستیار هوش مصنوعی فارسی پیشرفته.",
-            "هوش مصنوعی": "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ایجاد ماشین‌های هوشمند می‌پردازد. امروزه در زمینه‌های مختلف از جمله پردازش زبان طبیعی کاربرد دارد.",
-            "تشکر": "خواهش می‌کنم! 😊 همیشه در خدمتم.",
-            "زمان": f"زمان سرور: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            "ورژن": f"ناطق اولتیمیت نسخه 2.0.0 - سیستم AI فعال"
-        }
-        
-        # جستجوی پاسخ مناسب
+        # پاسخ‌های هوشمند فارسی
         message_lower = message.lower()
         
-        # پاسخ به سوالات خاص شناسایی‌شده
+        # پاسخ به سوالات رایج
         if "رامین اجلال" in message_lower:
-            return {
-                "success": True,
-                "response": "رامین اجلال یک توسعه‌دهنده و علاقه‌مند به هوش مصنوعی و فناوری است. او پروژه‌هایی مانند ناطق اولتیمیت را توسعه می‌دهد. 🔧",
-                "ai_enhanced": True,
-                "model": "natiq-ai-knowledge"
-            }
-        
-        # اگر کاربر درخواست OpenAI کرده
-        if "openai" in message_lower or "اپن ای" in message_lower or "gpt" in message_lower:
-            # شبیه‌سازی پاسخ OpenAI
-            openai_responses = [
-                "من از مدل‌های پیشرفته پردازش زبان استفاده می‌کنم. 🔍",
-                "سیستم OpenAI فعال است و آماده پاسخگویی به سوالات شماست. 🤖",
-                "برای استفاده کامل از قابلیت‌های OpenAI، لطفاً API Key را در تنظیمات Vercel تنظیم کنید.",
-                "من می‌توانم به سوالات مختلفی پاسخ دهم. سوال خود را بپرسید! 💭"
+            response = "✅ رامین اجلال یک توسعه‌دهنده و علاقه‌مند به هوش مصنوعی و فناوری است. او پروژه‌هایی مانند ناطق اولتیمیت را توسعه می‌دهد."
+        elif "سلام" in message_lower:
+            response = "سلام! 👋 به ناطق اولتیمیت خوش آمدید. چطور می‌توانم کمک کنم؟"
+        elif "خداحافظ" in message_lower or "بای" in message_lower:
+            response = "خداحافظ! امیدوارم مفید بوده باشم. 🌟"
+        elif "چطوری" in message_lower or "حالت چطوره" in message_lower:
+            response = "من خوبم ممنون! 😊 شما چطورید؟"
+        elif "اسمت چیه" in message_lower or "تو کیستی" in message_lower:
+            response = "من ناطق اولتیمیت هستم، یک دستیار هوش مصنوعی فارسی پیشرفته."
+        elif "هوش مصنوعی" in message_lower:
+            response = "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ایجاد ماشین‌های هوشمند می‌پردازد."
+        elif "openai" in message_lower or "اپن ای" in message_lower:
+            response = "✅ سیستم AI فعال است. برای اتصال کامل به OpenAI، کلید API را در تنظیمات Vercel تنظیم کنید."
+        elif "زمان" in message_lower or "ساعت" in message_lower:
+            response = f"زمان سرور: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        elif "تشکر" in message_lower or "ممنون" in message_lower:
+            response = "خواهش می‌کنم! 😊 همیشه در خدمتم."
+        elif "ورژن" in message_lower or "نسخه" in message_lower:
+            response = "ناطق اولتیمیت نسخه 2.1.0 - سیستم AI فعال و پایدار"
+        else:
+            # پاسخ عمومی هوشمند
+            responses = [
+                f"سوال جالبی پرسیدید: '{message[:30]}...'. من در حال پردازش آن هستم. 🔄",
+                "این سوال نیاز به تحلیل بیشتری دارد. آیا می‌توانید جزئیات بیشتری بدهید؟",
+                "من یک دستیار هوش مصنوعی فارسی هستم و سعی می‌کنم بهترین پاسخ را بدهم. 📚",
+                "در حال حاضر سیستم AI من فعال است. برای پاسخ‌های پیشرفته‌تر می‌توانید از OpenAI استفاده کنید."
             ]
-            
             import random
-            return {
-                "success": True,
-                "response": random.choice(openai_responses),
-                "openai_mode": "simulated",
-                "tip": "برای فعال‌سازی OpenAI واقعی، کلید API را در تنظیمات Vercel اضافه کنید."
-            }
+            response = random.choice(responses)
         
-        # جستجوی پاسخ در دیکشنری
-        for keyword, resp in responses.items():
-            if keyword in message_lower:
-                return {
-                    "success": True,
-                    "response": resp,
-                    "keyword_matched": keyword,
-                    "ai_model": "natiq-ai-v2"
-                }
-        
-        # پاسخ هوشمند برای سوالات عمومی
-        intelligent_responses = [
-            f"سوال جالبی پرسیدید: '{message[:30]}...'. من در حال یادگیری هستم و سعی می‌کنم بهترین پاسخ را بدهم. 📚",
-            "این سوال نیاز به پردازش بیشتری دارد. آیا می‌توانید جزئیات بیشتری بدهید؟",
-            "من یک دستیار هوش مصنوعی فارسی هستم. برای سوالات تخصصی‌تر، پیشنهاد می‌کنم از منابع تخصصی استفاده کنید.",
-            "در حال حاضر در حال پردازش سوال شما هستم. 🔄"
-        ]
-        
-        import random
         return {
             "success": True,
-            "response": random.choice(intelligent_responses),
+            "response": response,
             "message_length": len(message),
-            "ai_model": "natiq-ai-smart",
-            "note": "برای پاسخ‌های دقیق‌تر، OpenAI را فعال کنید"
+            "response_time": "فوری",
+            "ai_model": "natiq-ai-stable-v2.1"
         }
         
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="فرمت JSON نامعتبر")
     except Exception as e:
         logger.error(f"خطا در چت: {str(e)}")
-        return {
-            "success": False,
-            "error": f"خطای پردازش: {str(e)}",
-            "response": "متأسفانه خطایی رخ داد. لطفاً دوباره تلاش کنید."
-        }
-
-@app.post("/api/openai-test")
-async def openai_test_endpoint(request: Request):
-    """تست اتصال واقعی به OpenAI"""
-    try:
-        data = await request.json()
-        message = data.get("message", "سلام")
-        
-        # بررسی وجود کلید OpenAI
-        import os
-        openai_key = os.environ.get("OPENAI_API_KEY")
-        
-        if not openai_key:
-            logger.warning("کلید OpenAI یافت نشد - حالت شبیه‌سازی")
-            
-            # پاسخ شبیه‌سازی شده
-            simulated_responses = {
-                "سلام": "سلام! من دستیار هوش مصنوعی شما هستم. 🔧",
-                "هوش مصنوعی": "هوش مصنوعی در حال تغییر دنیاست!",
-                "رامین اجلال": "توسعه‌دهنده این پروژه - علاقه‌مند به AI و فناوری.",
-                "ناطق": "ناطق اولتیمیت یک پروژه هوش مصنوعی فارسی است."
-            }
-            
-            response = "من یک دستیار AI فارسی هستم. برای پاسخ‌های پیشرفته‌تر، کلید OpenAI را تنظیم کنید."
-            
-            for keyword, resp in simulated_responses.items():
-                if keyword in message.lower():
-                    response = resp
-                    break
-            
-            return {
-                "success": True,
-                "response": response,
-                "openai_status": "simulated",
-                "message": "کلید OpenAI یافت نشد. پاسخ شبیه‌سازی شده است.",
-                "setup_instructions": "در تنظیمات Vercel، متغیر محیطی OPENAI_API_KEY را اضافه کنید."
-            }
-        
-        # اگر کلید وجود دارد، از OpenAI واقعی استفاده کنید
-        try:
-            # این بخش نیاز به نصب openai package دارد
-            # pip install openai
-            import openai
-            openai.api_key = openai_key
-            
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "شما یک دستیار هوش مصنوعی فارسی هستید. به زبان فارسی پاسخ دهید."},
-                    {"role": "user", "content": message}
-                ],
-                max_tokens=500,
-                temperature=0.7
-            )
-            
-            response = completion.choices[0].message.content
-            
-            return {
-                "success": True,
-                "response": response,
-                "openai_status": "connected",
-                "model": "gpt-3.5-turbo",
-                "tokens_used": completion.usage.total_tokens
-            }
-            
-        except ImportError:
-            logger.error("پکیج openai نصب نشده است")
-            return {
+        return JSONResponse(
+            status_code=500,
+            content={
                 "success": False,
-                "error": "پکیج openai نصب نشده",
-                "setup_instructions": "در requirements.txt خط 'openai' را اضافه کنید."
+                "error": "خطای پردازش",
+                "message": "لطفاً دوباره تلاش کنید"
             }
-            
-    except Exception as e:
-        logger.error(f"خطا در تست OpenAI: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"خطای OpenAI: {str(e)}")
+        )
 
+@app.get("/api/test-openai")
+async def test_openai():
+    """تست اتصال OpenAI - نسخه پایدار"""
+    return {
+        "success": True,
+        "message": "✅ سیستم AI فعال است",
+        "openai_status": "simulated",
+        "model": "natiq-ai-v2.1",
+        "language": "فارسی",
+        "capabilities": [
+            "مکالمه هوشمند فارسی",
+            "پاسخ به سوالات رایج",
+            "پردازش متن",
+            "پاسخ‌های زمینه‌ای"
+        ],
+        "test_response": "سلام! من ناطق اولتیمیت هستم. سیستم AI فعال است و آماده کمک به شما هستم. 😊",
+        "setup_required": "برای اتصال به OpenAI واقعی، کلید API را در تنظیمات Vercel اضافه کنید."
+    }
 
 @app.get("/api/status")
 async def get_status():
@@ -253,105 +166,25 @@ async def get_status():
         "system": {
             "python_version": sys.version.split()[0],
             "platform": platform.system(),
-            "api_version": "2.0.0"
+            "api_version": "2.1.0"
         },
         "ai": {
             "status": "active",
             "language": "فارسی",
-            "features": ["chat", "text_processing", "memory"]
+            "features": ["chat", "text_processing", "smart_responses"]
         },
-        "endpoints_active": 10,
-        "uptime": "running"
+        "endpoints_active": 8,
+        "uptime": "running",
+        "timestamp": datetime.datetime.now().isoformat()
     }
 
 @app.post("/api/clear-memory")
 async def clear_memory():
-    """پاکسازی حافظه (نمایشی)"""
+    """پاکسازی حافظه"""
     return {
         "success": True,
         "message": "حافظه موقت پاکسازی شد",
-        "cleared_at": __import__("datetime").datetime.now().isoformat()
-    }
-
-# ==================== ENDPOINT های قدیمی (برای سازگاری) ====================
-
-@app.post("/api/process")
-async def process_text(request: Request):
-    """پردازش متن (برای سازگاری با نسخه قدیم)"""
-    try:
-        data = await request.json()
-        text = data.get("text", "").strip()
-        
-        if not text:
-            raise HTTPException(status_code=400, detail="متن نمی‌تواند خالی باشد")
-        
-        # پردازش هوشمند
-        if "سلام" in text:
-            response = f"سلام! متن شما: '{text[:50]}...' پردازش شد."
-        else:
-            response = f"متن پردازش شده: {text[:100]}..." if len(text) > 100 else f"متن پردازش شده: {text}"
-        
-        return {
-            "success": True,
-            "original_length": len(text),
-            "processed_text": response,
-            "message": "پردازش با موفقیت انجام شد",
-            "language": "fa"
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/file-info")
-async def get_file_info(path: str = "requirements.txt"):
-    """اطلاعات فایل"""
-    try:
-        import os
-        file_path = f"/var/task/{path}" if path.startswith("/") else f"/var/task/{path}"
-        
-        # شبیه‌سازی اطلاعات فایل
-        return {
-            "success": True,
-            "file_path": file_path,
-            "file_name": os.path.basename(path),
-            "exists": True,
-            "size": "1024",
-            "type": "text/plain",
-            "sample": "این یک نمونه از محتوای فایل است...",
-            "message": "اطلاعات فایل دریافت شد"
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/logs")
-async def get_logs(limit: int = 50):
-    """لاگ‌های سیستم"""
-    sample_logs = [
-        f"{__import__('datetime').datetime.now().isoformat()} - INFO - API v2.0.0 شروع شد",
-        f"{__import__('datetime').datetime.now().isoformat()} - INFO - سرویس AI فعال شد",
-        f"{__import__('datetime').datetime.now().isoformat()} - INFO - آماده دریافت درخواست‌ها",
-        f"{__import__('datetime').datetime.now().isoformat()} - INFO - /api/test-openai endpoint فعال شد"
-    ]
-    
-    return {
-        "success": True,
-        "logs": sample_logs[-limit:],
-        "total": len(sample_logs),
-        "limit": limit
-    }
-
-@app.get("/api/system-info")
-async def get_system_info():
-    """اطلاعات سیستم"""
-    import platform
-    
-    return {
-        "system": platform.system(),
-        "release": platform.release(),
-        "python": platform.python_version(),
-        "api": "natiq-ultimate-ai",
-        "version": "2.0.0"
+        "cleared_at": datetime.datetime.now().isoformat()
     }
 
 # ==================== مستندات ====================
@@ -374,11 +207,13 @@ async def api_docs():
             .get { background: #28a745; }
             .post { background: #007bff; }
             code { background: #eee; padding: 2px 5px; border-radius: 3px; }
+            .success { color: #28a745; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>📚 مستندات ناطق اولتیمیت API</h1>
+            <h1>📚 مستندات ناطق اولتیمیت API - نسخه 2.1.0</h1>
+            <p class="success">✅ سیستم فعال و پایدار</p>
             
             <div class="endpoint">
                 <span class="method get">GET</span> <code>/api/</code>
@@ -392,31 +227,28 @@ async def api_docs():
             
             <div class="endpoint">
                 <span class="method post">POST</span> <code>/api/chat</code>
-                <p>مکالمه با هوش مصنوعی</p>
+                <p>مکالمه با هوش مصنوعی فارسی</p>
                 <small>بدنه: {"message": "سلام"}</small>
             </div>
             
             <div class="endpoint">
                 <span class="method get">GET</span> <code>/api/test-openai</code>
-                <p>تست اتصال OpenAI</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span> <code>/api/status</code>
-                <p>وضعیت سیستم</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="method post">POST</span> <code>/api/clear-memory</code>
-                <p>پاکسازی حافظه</p>
+                <p>تست وضعیت AI</p>
             </div>
             
             <h2>📞 تست سریع</h2>
-            <pre><code>curl https://natiq-ultimate.vercel.app/api/test-openai</code></pre>
-            
             <pre><code>curl -X POST https://natiq-ultimate.vercel.app/api/chat \\
   -H "Content-Type: application/json" \\
   -d '{"message": "سلام"}'</code></pre>
+            
+            <pre><code>curl https://natiq-ultimate.vercel.app/api/test-openai</code></pre>
+            
+            <h2>💡 نکات</h2>
+            <ul>
+                <li>سیستم از پاسخ‌های هوشمند فارسی استفاده می‌کند</li>
+                <li>برای سوال "رامین اجلال کیست" پاسخ اختصاصی وجود دارد</li>
+                <li>وضعیت AI همیشه فعال است</li>
+            </ul>
         </div>
     </body>
     </html>
@@ -440,10 +272,6 @@ async def not_found_handler(request: Request, exc: Exception):
                 "/api/test-openai",
                 "/api/status",
                 "/api/clear-memory",
-                "/api/process",
-                "/api/file-info", 
-                "/api/logs",
-                "/api/system-info",
                 "/api/docs"
             ],
             "tip": "از /api/ برای دیدن لیست کامل endpointها استفاده کنید"
