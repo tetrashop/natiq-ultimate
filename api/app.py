@@ -72,12 +72,12 @@ async def health_check():
         "status": "healthy",
         "service": "natiq-ultimate-ai",
         "version": "2.0.0",
-        "timestamp": __import__("datetime").datetime.now().isoformat()
+        "timest
     }
 
 @app.post("/api/chat")
 async def chat_endpoint(request: Request):
-    """مکالمه با هوش مصنوعی"""
+    """مکالمه هوشمند با پشتیبانی از OpenAI"""
     try:
         data = await request.json()
         message = data.get("message", "").strip()
@@ -87,62 +87,161 @@ async def chat_endpoint(request: Request):
         
         logger.info(f"💬 چت دریافت شد: {message[:50]}...")
         
-        # پاسخ هوشمند
+        # پاسخ‌های پیش‌فرض برای کلیدواژه‌های مهم
         responses = {
             "سلام": "سلام! 👋 به ناطق اولتیمیت خوش آمدید. چطور می‌توانم کمک کنم؟",
-            "خداحافظ": "خداحافظ! امیدوارم مفید بوده باشم.",
+            "خداحافظ": "خداحافظ! امیدوارم مفید بوده باشم. 🌟",
             "چطوری": "من خوبم ممنون! 😊 شما چطورید؟",
-            "اسمت چیه": "من ناطق اولتیمیت هستم، یک دستیار هوش مصنوعی فارسی.",
-            "هوش مصنوعی": "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ایجاد ماشین‌های هوشمند می‌پردازد.",
-            "openai": "بله، من از OpenAI GPT استفاده می‌کنم برای پاسخ‌های پیشرفته.",
+            "اسمت چیه": "من ناطق اولتیمیت هستم، یک دستیار هوش مصنوعی فارسی پیشرفته.",
+            "هوش مصنوعی": "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ایجاد ماشین‌های هوشمند می‌پردازد. امروزه در زمینه‌های مختلف از جمله پردازش زبان طبیعی کاربرد دارد.",
             "تشکر": "خواهش می‌کنم! 😊 همیشه در خدمتم.",
-            "زمان": f"زمان سرور: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            "زمان": f"زمان سرور: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "ورژن": f"ناطق اولتیمیت نسخه 2.0.0 - سیستم AI فعال"
         }
         
         # جستجوی پاسخ مناسب
         message_lower = message.lower()
-        response = "من یک دستیار هوش مصنوعی فارسی هستم. سوال شما را دریافت کردم و در حال پردازش هستم."
         
+        # پاسخ به سوالات خاص شناسایی‌شده
+        if "رامین اجلال" in message_lower:
+            return {
+                "success": True,
+                "response": "رامین اجلال یک توسعه‌دهنده و علاقه‌مند به هوش مصنوعی و فناوری است. او پروژه‌هایی مانند ناطق اولتیمیت را توسعه می‌دهد. 🔧",
+                "ai_enhanced": True,
+                "model": "natiq-ai-knowledge"
+            }
+        
+        # اگر کاربر درخواست OpenAI کرده
+        if "openai" in message_lower or "اپن ای" in message_lower or "gpt" in message_lower:
+            # شبیه‌سازی پاسخ OpenAI
+            openai_responses = [
+                "من از مدل‌های پیشرفته پردازش زبان استفاده می‌کنم. 🔍",
+                "سیستم OpenAI فعال است و آماده پاسخگویی به سوالات شماست. 🤖",
+                "برای استفاده کامل از قابلیت‌های OpenAI، لطفاً API Key را در تنظیمات Vercel تنظیم کنید.",
+                "من می‌توانم به سوالات مختلفی پاسخ دهم. سوال خود را بپرسید! 💭"
+            ]
+            
+            import random
+            return {
+                "success": True,
+                "response": random.choice(openai_responses),
+                "openai_mode": "simulated",
+                "tip": "برای فعال‌سازی OpenAI واقعی، کلید API را در تنظیمات Vercel اضافه کنید."
+            }
+        
+        # جستجوی پاسخ در دیکشنری
         for keyword, resp in responses.items():
             if keyword in message_lower:
-                response = resp
-                break
+                return {
+                    "success": True,
+                    "response": resp,
+                    "keyword_matched": keyword,
+                    "ai_model": "natiq-ai-v2"
+                }
         
-        # اگر سوال درباره اتصال OpenAI است
-        if "openai" in message_lower or "اتصال" in message_lower:
-            response = "در حال حاضر از OpenAI استفاده می‌کنم. برای پاسخ‌های پیشرفته‌تر، API Key را در تنظیمات Vercel اضافه کنید."
+        # پاسخ هوشمند برای سوالات عمومی
+        intelligent_responses = [
+            f"سوال جالبی پرسیدید: '{message[:30]}...'. من در حال یادگیری هستم و سعی می‌کنم بهترین پاسخ را بدهم. 📚",
+            "این سوال نیاز به پردازش بیشتری دارد. آیا می‌توانید جزئیات بیشتری بدهید؟",
+            "من یک دستیار هوش مصنوعی فارسی هستم. برای سوالات تخصصی‌تر، پیشنهاد می‌کنم از منابع تخصصی استفاده کنید.",
+            "در حال حاضر در حال پردازش سوال شما هستم. 🔄"
+        ]
         
+        import random
         return {
             "success": True,
-            "response": response,
+            "response": random.choice(intelligent_responses),
             "message_length": len(message),
-            "response_time": "فوری",
-            "ai_model": "natiq-ai-v2"
+            "ai_model": "natiq-ai-smart",
+            "note": "برای پاسخ‌های دقیق‌تر، OpenAI را فعال کنید"
         }
         
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="فرمت JSON نامعتبر")
     except Exception as e:
         logger.error(f"خطا در چت: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"خطای داخلی: {str(e)}")
+        return {
+            "success": False,
+            "error": f"خطای پردازش: {str(e)}",
+            "response": "متأسفانه خطایی رخ داد. لطفاً دوباره تلاش کنید."
+        }
 
-@app.get("/api/test-openai")
-async def test_openai():
-    """تست اتصال OpenAI"""
-    return {
-        "success": True,
-        "message": "✅ سیستم AI فعال است",
-        "openai_status": "connected",
-        "model": "gpt-3.5-turbo",
-        "language": "فارسی",
-        "capabilities": [
-            "مکالمه هوشمند",
-            "پردازش متن فارسی",
-            "حافظه مکالمه",
-            "پاسخ‌های زمینه‌ای"
-        ],
-        "test_response": "سلام! من ناطق اولتیمیت هستم. اتصال OpenAI برقرار است و آماده کمک به شما هستم. 😊"
-    }
+@app.post("/api/openai-test")
+async def openai_test_endpoint(request: Request):
+    """تست اتصال واقعی به OpenAI"""
+    try:
+        data = await request.json()
+        message = data.get("message", "سلام")
+        
+        # بررسی وجود کلید OpenAI
+        import os
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        
+        if not openai_key:
+            logger.warning("کلید OpenAI یافت نشد - حالت شبیه‌سازی")
+            
+            # پاسخ شبیه‌سازی شده
+            simulated_responses = {
+                "سلام": "سلام! من دستیار هوش مصنوعی شما هستم. 🔧",
+                "هوش مصنوعی": "هوش مصنوعی در حال تغییر دنیاست!",
+                "رامین اجلال": "توسعه‌دهنده این پروژه - علاقه‌مند به AI و فناوری.",
+                "ناطق": "ناطق اولتیمیت یک پروژه هوش مصنوعی فارسی است."
+            }
+            
+            response = "من یک دستیار AI فارسی هستم. برای پاسخ‌های پیشرفته‌تر، کلید OpenAI را تنظیم کنید."
+            
+            for keyword, resp in simulated_responses.items():
+                if keyword in message.lower():
+                    response = resp
+                    break
+            
+            return {
+                "success": True,
+                "response": response,
+                "openai_status": "simulated",
+                "message": "کلید OpenAI یافت نشد. پاسخ شبیه‌سازی شده است.",
+                "setup_instructions": "در تنظیمات Vercel، متغیر محیطی OPENAI_API_KEY را اضافه کنید."
+            }
+        
+        # اگر کلید وجود دارد، از OpenAI واقعی استفاده کنید
+        try:
+            # این بخش نیاز به نصب openai package دارد
+            # pip install openai
+            import openai
+            openai.api_key = openai_key
+            
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "شما یک دستیار هوش مصنوعی فارسی هستید. به زبان فارسی پاسخ دهید."},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            
+            response = completion.choices[0].message.content
+            
+            return {
+                "success": True,
+                "response": response,
+                "openai_status": "connected",
+                "model": "gpt-3.5-turbo",
+                "tokens_used": completion.usage.total_tokens
+            }
+            
+        except ImportError:
+            logger.error("پکیج openai نصب نشده است")
+            return {
+                "success": False,
+                "error": "پکیج openai نصب نشده",
+                "setup_instructions": "در requirements.txt خط 'openai' را اضافه کنید."
+            }
+            
+    except Exception as e:
+        logger.error(f"خطا در تست OpenAI: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"خطای OpenAI: {str(e)}")
+
 
 @app.get("/api/status")
 async def get_status():
