@@ -1,37 +1,46 @@
 #!/usr/bin/env python3
 """
 فایل اصلی FastAPI برای پروژه natiq-ultimate
-سازگار با Vercel Python Runtime
+با قابلیت اتصال به OpenAI API
 """
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
 import logging
 import os
 import json
-from pathlib import Path
+import asyncio
 from typing import Optional
 
-# تنظیمات لاگ‌گیری برای Vercel
+# تنظیمات لاگ‌گیری
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# ایجاد نمونه اصلی FastAPI
-# غیرفعال کردن مستندات خودکار FastAPI
+# تنظیم OpenAI API
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    logger.warning("⚠️ OPENAI_API_KEY یافت نشد! از مدل محلی استفاده می‌شود.")
+    client = None
+else:
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    logger.info("✅ OpenAI API پیکربندی شد")
+
+# ایجاد نمونه FastAPI
 app = FastAPI(
-    title="Natiq Ultimate API",
-    description="API برای پردازش متن و مدیریت فایل",
-    version="1.0.0",
-    docs_url=None,  # غیرفعال
-    redoc_url=None,  # غیرفعال
-    openapi_url="/api/openapi.json"  # فقط OpenAPI JSON
+    title="Natiq Ultimate AI",
+    description="هوش مصنوعی فارسی با قابلیت پردازش متن",
+    version="1.5.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url="/api/openapi.json"
 )
 
-# تنظیم CORS برای Vercel
+# تنظیم CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -40,80 +49,324 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ==================== مستندات دستی ====================
+# سیستم حافظه مکالمه
+conversation_memory = {}
+
+def get_or_create_memory(session_id: str):
+    """ایجاد یا بازیابی حافظه مکالمه"""
+    if session_id not in conversation_memory:
+        conversation_memory[session_id] = {
+            "history": [],
+            "context": "شما یک دستیار هوش مصنوعی فارسی به نام 'ناطق اولتیمیت' هستید. شما مهربان، مفید و دقیق هستید. به سوالات به زبان فارسی پاسخ می‌دهید.",
+            "created_at": asyncio.get_event_loop().time()
+        }
+    return conversation_memory[session_id]
+
+def cleanup_old_memory(max_age_hours=24):
+    """پاکسازی حافظه قدیمی"""
+    current_time = asyncio.get_event_loop().time()
+    to_delete = []
+    
+    for session_id, memory in conversation_memory.items():
+        age_hours = (current_time - memory["created_at"]) / 3600
+        if age_hours > max_age_hours:
+            to_delete.append(session_id)
+    
+    for session_id in to_delete:
+        del conversation_memory[session_id]
+    if to_delete:
+        logger.info(f"🧹 {len(to_delete)} مکالمه قدیمی پاکسازی شد")
+
+async def call_openai(prompt: str, session_id: str = "default") -> str:
+    """فراخوانی OpenAI API"""
+    
+    # اگر API Key نبود، از مدل محلی استفاده کن
+    if not client:
+        return await get_fallback_response(prompt, session_id)
+    
+    memory = get_or_create_memory(session_id)
+    
+    # ساخت تاریخچه مکالمه
+    messages = [
+        {"role": "system", "content": memory["context"]},
+    ]
+    
+    # اضافه کردن تاریخچه مکالمه (آخرین ۱۰ پیام)
+    for msg in memory["history"][-10:]:
+        messages.append({"role": msg["role"], "content": msg["content"]})
+    
+    messages.append({"role": "user", "content": prompt})
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=500,
+            stream=False
+        )
+        
+        ai_response = response.choices[0].message.content
+        
+        # ذخیره در حافظه
+        memory["history"].append({"role": "user", "content": prompt})
+        memory["history"].append({"role": "assistant", "content": ai_response})
+        
+        # محدود کردن اندازه تاریخچه
+        if len(memory["history"]) > 20:
+            memory["history"] = memory["history"][-20:]
+        
+        return ai_response
+        
+    except Exception as e:
+        logger.error(f"❌ خطا در OpenAI API: {str(e)}")
+        return await get_fallback_response(prompt, session_id)
+
+async def get_fallback_response(prompt: str, session_id: str) -> str:
+    """پاسخ جایگزین در صورت عدم اتصال به OpenAI"""
+    
+    memory = get_or_create_memory(session_id)
+    
+    # آنالیز سوال
+    prompt_lower = prompt.lower()
+    
+    # پاسخ‌های هوشمند جایگزین
+    responses = {
+        "سلام": "سلام! 👋 به ناطق اولتیمیت خوش آمدید. چطور می‌توانم کمکتان کنم؟",
+        "خداحافظ": "خداحافظ! 👋 از صحبت با شما خوشحال شدم. اگر سوال دیگری دارید در خدمتم.",
+        "چطوری": "من خوبم ممنون! 😊 شما چطورید؟",
+        "اسمت چیه": "من ناطق اولتیمیت هستم، یک دستیار هوش مصنوعی فارسی.",
+        "کمک": "حتماً! در چه زمینه‌ای می‌تونم کمک کنم؟",
+        "هوش مصنوعی": "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ایجاد ماشین‌هایی می‌پردازد که می‌توانند مانند انسان فکر کنند و یاد بگیرند.",
+        "openai": "بله، من از OpenAI استفاده می‌کنم. اگر API Key تنظیم شده باشد، می‌توانم از مدل‌های پیشرفته GPT استفاده کنم.",
+        "تشکر": "خواهش می‌کنم! 😊 همیشه در خدمت شما هستم.",
+        "زمان": f"زمان سرور: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    }
+    
+    # جستجوی پاسخ مناسب
+    for keyword, response in responses.items():
+        if keyword in prompt_lower:
+            return response
+    
+    # اگر سوال تکراری است
+    if len(memory["history"]) > 0:
+        last_q = memory["history"][-1]["content"].lower() if memory["history"][-1]["role"] == "user" else ""
+        if prompt_lower == last_q:
+            return "به نظر می‌رسد همین سوال را پرسیده‌اید! آیا پاسخ من کافی نبود؟"
+    
+    # پاسخ پیش‌فرض هوشمند
+    if "چی" in prompt_lower and "؟" in prompt:
+        return f"شما پرسیدید: '{prompt}'. من یک دستیار هوش مصنوعی هستم و سعی می‌کنم بهترین پاسخ را بدهم!"
+    
+    return "متوجه سوال شما شدم! در حال حاضر اتصال به OpenAI برقرار نیست. برای پاسخ‌های پیشرفته‌تر لطفاً API Key را تنظیم کنید."
+
+# ==================== مسیرهای API ====================
+
+@app.get("/")
+async def root():
+    """صفحه اصلی"""
+    return FileResponse("public/index.html")
+
+@app.get("/api/")
+async def api_root():
+    """اطلاعات API"""
+    has_openai = bool(client)
+    return {
+        "message": "به ناطق اولتیمیت خوش آمدید",
+        "status": "active",
+        "version": "1.5.0",
+        "ai_capabilities": {
+            "openai_connected": has_openai,
+            "memory_enabled": True,
+            "persian_support": True,
+            "fallback_mode": not has_openai
+        },
+        "endpoints": {
+            "chat": "/api/chat",
+            "health": "/api/health",
+            "status": "/api/status",
+            "clear_memory": "/api/clear-memory",
+            "docs": "/api/docs"
+        }
+    }
+
+@app.get("/api/health")
+async def health_check():
+    """بررسی سلامت"""
+    has_openai = bool(client)
+    return {
+        "status": "healthy",
+        "timestamp": __import__("datetime").datetime.now().isoformat(),
+        "openai_status": "connected" if has_openai else "disconnected",
+        "active_conversations": len(conversation_memory),
+        "memory_usage": f"{len(str(conversation_memory)) / 1024:.2f} KB"
+    }
+
+@app.post("/api/chat")
+async def chat_endpoint(request: Request):
+    """پایانه مکالمه هوش مصنوعی"""
+    try:
+        data = await request.json()
+        message = data.get("message", "").strip()
+        session_id = data.get("session_id", "default")
+        
+        if not message:
+            raise HTTPException(status_code=400, detail="پیام نمی‌تواند خالی باشد")
+        
+        logger.info(f"💬 درخواست چت: session={session_id}, length={len(message)}")
+        
+        # پاکسازی حافظه قدیمی
+        cleanup_old_memory()
+        
+        # اندازه‌گیری زمان پاسخ
+        import time
+        start_time = time.time()
+        
+        # دریافت پاسخ از AI
+        response = await call_openai(message, session_id)
+        
+        response_time = (time.time() - start_time) * 1000
+        
+        return {
+            "success": True,
+            "response": response,
+            "session_id": session_id,
+            "response_time": f"{response_time:.0f}ms",
+            "model": "openai-gpt" if client else "fallback-model",
+            "memory_size": len(conversation_memory.get(session_id, {}).get("history", [])) if session_id in conversation_memory else 0
+        }
+        
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="فرمت JSON نامعتبر")
+    except Exception as e:
+        logger.error(f"❌ خطا در پردازش چت: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"خطای داخلی: {str(e)}")
+
+@app.get("/api/status")
+async def get_status():
+    """وضعیت سیستم"""
+    import platform
+    import sys
+    
+    return {
+        "system": {
+            "python_version": sys.version,
+            "platform": platform.platform(),
+            "api_version": "1.5.0"
+        },
+        "ai": {
+            "openai_configured": bool(OPENAI_API_KEY),
+            "openai_connected": bool(client),
+            "fallback_active": not bool(client)
+        },
+        "memory": {
+            "active_sessions": len(conversation_memory),
+            "total_messages": sum(len(m["history"]) for m in conversation_memory.values())
+        }
+    }
+
+@app.post("/api/clear-memory")
+async def clear_memory(session_id: Optional[str] = None):
+    """پاکسازی حافظه"""
+    if session_id:
+        if session_id in conversation_memory:
+            del conversation_memory[session_id]
+            return {"success": True, "message": f"حافظه session {session_id} پاک شد"}
+        else:
+            raise HTTPException(status_code=404, detail="Session یافت نشد")
+    else:
+        conversation_memory.clear()
+        return {"success": True, "message": "تمامی حافظه‌ها پاک شد"}
+
+@app.get("/api/test-openai")
+async def test_openai():
+    """تست اتصال به OpenAI"""
+    if not client:
+        return {
+            "success": False,
+            "message": "OpenAI API Key تنظیم نشده است",
+            "instruction": "لطفاً OPENAI_API_KEY را در Environment Variables تنظیم کنید"
+        }
+    
+    try:
+        test_prompt = "سلام! لطفاً یک جمله کوتاه فارسی بگو."
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": test_prompt}],
+            max_tokens=50
+        )
+        
+        return {
+            "success": True,
+            "message": "OpenAI API متصل است",
+            "test_response": response.choices[0].message.content,
+            "model": response.model,
+            "usage": {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"خطا در اتصال به OpenAI: {str(e)}",
+            "error_type": type(e).__name__
+        }
+
+# ==================== مستندات ====================
 
 SWAGGER_UI_HTML = """
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Natiq Ultimate API - مستندات</title>
+    <title>ناطق اولتیمیت - مستندات API</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
     <style>
         * { font-family: 'Vazirmatn', sans-serif !important; }
-        body { margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; text-align: center; margin-bottom: 30px; }
-        .info-box { background: #e8f4fd; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-right: 4px solid #1890ff; }
-        .endpoint-list { list-style: none; padding: 0; }
-        .endpoint-list li { padding: 10px; border-bottom: 1px solid #eee; }
-        .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-left: 10px; }
-        .get { background: #61affe; color: white; }
-        .post { background: #49cc90; color: white; }
-        .put { background: #fca130; color: white; }
-        .delete { background: #f93e3e; color: white; }
+        body { margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; background: linear-gradient(90deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .info-box { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .status { padding: 10px 20px; border-radius: 20px; font-weight: bold; display: inline-block; margin: 10px 0; }
+        .online { background: #2ecc71; color: white; }
+        .offline { background: #e74c3c; color: white; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 مستندات Natiq Ultimate API</h1>
+        <h1>🧠 ناطق اولتیمیت - مستندات هوش مصنوعی</h1>
         
         <div class="info-box">
-            <strong>آدرس پایه:</strong> <code>https://natiq-ultimate.vercel.app/api</code><br>
-            <strong>ورژن:</strong> 1.0.0<br>
-            <strong>محیط:</strong> production
+            <h2>🔄 وضعیت سیستم</h2>
+            <div id="status">در حال بررسی...</div>
+            <p><strong>آدرس پایه:</strong> <code>https://natiq-ultimate.vercel.app/api</code></p>
+            <p><strong>ورژن:</strong> 1.5.0</p>
         </div>
         
-        <h2>📋 لیست Endpointها</h2>
-        <ul class="endpoint-list">
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/</code> - اطلاعات کلی API
-            </li>
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/health</code> - بررسی سلامت API
-            </li>
-            <li>
-                <span class="method post">POST</span>
-                <code>/api/process</code> - پردازش متن
-            </li>
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/file-info</code> - اطلاعات فایل
-            </li>
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/logs</code> - لاگ‌های سیستم
-            </li>
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/system-info</code> - اطلاعات سیستم
-            </li>
-            <li>
-                <span class="method get">GET</span>
-                <code>/api/openapi.json</code> - OpenAPI Spec
-            </li>
-        </ul>
-        
-        <h2>🔧 تست سریع API</h2>
+        <h2>📡 Endpointهای فعال</h2>
         <div id="swagger-ui"></div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
     <script>
-    window.onload = function() {
+    window.onload = async function() {
+        // بررسی وضعیت
+        try {
+            const status = await fetch('/api/status').then(r => r.json());
+            const statusDiv = document.getElementById('status');
+            if (status.ai.openai_connected) {
+                statusDiv.innerHTML = '<span class="status online">✅ OpenAI متصل</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="status offline">⚠️ حالت جایگزین فعال</span><br><small>برای اتصال به OpenAI، OPENAI_API_KEY را تنظیم کنید</small>';
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        
+        // Swagger UI
         const ui = SwaggerUIBundle({
             url: "/api/openapi.json",
             dom_id: '#swagger-ui',
@@ -134,222 +387,10 @@ SWAGGER_UI_HTML = """
 </html>
 """
 
-REDOC_HTML = """
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>Natiq Ultimate API - مستندات ReDoc</title>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
-    <style>
-        body { margin: 0; padding: 0; }
-        .header { background: #333; color: white; padding: 20px; text-align: center; }
-        .header h1 { margin: 0; font-family: 'Vazirmatn', sans-serif; }
-        .info { padding: 20px; background: #f5f5f5; text-align: center; font-family: 'Vazirmatn', sans-serif; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Natiq Ultimate API - مستندات ReDoc</h1>
-    </div>
-    <div class="info">
-        <p>در حال بارگذاری مستندات...</p>
-        <p>اگر مستندات نمایش داده نمی‌شود، <a href="/api/openapi.json">این فایل JSON</a> را مستقیماً بررسی کنید.</p>
-    </div>
-    <redoc spec-url="/api/openapi.json"></redoc>
-    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
-</body>
-</html>
-"""
-
-# ==================== مسیرهای اصلی API ====================
-
-@app.get("/")
-async def root():
-    """صفحه اصلی - هدایت به رابط کاربری"""
-    return FileResponse("public/index.html")
-
-@app.get("/api/")
-async def api_root():
-    """بررسی وضعیت سرور API"""
-    return {
-        "message": "خوش آمدید به Natiq Ultimate API",
-        "status": "active",
-        "version": "1.0.0",
-        "environment": os.getenv("VERCEL_ENV", "production"),
-        "endpoints": {
-            "health": "/api/health",
-            "process": "/api/process",
-            "file-info": "/api/file-info",
-            "logs": "/api/logs",
-            "system-info": "/api/system-info",
-            "openapi": "/api/openapi.json",
-            "docs": "/api/docs",
-            "redoc": "/api/redoc"
-        }
-    }
-
-@app.get("/api/health")
-async def health_check():
-    """بررسی سلامت API"""
-    return {
-        "status": "healthy",
-        "timestamp": __import__("datetime").datetime.now().isoformat(),
-        "service": "natiq-ultimate-api",
-        "version": "1.0.0"
-    }
-
-@app.post("/api/process")
-async def process_text(request: Request):
-    """
-    پردازش متن ورودی کاربر
-    """
-    try:
-        body = await request.json()
-        text = body.get("text", "").strip()
-        
-        if not text:
-            raise HTTPException(
-                status_code=400,
-                detail="متن ورودی نمی‌تواند خالی باشد"
-            )
-        
-        logger.info(f"درخواست پردازش متن دریافت شد. طول متن: {len(text)}")
-        
-        processed_text = f"پردازش شده: {text[:50]}..." if len(text) > 50 else f"پردازش شده: {text}"
-        
-        return {
-            "success": True,
-            "original_length": len(text),
-            "processed_text": processed_text,
-            "message": "پردازش با موفقیت انجام شد",
-            "language": "fa",
-            "char_count": len(text),
-            "word_count": len(text.split())
-        }
-        
-    except HTTPException:
-        raise
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=400,
-            detail="فرمت JSON نامعتبر است"
-        )
-    except Exception as e:
-        logger.error(f"خطا در پردازش متن: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="خطای داخلی سرور در پردازش متن"
-        )
-
-@app.get("/api/file-info")
-async def get_file_info(path: str = "requirements.txt"):
-    """
-    دریافت اطلاعات یک فایل
-    """
-    try:
-        file_path = Path("/var/task") / path
-        if not file_path.exists():
-            raise HTTPException(
-                status_code=404,
-                detail=f"فایل {path} یافت نشد"
-            )
-        
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        stat = file_path.stat()
-        
-        return {
-            "success": True,
-            "file_path": str(file_path),
-            "file_name": file_path.name,
-            "file_size": stat.st_size,
-            "file_size_human": f"{stat.st_size / 1024:.2f} KB",
-            "content_preview": content[:500] + "..." if len(content) > 500 else content,
-            "content_length": len(content),
-            "is_file": file_path.is_file()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"خطا در خواندن فایل {path}: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"خطا در خواندن فایل: {str(e)}"
-        )
-
-@app.get("/api/logs")
-async def get_logs(limit: int = 50):
-    """
-    دریافت آخرین لاگ‌های سیستم
-    """
-    try:
-        log_file = Path("/var/task/api.log")
-        if not log_file.exists():
-            sample_logs = [
-                f"{__import__('datetime').datetime.now().isoformat()} - INFO - API شروع شد",
-                f"{__import__('datetime').datetime.now().isoformat()} - INFO - درخواست سلامت دریافت شد",
-                f"{__import__('datetime').datetime.now().isoformat()} - INFO - سیستم آماده به کار است"
-            ]
-            
-            return {
-                "success": True,
-                "total_logs": len(sample_logs),
-                "recent_logs": sample_logs[-limit:],
-                "limit_applied": limit,
-                "log_file_exists": False
-            }
-        
-        with open(log_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        
-        recent_logs = lines[-limit:] if len(lines) > limit else lines
-        
-        return {
-            "success": True,
-            "total_logs": len(lines),
-            "recent_logs": recent_logs,
-            "limit_applied": limit,
-            "log_file_exists": True,
-            "log_file_size": log_file.stat().st_size
-        }
-        
-    except Exception as e:
-        logger.error(f"خطا در خواندن لاگ‌ها: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="خطا در دریافت لاگ‌های سیستم"
-        )
-
-@app.get("/api/system-info")
-async def get_system_info():
-    """
-    دریافت اطلاعات سیستم
-    """
-    import platform
-    import sys
-    
-    return {
-        "success": True,
-        "system": {
-            "python_version": sys.version,
-            "platform": platform.platform(),
-            "system": platform.system(),
-            "release": platform.release()
-        },
-        "api": {
-            "version": "1.0.0",
-            "environment": os.getenv("VERCEL_ENV", "production"),
-            "base_url": os.getenv("VERCEL_URL", "https://natiq-ultimate.vercel.app")
-        },
-        "resources": {
-            "cpus": os.cpu_count()
-        }
-    }
-
-# ==================== مستندات API ====================
+@app.get("/api/docs")
+async def get_api_docs():
+    """مستندات Swagger UI"""
+    return HTMLResponse(content=SWAGGER_UI_HTML, status_code=200)
 
 @app.get("/api/openapi.json")
 async def get_openapi_spec():
@@ -357,50 +398,39 @@ async def get_openapi_spec():
     return {
         "openapi": "3.0.0",
         "info": {
-            "title": "Natiq Ultimate API",
-            "description": "API برای پردازش متن و مدیریت فایل",
-            "version": "1.0.0"
+            "title": "Natiq Ultimate AI API",
+            "description": "هوش مصنوعی فارسی با قابلیت مکالمه و پردازش متن",
+            "version": "1.5.0",
+            "contact": {
+                "name": "ناطق اولتیمیت",
+                "url": "https://natiq-ultimate.vercel.app"
+            }
         },
         "servers": [
             {
                 "url": "https://natiq-ultimate.vercel.app/api",
-                "description": "Production server"
+                "description": "سرور تولید"
             }
         ],
         "paths": {
-            "/": {
-                "get": {
-                    "summary": "اطلاعات کلی API",
-                    "responses": {
-                        "200": {
-                            "description": "موفق"
-                        }
-                    }
-                }
-            },
-            "/health": {
-                "get": {
-                    "summary": "بررسی سلامت API",
-                    "responses": {
-                        "200": {
-                            "description": "API سالم است"
-                        }
-                    }
-                }
-            },
-            "/process": {
+            "/chat": {
                 "post": {
-                    "summary": "پردازش متن",
+                    "summary": "مکالمه با هوش مصنوعی",
+                    "description": "ارسال پیام و دریافت پاسخ از AI",
                     "requestBody": {
-                        "required": True,
+                        "required": true,
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "text": {
+                                        "message": {
                                             "type": "string",
-                                            "description": "متن ورودی"
+                                            "description": "پیام کاربر"
+                                        },
+                                        "session_id": {
+                                            "type": "string",
+                                            "description": "شناسه جلسه (اختیاری)"
                                         }
                                     }
                                 }
@@ -409,67 +439,10 @@ async def get_openapi_spec():
                     },
                     "responses": {
                         "200": {
-                            "description": "متن با موفقیت پردازش شد"
+                            "description": "پاسخ موفق"
                         },
                         "400": {
-                            "description": "خطا در درخواست"
-                        }
-                    }
-                }
-            },
-            "/file-info": {
-                "get": {
-                    "summary": "اطلاعات فایل",
-                    "parameters": [
-                        {
-                            "name": "path",
-                            "in": "query",
-                            "required": False,
-                            "schema": {
-                                "type": "string"
-                            },
-                            "description": "مسیر فایل",
-                            "default": "requirements.txt"
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "description": "اطلاعات فایل"
-                        },
-                        "404": {
-                            "description": "فایل یافت نشد"
-                        }
-                    }
-                }
-            },
-            "/logs": {
-                "get": {
-                    "summary": "لاگ‌های سیستم",
-                    "parameters": [
-                        {
-                            "name": "limit",
-                            "in": "query",
-                            "required": False,
-                            "schema": {
-                                "type": "integer"
-                            },
-                            "description": "تعداد لاگ‌ها",
-                            "default": 50
-                        }
-                    ],
-                    "responses": {
-                        "200": {
-                            "description": "لیست لاگ‌ها"
-                        }
-                    }
-                }
-            },
-            "/system-info": {
-                "get": {
-                    "summary": "اطلاعات سیستم",
-                    "responses": {
-                        "200": {
-                            "description": "اطلاعات سیستم"
+                            "description": "پیام خالی یا نامعتبر"
                         }
                     }
                 }
@@ -477,64 +450,30 @@ async def get_openapi_spec():
         }
     }
 
-@app.get("/api/docs")
-async def get_api_docs():
-    """مستندات Swagger UI"""
-    return HTMLResponse(content=SWAGGER_UI_HTML, status_code=200)
-
-@app.get("/api/redoc")
-async def get_api_redoc():
-    """مستندات ReDoc"""
-    return HTMLResponse(content=REDOC_HTML, status_code=200)
-
-@app.get("/docs")
-async def redirect_to_docs():
-    """هدایت به مستندات"""
-    return RedirectResponse(url="/api/docs")
-
-@app.get("/redoc")
-async def redirect_to_redoc():
-    """هدایت به ReDoc"""
-    return RedirectResponse(url="/api/redoc")
-
-# ==================== هندلر خطاها ====================
+# ==================== مدیریت خطا ====================
 
 @app.exception_handler(404)
-async def not_found_exception_handler(request: Request, exc: HTTPException):
+async def not_found_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=404,
         content={
             "success": False,
             "error": "مسیر یافت نشد",
             "path": str(request.url.path),
-            "available_endpoints": [
-                "/api/",
-                "/api/health",
-                "/api/process",
-                "/api/file-info",
-                "/api/logs",
-                "/api/system-info",
-                "/api/docs",
-                "/api/redoc",
-                "/api/openapi.json"
-            ]
+            "suggestion": "از endpoint /api/chat برای مکالمه با AI استفاده کنید"
         }
     )
 
+# Middleware برای لاگ‌گیری
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    start_time = __import__("time").time()
+    import time
+    start_time = time.time()
     
     response = await call_next(request)
     
-    process_time = (__import__("time").time() - start_time) * 1000
-    formatted_process_time = f"{process_time:.2f}ms"
-    
-    logger.info(
-        f"{request.method} {request.url.path} "
-        f"completed in {formatted_process_time} "
-        f"status: {response.status_code}"
-    )
+    process_time = (time.time() - start_time) * 1000
+    logger.info(f"{request.method} {request.url.path} - {response.status_code} - {process_time:.0f}ms")
     
     return response
 
