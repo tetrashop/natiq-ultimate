@@ -39,6 +39,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# اضافه کردن به app.py
+from math_engine import NatiqMathEngine
+
+math_engine = NatiqMathEngine()
+
+@app.post("/api/math/solve")
+async def solve_equation(request: Request):
+    """حل معادله ریاضی"""
+    data = await request.json()
+    equation = data.get("equation")
+    variable = data.get("variable", "x")
+    
+    result = math_engine.solve_equation(equation, variable)
+    
+    return {
+        "success": True,
+        "type": "math_solution",
+        "result": result,
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.post("/api/math/derive")
+async def calculate_derivative(request: Request):
+    """محاسبه مشتق"""
+    data = await request.json()
+    expression = data.get("expression")
+    variable = data.get("variable", "x")
+    
+    result = math_engine.calculate_derivative(expression, variable)
+    
+    return {
+        "success": True,
+        "type": "derivative",
+        "result": result,
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.post("/api/logic/evaluate")
+async def evaluate_logic(request: Request):
+    """ارزیابی گزاره منطقی"""
+    data = await request.json()
+    proposition = data.get("proposition")
+    
+    result = math_engine.evaluate_logic(proposition)
+    
+    return {
+        "success": True,
+        "type": "logic_evaluation",
+        "result": result,
+        "timestamp": datetime.now().isoformat()
+    }
+
 @app.get("/")
 async def root():
     """صفحه اصلی API"""
