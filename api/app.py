@@ -41,7 +41,18 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return FileResponse("public/index.html")
+    """صفحه اصلی API"""
+    return {
+        "message": "🎯 Natiq Ultimate API Server",
+        "version": "3.0.0",
+        "status": "running",
+        "endpoints": {
+            "health": "/api/health",
+            "chat": "/api/chat (POST)",
+            "chat_memory": "/api/chat-memory (POST)"
+        },
+        "documentation": "برای استفاده از API به مستندات مراجعه کنید"
+    }
 
 @app.get("/api/")
 async def api_root():
@@ -153,7 +164,6 @@ async def chat_openai(request: Request):
         "status": "برای استفاده از OpenAI واقعی، کد کامل را از پاسخ‌های قبلی کپی کنید.",
         "tip": "کد کامل در تاریخچه مکالمه موجود است"
     }
-
 @app.get("/api/health")
 async def health_check():
     return {
@@ -174,53 +184,130 @@ async def debug():
         "check": "اگر این پیام را می‌بینید، نسخه ۳.۰.۰ نصب است"
     }
 
-# ==================== قابلیت‌های پیشرفته ====================
 
-# import ماژول جدید (در بالای فایل app.py، بعد از importهای دیگر اضافه کنید)
-# from chat_features import get_memory, add_to_memory, clear_memory, generate_smart_response_with_memory
+import re
+from typing import Dict, List
+from datetime import datetime, timedelta
 
-# یا مستقیماً کدها را اینجا اضافه کنید:
-# (کدهای بالا را مستقیماً در اینجا کپی کنید)
+# ذخیره موقت حافظه مکالمه در RAM
+chat_memories: Dict[str, List[Dict]] = {}
+
+def extract_name_from_message(message: str) -> str:
+    """استخراج نام از پیام کاربر"""
+    patterns = [
+        r"اسم من (\w+) است",
+        r"نام من (\w+) است",
+        r"من (\w+) هستم",
+        r"من (\w+) ام",
+        r"call me (\w+)",
+        r"my name is (\w+)"
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, message, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    
+    return ""
+
+def find_name_in_history(history: List[Dict]) -> str:
+    """جستجوی نام در تاریخچه مکالمه"""
+    for entry in history:
+        if entry["role"] == "user":
+            name = extract_name_from_message(entry["message"])
+            if name:
+                return name
+    return ""
 
 @app.post("/api/chat-memory")
 async def chat_with_memory(request: Request):
-    """مکالمه با حافظه جلسه"""
+    """مکالمه با حافظه واقعی - نسخه بهبود یافته"""
     try:
+        # دریافت داده‌های ورودی
         data = await request.json()
         message = data.get("message", "").strip()
-        session_id = data.get("session_id", "default")
+        session_id = data.get("session_id", f"session_{datetime.now().timestamp()}")
         
-        if not message:
-            raise HTTPException(status_code=400, detail="پیام نمی‌تواند خالی باشد")
+        # بررسی وجود session
+        if session_id not in chat_memories:
+            chat_memories[session_id] = []
         
-        logger.info(f"💬 چت با حافظه دریافت شد (session: {session_id}): {message[:50]}...")
+        # استخراج نام از پیام فعلی
+        current_name = extract_name_from_message(message)
         
-        # استفاده از منطق حافظه (نسخه ساده شده)
-        # در اینجا مستقیماً از توابعی که در chat_features.py تعریف کردید استفاده کنید
-        # برای شروع، یک نسخه ساده:
-        from datetime import datetime
+        # ذخیره پیام کاربر
+        chat_memories[session_id].append({
+            "role": "user",
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "extracted_name": current_name if current_name else None
+        })
         
-        # شبیه‌سازی حافظه ساده
-        response = f"پیام شما در session '{session_id}' دریافت شد: '{message}'. [حالت حافظه: فعال]"
+        # تاریخچه مکالمه (آخرین ۱۰ پیام)
+        history = chat_memories[session_id][-10:] if len(chat_memories[session_id]) > 10 else chat_memories[session_id]
         
-        # اگر session_id خاصی داریم
-        if session_id != "default":
-            response += f"\nشناسه session شما: {session_id}"
+        # تولید پاسخ هوشمندانه‌تر
+        if any(word in message.lower() for word in ["اسم", "نام", "name"]) and any(word in message.lower() for word in ["چیه", "چیست", "چه", "what"]):
+            # جستجوی نام در تاریخچه
+            found_name = find_name_in_history(history)
+            if found_name:
+                response = f"اسم شما '{found_name}' است! 😊"
+            else:
+                response = "هنوز نام شما را نمی‌دانم. لطفاً بگویید 'اسم من ... است'."
+        
+        elif "چند پیام" in message or "چندتا" in message:
+            user_messages = [m for m in history if m["role"] == "user"]
+            assistant_messages = [m for m in history if m["role"] == "assistant"]
+            response = f"📊 در این مکالمه: {len(user_messages)} پیام از شما، {len(assistant_messages)} پاسخ از من. مجموعاً {len(history)} پیام."
+        
+        elif current_name:
+            response = f"سلام {current_name}! خوش آمدی. نامت را به خاطر می‌سپارم. 👋"
+        
+        else:
+            memory_count = len([m for m in history if m["role"] == "user"])
+            response = f"پیام شما دریافت شد. من {memory_count} پیام از شما در این مکالمه به خاطر دارم. 💭"
+        
+        # ذخیره پاسخ سیستم
+        chat_memories[session_id].append({
+            "role": "assistant",
+            "message": response,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        # محدود کردن حجم حافظه (حداکثر ۲۰ پیام در هر session)
+        if len(chat_memories[session_id]) > 20:
+            chat_memories[session_id] = chat_memories[session_id][-20:]
         
         return {
             "success": True,
             "response": response,
             "session_id": session_id,
             "has_memory": True,
+            "memory_count": len(chat_memories[session_id]),
+            "user_message_count": len([m for m in history if m["role"] == "user"]),
             "timestamp": datetime.now().isoformat()
         }
         
     except Exception as e:
-        logger.error(f"خطا در چت با حافظه: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"success": False, "error": str(e)}
-        )
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "خطا در پردازش درخواست"
+        }
+
+def cleanup_old_sessions():
+    """حذف session‌های قدیمی (هر ساعت یکبار اجرا شود)"""
+    global chat_memories
+    cutoff_time = datetime.now() - timedelta(hours=1)
+    
+    sessions_to_remove = []
+    for session_id, messages in chat_memories.items():
+        if messages and datetime.fromisoformat(messages[0]["timestamp"]) < cutoff_time:
+            sessions_to_remove.append(session_id)
+    
+    for session_id in sessions_to_remove:
+        del chat_memories[session_id]
+
 
 @app.delete("/api/clear-memory/{session_id}")
 async def clear_session_memory(session_id: str = "default"):
@@ -235,7 +322,7 @@ async def clear_session_memory(session_id: str = "default"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
+# برای سازگاری با Vercel (Serverless Functions)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
