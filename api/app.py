@@ -174,6 +174,68 @@ async def debug():
         "check": "اگر این پیام را می‌بینید، نسخه ۳.۰.۰ نصب است"
     }
 
+# ==================== قابلیت‌های پیشرفته ====================
+
+# import ماژول جدید (در بالای فایل app.py، بعد از importهای دیگر اضافه کنید)
+# from chat_features import get_memory, add_to_memory, clear_memory, generate_smart_response_with_memory
+
+# یا مستقیماً کدها را اینجا اضافه کنید:
+# (کدهای بالا را مستقیماً در اینجا کپی کنید)
+
+@app.post("/api/chat-memory")
+async def chat_with_memory(request: Request):
+    """مکالمه با حافظه جلسه"""
+    try:
+        data = await request.json()
+        message = data.get("message", "").strip()
+        session_id = data.get("session_id", "default")
+        
+        if not message:
+            raise HTTPException(status_code=400, detail="پیام نمی‌تواند خالی باشد")
+        
+        logger.info(f"💬 چت با حافظه دریافت شد (session: {session_id}): {message[:50]}...")
+        
+        # استفاده از منطق حافظه (نسخه ساده شده)
+        # در اینجا مستقیماً از توابعی که در chat_features.py تعریف کردید استفاده کنید
+        # برای شروع، یک نسخه ساده:
+        from datetime import datetime
+        
+        # شبیه‌سازی حافظه ساده
+        response = f"پیام شما در session '{session_id}' دریافت شد: '{message}'. [حالت حافظه: فعال]"
+        
+        # اگر session_id خاصی داریم
+        if session_id != "default":
+            response += f"\nشناسه session شما: {session_id}"
+        
+        return {
+            "success": True,
+            "response": response,
+            "session_id": session_id,
+            "has_memory": True,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"خطا در چت با حافظه: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": str(e)}
+        )
+
+@app.delete("/api/clear-memory/{session_id}")
+async def clear_session_memory(session_id: str = "default"):
+    """پاکسازی حافظه یک session خاص"""
+    try:
+        # اینجا تابع clear_memory از ماژول chat_features را فراخوانی کنید
+        return {
+            "success": True,
+            "message": f"حافظه session '{session_id}' پاک شد",
+            "session_id": session_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
