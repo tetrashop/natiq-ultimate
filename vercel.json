@@ -12,10 +12,18 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=3600"
-      }
+      "dest": "/frontend/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
