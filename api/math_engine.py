@@ -1,8 +1,8 @@
-# ~/natiq-ultimate/api/math_engine.py
 import sympy as sp
 import numpy as np
 from typing import Dict, Any, List
 import re
+import json
 
 class NatiqMathEngine:
     """موتور ریاضی ناطق"""
@@ -21,12 +21,12 @@ class NatiqMathEngine:
             'مشتق': 'diff',
             'انتگرال': 'integrate',
             'حد': 'limit',
-            'مجموع': 'summation',
             'جذر': 'sqrt',
             'سیگما': 'Sum',
             'بینهایت': 'oo',
             'پی': 'pi',
-            'ای': 'E'
+            'ای': 'E',
+            'قدر مطلق': 'abs'
         }
         
         for fa, en in replacements.items():
@@ -67,38 +67,42 @@ class NatiqMathEngine:
     
     def evaluate_logic(self, proposition: str):
         """ارزیابی گزاره منطقی"""
-        # تبدیل گزاره فارسی به منطق
-        logic_map = {
-            'و': 'and',
-            'یا': 'or',
-            'نباشد': 'not',
-            'اگر': 'if',
-            'آنگاه': 'then'
-        }
-        
-        truth_table = self._generate_truth_table(proposition)
-        
-        return {
-            'proposition': proposition,
-            'truth_table': truth_table,
-            'tautology': self._is_tautology(proposition),
-            'contradiction': self._is_contradiction(proposition)
-        }
+        try:
+            # تبدیل گزاره فارسی به منطق
+            logic_map = {
+                'و': '&',
+                'یا': '|',
+                'نباشد': '~',
+                'اگر': '>>',
+                'آنگاه': '>>'
+            }
+            
+            return {
+                'proposition': proposition,
+                'evaluation': 'در حال توسعه',
+                'type': 'logical'
+            }
+        except Exception as e:
+            return {'error': str(e)}
     
     def _show_steps(self, equation, variable):
         """نمایش مراحل حل"""
         steps = []
         x = sp.Symbol(variable)
         
-        # مرحله 1: ساده‌سازی
-        simplified = sp.simplify(equation)
-        steps.append(f"ساده‌سازی: {simplified}")
-        
-        # مرحله 2: حل
-        solutions = sp.solve(equation, x)
-        steps.append(f"حل برای {variable}: {solutions}")
+        try:
+            # مرحله 1: ساده‌سازی
+            simplified = sp.simplify(equation)
+            steps.append(f"ساده‌سازی: {simplified}")
+            
+            # مرحله 2: حل
+            solutions = sp.solve(equation, x)
+            steps.append(f"حل برای {variable}: {solutions}")
+            
+        except Exception as e:
+            steps.append(f"خطا در نمایش مراحل: {str(e)}")
         
         return steps
 
-# نمونه استفاده
+# نمونه شیء جهانی
 math_engine = NatiqMathEngine()
