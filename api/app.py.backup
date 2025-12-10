@@ -164,14 +164,31 @@ async def chat_openai(request: Request):
         "status": "برای استفاده از OpenAI واقعی، کد کامل را از پاسخ‌های قبلی کپی کنید.",
         "tip": "کد کامل در تاریخچه مکالمه موجود است"
     }
+
+# در فایل app.py، تابع health را پیدا و با این جایگزین کنید:
 @app.get("/api/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "version": "3.0.0",
-        "ai_enabled": AI_ENABLED,
-        "timestamp": datetime.datetime.now().isoformat()
-    }
+async def health():
+    """بررسی وضعیت سلامت سرور"""
+    import datetime
+    import sys
+    
+    try:
+        return {
+            "status": "healthy",
+            "version": "3.0.0",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "endpoints": {
+                "root": "GET /",
+                "chat": "POST /api/chat",
+                "chat_memory": "POST /api/chat-memory"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.datetime.now().isoformat()
+        }
 
 @app.get("/api/debug")
 async def debug():
