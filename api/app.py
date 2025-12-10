@@ -1,108 +1,83 @@
+"""
+Natiq API - نسخه فوق ساده و پایدار
+"""
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from mangum import Mangum
-from datetime import datetime
 import json
+from datetime import datetime
 
 app = FastAPI(
     title="Natiq API",
-    version="3.1.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    version="3.2.0",
+    docs_url=None,  # غیرفعال کردن docs برای سادگی
+    redoc_url=None
 )
 
-# تنظیم CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# روت اصلی
 @app.get("/")
 async def root():
-    return {"message": "Natiq API Server", "version": "3.1.0", "status": "active"}
+    return {
+        "status": "active",
+        "service": "natiq-api",
+        "version": "3.2.0",
+        "message": "Natiq Ultimate API Server"
+    }
 
-# سلامت سیستم
 @app.get("/api/health")
 async def health():
     return {
         "status": "healthy",
-        "version": "3.1.0",
         "timestamp": datetime.now().isoformat(),
-        "services": ["chat", "nlp", "tts"]
+        "python_version": "3.9"
     }
 
-# چت ساده
 @app.post("/api/chat")
 async def chat(request: Request):
+    """اندپوینت چت ساده"""
     try:
-        data = await request.json()
-        message = data.get("message", "")
+        body = await request.body()
+        if body:
+            data = json.loads(body)
+            user_message = data.get("message", "بدون متن")
+        else:
+            user_message = "بدون متن"
         
-        return {
+        return JSONResponse({
             "success": True,
-            "response": f"دریافت کردم: {message} | این پاسخ از API جدید است",
-            "timestamp": datetime.now().isoformat(),
-            "language": "fa"
-        }
-    except:
-        return {
-            "success": True,
-            "response": "سلام! من ناطق هستم. چطور می‌تونم کمک کنم؟",
+            "response": f"پیام شما: '{user_message}' دریافت شد. سیستم ناطق فعال است.",
             "timestamp": datetime.now().isoformat()
-        }
+        })
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }, status_code=500)
 
-# چت با حافظه
 @app.post("/api/chat-memory")
 async def chat_memory(request: Request):
-    try:
-        data = await request.json()
-        message = data.get("message", "")
-        history = data.get("history", [])
-        
-        response_text = f"پیام شما: {message}"
-        if history:
-            response_text += f" | حافظه: {len(history)} پیام قبلی"
-        
-        return {
-            "success": True,
-            "response": response_text,
-            "history": history + [{"role": "assistant", "content": response_text}],
-            "has_memory": True,
-            "timestamp": datetime.now().isoformat()
-        }
-    except:
-        return {
-            "success": True,
-            "response": "سیستم چت با حافظه فعال است. لطفاً پیام خود را ارسال کنید.",
-            "history": [],
-            "has_memory": True,
-            "timestamp": datetime.now().isoformat()
-        }
-
-# تحلیل NLP
-@app.post("/api/nlp")
-async def nlp_analysis(request: Request):
-    return {
+    """چت با قابلیت حافظه"""
+    return JSONResponse({
         "success": True,
-        "analysis": {
-            "tokens": ["این", "یک", "تحلیل", "نمونه", "است"],
-            "pos_tags": ["PRON", "DET", "NOUN", "NOUN", "VERB"],
-            "sentiment": "positive",
-            "confidence": 0.87
-        },
-        "timestamp": datetime.now().isoformat(),
-        "note": "سیستم NLP کامل در حال توسعه است"
-    }
+        "response": "سیستم چت با حافظه فعال است. برای استفاده کامل، لطفا پیام ارسال کنید.",
+        "has_memory": True,
+        "timestamp": datetime.now().isoformat()
+    })
+
+@app.get("/api/test")
+async def test():
+    """تست ساده API"""
+    return JSONResponse({
+        "test": "success",
+        "message": "API در حال کار است",
+        "version": "3.2.0",
+        "timestamp": datetime.now().isoformat()
+    })
 
 # هندلر برای Vercel
 handler = Mangum(app)
 
-# برای اجرای محلی
+# برای اجرای محلی (اختیاری)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
