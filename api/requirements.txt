@@ -2,5 +2,4 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 mangum==0.17.0
 python-multipart==0.0.6
-sympy==1.12
-numpy==1.21.6  # نسخه قدیمی‌تر و سازگار با پایتون 3.9
+# حذف numpy و sympy - نیازی نیستند برای API پایه
