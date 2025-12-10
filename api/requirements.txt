@@ -3,5 +3,5 @@ uvicorn[standard]==0.24.0
 mangum==0.17.0
 python-multipart==0.0.6
 sympy==1.12
-numpy==1.24.0
-python-dateutil==2.8.2
+numpy==1.23.5  # تغییر از 1.24.0 به 1.23.5 (پایدارتر)
+setuptools==68.2.2  # اضافه کردن برای رفع مشکل distutils
