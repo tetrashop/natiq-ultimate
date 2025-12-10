@@ -1,186 +1,898 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 natiq-ultimate | هوش مصنوعی فارسی</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>ناطق اولتیمیت - پلتفرم هوش مصنوعی ریاضیات</title>
+    
+    <!-- فونت‌ها و آیکون‌ها -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- کتابخانه‌های ضروری -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    
+    <style>
+        /* استایل‌های اولیه */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 80px 1fr;
+            grid-template-areas: 
+                "sidebar header"
+                "sidebar main";
+            min-height: 100vh;
+            max-width: 100vw;
+            overflow: hidden;
+        }
+
+        /* هدر */
+        .header {
+            grid-area: header;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text span {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* نوار کناری */
+        .sidebar {
+            grid-area: sidebar;
+            background: rgba(255, 255, 255, 0.98);
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(-5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* محتوای اصلی */
+        .main-content {
+            grid-area: main;
+            padding: 2rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* کارت‌ها */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* ویجت‌های داشبورد */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .stat-change.positive {
+            color: var(--accent);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* ویرایشگر ریاضی */
+        .math-editor-container {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .math-toolbar {
+            background: #252526;
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #333;
+        }
+
+        .math-btn {
+            background: #3e3e42;
+            color: #cccccc;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        .math-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* چت اینترفیس */
+        .chat-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
+            height: 600px;
+        }
+
+        .chat-history {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* نمودارها */
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            height: 400px;
+        }
+
+        /* واکنش‌گرایی */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- وضعیت اتصال - همیشه قابل مشاهده -->
-    <div class="connection-alert" id="connectionAlert">
-        <span id="alertText"><i class="fas fa-wifi"></i> در حال بررسی اتصال به سرور...</span>
-        <button id="retryBtn" class="retry-btn" style="display:none;">
-            <i class="fas fa-redo"></i> تلاش مجدد
-        </button>
-    </div>
-
-    <div class="container">
+    <div class="app-container">
+        
         <!-- هدر -->
         <header class="header">
             <div class="logo">
-                <i class="fas fa-robot"></i>
-                <h1>natiq-ultimate</h1>
-                <span class="version">نسخه ۲.۱</span>
+                <div class="logo-icon">
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>ناطق اولتیمیت</h1>
+                    <span>پلتفرم هوش مصنوعی ریاضیات فارسی</span>
+                </div>
             </div>
-            <div class="header-controls">
-                <button class="icon-btn" id="toggleSidebar" title="نمایش/مخفی کردن پنل">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <button class="icon-btn" id="themeToggle" title="تغییر حالت تاریک/روشن">
-                    <i class="fas fa-moon"></i>
-                </button>
+            
+            <div class="header-actions">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=کاربر+ریاضی&background=6366f1&color=fff" 
+                         alt="پروفایل" class="avatar">
+                    <span class="user-name">کاربر ریاضی</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
             </div>
         </header>
-
-        <div class="main-content">
-            <!-- پیام‌های چت -->
-            <div class="chat-container" id="chatContainer">
-                <!-- پیام خوش‌آمدگویی - با انیمیشن -->
-                <div class="welcome-message">
-                    <div class="message bot">
-                        <div class="avatar pulse">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="content">
-                            <div class="text">
-                                <h3>سلام! من <strong>natiq-ultimate</strong> هستم. 🤖</h3>
-                                <p>دستیار هوشمند فارسی شما که می‌تواند:</p>
-                                <ul class="features">
-                                    <li><i class="fas fa-check-circle"></i> به سوالات فارسی پاسخ دهد</li>
-                                    <li><i class="fas fa-check-circle"></i> از شما یاد بگیرد (<code>یاد بگیر سوال|پاسخ</code>)</li>
-                                    <li><i class="fas fa-check-circle"></i> آمار گفتگو را نگهداری کند</li>
-                                </ul>
-                                <p class="hint"><i class="fas fa-info-circle"></i> وضعیت اتصال در نوار بالای صفحه نمایش داده می‌شود.</p>
-                            </div>
-                            <div class="time">همین الان</div>
-                        </div>
-                    </div>
-                </div>
+        
+        <!-- نوار کناری -->
+        <nav class="sidebar">
+            <div class="nav-section">
+                <div class="nav-title">داشبورد اصلی</div>
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>داشبورد</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>آمار و تحلیلات</span>
+                </a>
+                <a href="#" class="nav-item" data-page="quick-actions">
+                    <i class="fas fa-bolt"></i>
+                    <span>اقدامات سریع</span>
+                </a>
             </div>
-
-            <!-- پانل کناری (با قابلیت نمایش/مخفی‌سازی) -->
-            <div class="sidebar active" id="sidebar">
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-chart-bar"></i> آمار زنده</h3>
-                    <div class="stats">
-                        <div class="stat-item">
-                            <span class="stat-label">سوالات این جلسه:</span>
-                            <span class="stat-value" id="statQuestions">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">موضوعات پوشش داده‌شده:</span>
-                            <span class="stat-value" id="statTopics">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">شناسه جلسه:</span>
-                            <span class="stat-value session-id" id="sessionId" title="کپی" onclick="natiqApp.copySessionId()">...</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">وضعیت اتصال:</span>
-                            <span class="stat-value">
-                                <span class="connection-status" id="sidebarStatus">
-                                    <span class="status-dot"></span> در حال اتصال
-                                </span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-bolt"></i> اقدام سریع</h3>
-                    <div class="quick-grid">
-                        <button class="quick-action" data-action="test-api">
-                            <i class="fas fa-plug"></i> تست اتصال API
-                        </button>
-                        <button class="quick-action" data-action="clear-chat">
-                            <i class="fas fa-trash"></i> پاک کردن چت
-                        </button>
-                        <button class="quick-action" data-action="export-chat">
-                            <i class="fas fa-download"></i> ذخیره گفتگو
-                        </button>
-                        <button class="quick-action" data-action="view-logs">
-                            <i class="fas fa-clipboard-list"></i> مشاهده لاگ
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-graduation-cap"></i> آموزش فوری</h3>
-                    <div class="tutorial">
-                        <p>برای آموزش به من بگویید:</p>
-                        <div class="code-block">
-                            <code>یاد بگیر پایتون چیست؟|پایتون یک زبان برنامه‌نویسی قدرتمند است.</code>
-                            <button class="copy-btn" onclick="natiqApp.copyText(this)"><i class="fas fa-copy"></i></button>
-                        </div>
-                        <p>یا نام خود را تنظیم کنید:</p>
-                        <div class="code-block">
-                            <code>اسم من [نام شما]</code>
-                            <button class="copy-btn" onclick="natiqApp.copyText(this)"><i class="fas fa-copy"></i></button>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">ابزارهای ریاضی</div>
+                <a href="#" class="nav-item" data-page="math-solver">
+                    <i class="fas fa-calculator"></i>
+                    <span>حل‌کننده معادلات</span>
+                </a>
+                <a href="#" class="nav-item" data-page="calculus">
+                    <i class="fas fa-infinity"></i>
+                    <span>حسابان پیشرفته</span>
+                </a>
+                <a href="#" class="nav-item" data-page="geometry">
+                    <i class="fas fa-shapes"></i>
+                    <span>هندسه تعاملی</span>
+                </a>
+                <a href="#" class="nav-item" data-page="logic">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>منطق و اثبات</span>
+                </a>
+                <a href="#" class="nav-item" data-page="statistics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>آمار و احتمال</span>
+                </a>
             </div>
-        </div>
-
-        <!-- ورودی کاربر - پیشرفته‌تر -->
-        <div class="input-container">
-            <div class="input-wrapper">
-                <div class="input-group">
-                    <input 
-                        type="text" 
-                        id="messageInput" 
-                        placeholder="سوال خود را اینجا بنویسید یا از دکمه‌های زیر استفاده کنید..."
-                        autocomplete="off"
-                        autofocus
-                    >
-                    <div class="input-actions">
-                        <button id="sendButton" class="send-btn" title="ارسال (Enter)">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                        <button id="voiceBtn" class="icon-btn" title="ضبط صوتی (به زودی)">
-                            <i class="fas fa-microphone"></i>
-                        </button>
+            
+            <div class="nav-section">
+                <div class="nav-title">هوش مصنوعی</div>
+                <a href="#" class="nav-item" data-page="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>چت هوشمند</span>
+                    <span class="badge">جدید</span>
+                </a>
+                <a href="#" class="nav-item" data-page="tutor">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>مربی شخصی</span>
+                </a>
+                <a href="#" class="nav-item" data-page="problem-generator">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>تولید مسئله</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">سیستم</div>
+                <a href="#" class="nav-item" data-page="api-docs">
+                    <i class="fas fa-code"></i>
+                    <span>مستندات API</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>تنظیمات</span>
+                </a>
+                <a href="#" class="nav-item" data-page="help">
+                    <i class="fas fa-question-circle"></i>
+                    <span>راهنما و پشتیبانی</span>
+                </a>
+            </div>
+            
+            <div class="upgrade-card">
+                <div class="upgrade-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h3>ارتقا به نسخه حرفه‌ای</h3>
+                <p>دسترسی به تمامی قابلیت‌های پیشرفته</p>
+                <button class="upgrade-btn">ارتقا حساب</button>
+            </div>
+        </nav>
+        
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="main-content">
+            
+            <!-- صفحه داشبورد -->
+            <section id="dashboard" class="page active">
+                <div class="welcome-banner card">
+                    <div class="banner-content">
+                        <h2>سلام، کاربر عزیز! 👋</h2>
+                        <p>به پلتفرم هوش مصنوعی ریاضیات فارسی خوش آمدید. امروز چه کاری می‌خواهید انجام دهید؟</p>
+                        <div class="quick-actions">
+                            <button class="action-btn" data-action="solve-equation">
+                                <i class="fas fa-equality"></i>
+                                <span>حل معادله</span>
+                            </button>
+                            <button class="action-btn" data-action="chat">
+                                <i class="fas fa-comment"></i>
+                                <span>چت با هوش مصنوعی</span>
+                            </button>
+                            <button class="action-btn" data-action="learn">
+                                <i class="fas fa-book"></i>
+                                <span>یادگیری موضوع جدید</span>
+                            </button>
+                            <button class="action-btn" data-action="practice">
+                                <i class="fas fa-dumbbell"></i>
+                                <span>تمرین ریاضی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="banner-image">
+                        <img src="https://cdn.pixabay.com/photo/2017/08/05/11/24/logo-2582758_1280.png" alt="ریاضیات">
                     </div>
                 </div>
                 
-                <div class="suggestions">
-                    <p class="suggestion-title"><i class="fas fa-lightbulb"></i> پیشنهاد سوال:</p>
-                    <div class="suggestion-buttons">
-                        <button class="suggestion-btn" data-question="هوش مصنوعی چیست؟">
-                            هوش مصنوعی چیست؟
-                        </button>
-                        <button class="suggestion-btn" data-question="اسم تو چیست؟">
-                            اسم تو چیست؟
-                        </button>
-                        <button class="suggestion-btn" data-question="چگونه می‌توانم برنامه‌نویس شوم؟">
-                            چگونه برنامه‌نویس شوم؟
-                        </button>
-                        <button class="suggestion-btn" data-question="آمار این جلسه را نشان بده">
-                            <i class="fas fa-chart-bar"></i> نمایش آمار
-                        </button>
+                <div class="dashboard-grid">
+                    <!-- ویجت وضعیت سیستم -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-server"></i>
+                                وضعیت سیستم
+                            </h3>
+                            <span class="status-badge online">
+                                <i class="fas fa-circle"></i>
+                                آنلاین
+                            </span>
+                        </div>
+                        <div class="system-status">
+                            <div class="status-item">
+                                <span class="label">API سرور:</span>
+                                <span class="value success">فعال</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">موتور ریاضی:</span>
+                                <span class="value success">آماده</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">پردازش هوش مصنوعی:</span>
+                                <span class="value success">فعال</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">پاسخ‌گویی:</span>
+                                <span class="value">۱۵۶ms</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ویجت آمار کاربر -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-pie"></i>
+                                آمار فعالیت شما
+                            </h3>
+                        </div>
+                        <div class="user-stats">
+                            <div class="stat">
+                                <div class="stat-icon" style="background: linear-gradient(45deg, #8b5cf6, #6366f1);">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h4>مسائل حل شده</h4>
+                                    <div class="stat-value">۱۲۷</div>
+                                    <div class="stat-change positive">
+                                        <i class="fas fa-arrow-up"></i>
+                                        ۱۵٪ نسبت به ماه قبل
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-icon" style="background: linear-gradient(45deg, #10b981, #059669);">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h4>دوره‌های تکمیل شده</h4>
+                                    <div class="stat-value">۸</div>
+                                    <div class="stat-change positive">
+                                        <i class="fas fa-arrow-up"></i>
+                                        ۲ دوره جدید
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ویجت پیشنهادات هوشمند -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-lightbulb"></i>
+                                پیشنهادات هوشمند
+                            </h3>
+                        </div>
+                        <div class="ai-suggestions">
+                            <div class="suggestion">
+                                <i class="fas fa-robot"></i>
+                                <div class="suggestion-content">
+                                    <h4>تمرین معادلات درجه دوم</h4>
+                                    <p>بر اساس فعالیت‌های اخیر شما پیشنهاد می‌شود</p>
+                                </div>
+                                <button class="btn-sm">شروع</button>
+                            </div>
+                            <div class="suggestion">
+                                <i class="fas fa-chart-line"></i>
+                                <div class="suggestion-content">
+                                    <h4>تحلیل پیشرفت تحصیلی</h4>
+                                    <p>نمودار پیشرفت خود را مشاهده کنید</p>
+                                </div>
+                                <button class="btn-sm">مشاهده</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+                
+                <!-- فعالیت‌های اخیر -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-history"></i>
+                            فعالیت‌های اخیر
+                        </h3>
+                    </div>
+                    <div class="recent-activities">
+                        <div class="activity">
+                            <div class="activity-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>معادله مثلثاتی حل شد</h4>
+                                <p>sin(x) + cos(x) = 1</p>
+                                <span class="activity-time">۱۰ دقیقه پیش</span>
+                            </div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-icon primary">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>گفتگو با مربی هوش مصنوعی</h4>
+                                <p>در مورد قضیه فیثاغورث</p>
+                                <span class="activity-time">۱ ساعت پیش</span>
+                            </div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-icon warning">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>درس جدید مطالعه شد</h4>
+                                <p>مشتق‌گیری ضمنی</p>
+                                <span class="activity-time">۲ ساعت پیش</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- صفحه حل معادلات -->
+            <section id="math-solver" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calculator"></i>
+                            حل‌کننده هوشمند معادلات
+                        </h3>
+                        <div class="math-mode-selector">
+                            <button class="mode-btn active" data-mode="algebra">جبر</button>
+                            <button class="mode-btn" data-mode="calculus">حسابان</button>
+                            <button class="mode-btn" data-mode="differential">معادلات دیفرانسیل</button>
+                        </div>
+                    </div>
+                    
+                    <div class="math-solver-container">
+                        <div class="input-section">
+                            <div class="form-group">
+                                <label>معادله خود را وارد کنید:</label>
+                                <div class="math-input-container">
+                                    <div class="math-toolbar">
+                                        <button class="math-btn" data-symbol="x">x</button>
+                                        <button class="math-btn" data-symbol="y">y</button>
+                                        <button class="math-btn" data-symbol="^">^</button>
+                                        <button class="math-btn" data-symbol="√">√</button>
+                                        <button class="math-btn" data-symbol="π">π</button>
+                                        <button class="math-btn" data-symbol="sin">sin</button>
+                                        <button class="math-btn" data-symbol="cos">cos</button>
+                                        <button class="math-btn" data-symbol="log">log</button>
+                                        <button class="math-btn" data-symbol="∫">∫</button>
+                                        <button class="math-btn" data-symbol="∑">∑</button>
+                                    </div>
+                                    <textarea id="equation-input" class="math-textarea" 
+                                              placeholder="مثال: x^2 + 3*x - 4 = 0"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="solver-controls">
+                                <button class="btn-primary" id="solve-btn">
+                                    <i class="fas fa-cogs"></i>
+                                    حل معادله
+                                </button>
+                                <button class="btn-secondary" id="show-steps-btn">
+                                    <i class="fas fa-list-ol"></i>
+                                    نمایش مراحل
+                                </button>
+                                <button class="btn-secondary" id="plot-btn">
+                                    <i class="fas fa-chart-line"></i>
+                                    رسم نمودار
+                                </button>
+                                <button class="btn-secondary" id="clear-btn">
+                                    <i class="fas fa-trash"></i>
+                                    پاک کردن
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="output-section">
+                            <div class="result-tabs">
+                                <button class="result-tab active" data-tab="solution">جواب</button>
+                                <button class="result-tab" data-tab="steps">مراحل حل</button>
+                                <button class="result-tab" data-tab="graph">نمودار</button>
+                                <button class="result-tab" data-tab="explanation">توضیحات</button>
+                            </div>
+                            
+                            <div class="result-content">
+                                <div id="solution-tab" class="tab-pane active">
+                                    <div class="solution-container">
+                                        <h4>جواب معادله:</h4>
+                                        <div class="solutions" id="solutions-output">
+                                            <p>معادله را وارد کرده و روی دکمه "حل معادله" کلیک کنید.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="steps-tab" class="tab-pane">
+                                    <div class="steps-container" id="steps-output">
+                                        <p>مراحل حل در اینجا نمایش داده می‌شود.</p>
+                                    </div>
+                                </div>
+                                
+                                <div id="graph-tab" class="tab-pane">
+                                    <div class="graph-container" id="graph-output">
+                                        <canvas id="equation-graph" width="800" height="400"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div id="explanation-tab" class="tab-pane">
+                                    <div class="explanation-container" id="explanation-output">
+                                        <p>توضیحات مربوط به معادله و روش حل در اینجا نمایش داده می‌شود.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- صفحه چت هوشمند -->
+            <section id="chat" class="page">
+                <div class="chat-page-container">
+                    <div class="card chat-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-robot"></i>
+                                مربی هوش مصنوعی ریاضیات
+                            </h3>
+                            <div class="chat-actions">
+                                <select id="chat-mode" class="form-select">
+                                    <option value="math">مباحث ریاضی</option>
+                                    <option value="general">گفتگوی عمومی</option>
+                                    <option value="tutor">مربی شخصی</option>
+                                    <option value="problem-solving">حل مسئله</option>
+                                </select>
+                                <button class="btn-sm" id="new-chat">
+                                    <i class="fas fa-plus"></i>
+                                    گفتگوی جدید
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-interface">
+                            <div class="chat-sidebar">
+                                <div class="chat-sessions">
+                                    <h4>گفتگوهای اخیر</h4>
+                                    <div class="session-list" id="session-list">
+                                        <!-- لیست sessionها -->
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-tools">
+                                    <h4>ابزارهای گفتگو</h4>
+                                    <button class="tool-btn" data-tool="latex">
+                                        <i class="fas fa-square-root-alt"></i>
+                                        فرمول ریاضی
+                                    </button>
+                                    <button class="tool-btn" data-tool="table">
+                                        <i class="fas fa-table"></i>
+                                        جدول داده
+                                    </button>
+                                    <button class="tool-btn" data-tool="graph">
+                                        <i class="fas fa-chart-line"></i>
+                                        نمودار
+                                    </button>
+                                    <button class="tool-btn" data-tool="code">
+                                        <i class="fas fa-code"></i>
+                                        کد پایتون
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-main">
+                                <div class="chat-messages" id="chat-messages">
+                                    <!-- پیام‌های چت -->
+                                    <div class="welcome-message">
+                                        <div class="bot-avatar">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <h4>سلام! من مربی ریاضیات شما هستم. 👋</h4>
+                                            <p>می‌توانید در مورد هر موضوع ریاضی با من صحبت کنید. 
+                                               من می‌توانم مسائل را حل کنم، توضیح دهم و تمرین ارائه دهم.</p>
+                                            <div class="quick-questions">
+                                                <button class="quick-question" data-question="مشتق x^2 چیست؟">
+                                                    مشتق x^2 چیست؟
+                                                </button>
+                                                <button class="quick-question" data-question="معادله درجه دوم را توضیح بده">
+                                                    معادله درجه دوم را توضیح بده
+                                                </button>
+                                                <button class="quick-question" data-question="یک تمرین هندسه به من بده">
+                                                    یک تمرین هندسه به من بده
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-input-container">
+                                    <div class="input-tools">
+                                        <button class="input-tool" title="افزودن فرمول">
+                                            <i class="fas fa-sigma"></i>
+                                        </button>
+                                        <button class="input-tool" title="افزودن تصویر">
+                                            <i class="fas fa-image"></i>
+                                        </button>
+                                        <button class="input-tool" title="صدا">
+                                            <i class="fas fa-microphone"></i>
+                                        </button>
+                                    </div>
+                                    <textarea id="chat-input" class="chat-textarea" 
+                                              placeholder="پیام خود را اینجا بنویسید..."></textarea>
+                                    <button class="send-btn" id="send-chat">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- سایر صفحات... -->
+            
+        </main>
     </div>
-
-    <!-- پنل لاگ و عیب‌یابی -->
-    <div class="debug-panel" id="debugPanel">
-        <div class="debug-header">
-            <h4><i class="fas fa-bug"></i> لاگ سیستم و عیب‌یابی</h4>
-            <button class="close-debug" id="closeDebug">×</button>
-        </div>
-        <div class="debug-content" id="debugContent">
-            <div class="log-entry info">
-                <span class="log-time">[۱۲:۰۰:۰۰]</span> سیستم راه‌اندازی شد...
-            </div>
-        </div>
-    </div>
-
+    
     <!-- اسکریپت‌ها -->
-    <script src="js/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    
+    <script src="app.js"></script>
 </body>
 </html>
+
