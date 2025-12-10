@@ -322,7 +322,13 @@ async def clear_session_memory(session_id: str = "default"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# برای سازگاری با Vercel (Serverless Functions)
+import os
+from mangum import Mangum
+
+# انتهای فایل app.py (قبل از if __name__)
+handler = Mangum(app)
+
+# به‌روزرسانی بخش اجرا
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
