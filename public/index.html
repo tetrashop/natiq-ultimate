@@ -1,24 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
-    <title>Natiq API</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        code { background: #f4f4f4; padding: 2px 5px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 ناطق اولتیمیت - API سرور</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Natiq API Server</h1>
-        <p>سرور API با موفقیت در حال اجراست!</p>
-        <h2>📌 Endpoint‌های موجود:</h2>
-        <ul>
-            <li><code>GET /api/health</code> - بررسی وضعیت سرور</li>
-            <li><code>POST /api/chat</code> - چت معمولی</li>
-            <li><code>POST /api/chat-memory</code> - چت با حافظه</li>
-        </ul>
-        <p>برای استفاده از API، به مستندات مراجعه کنید.</p>
+        <!-- هدر -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>ناطق اولتیمیت API</h1>
+            </div>
+            <div class="status-badge" id="statusBadge">
+                <span class="status-dot"></span>
+                <span>در حال بررسی...</span>
+            </div>
+        </header>
+
+        <!-- کارت وضعیت سرور -->
+        <div class="dashboard">
+            <div class="card server-status">
+                <h2><i class="fas fa-server"></i> وضعیت سرور</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">نسخه:</span>
+                        <span class="value" id="version">3.0.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">وضعیت:</span>
+                        <span class="value status-text" id="serverStatus">در حال بررسی...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">آدرس API:</span>
+                        <div class="url-box">
+                            <code id="apiUrl">https://natiq-ultimate.vercel.app</code>
+                            <button class="copy-btn" onclick="copyUrl()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت endpointها -->
+            <div class="card endpoints">
+                <h2><i class="fas fa-plug"></i> Endpoint‌های موجود</h2>
+                <div class="endpoint-list" id="endpointList">
+                    <!-- توسط JavaScript پر می‌شود -->
+                </div>
+            </div>
+
+            <!-- تستر API -->
+            <div class="card api-tester">
+                <h2><i class="fas fa-vial"></i> تستر API</h2>
+                <div class="tester-controls">
+                    <div class="form-group">
+                        <label for="endpointSelect">انتخاب Endpoint:</label>
+                        <select id="endpointSelect" class="form-select">
+                            <option value="/api/health">GET /api/health</option>
+                            <option value="/api/chat">POST /api/chat</option>
+                            <option value="/api/chat-memory">POST /api/chat-memory</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="messageGroup" style="display: none;">
+                        <label for="messageInput">پیام:</label>
+                        <textarea id="messageInput" class="form-textarea" placeholder="پیام خود را وارد کنید..."></textarea>
+                    </div>
+
+                    <div class="form-group" id="sessionGroup" style="display: none;">
+                        <label for="sessionInput">Session ID (اختیاری):</label>
+                        <input type="text" id="sessionInput" class="form-input" placeholder="session_123">
+                    </div>
+
+                    <button class="test-btn" onclick="testEndpoint()">
+                        <i class="fas fa-play"></i> اجرای تست
+                    </button>
+                </div>
+
+                <div class="response-section">
+                    <h3>پاسخ API:</h3>
+                    <div class="response-box">
+                        <pre id="responseOutput">{ "message": "برای تست، endpoint را انتخاب و اجرا کنید" }</pre>
+                    </div>
+                    <div class="response-info">
+                        <span>زمان پاسخ: <span id="responseTime">0</span>ms</span>
+                        <span>وضعیت: <span id="responseStatus">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مستندات -->
+            <div class="card documentation">
+                <h2><i class="fas fa-book"></i> مستندات سریع</h2>
+                <div class="docs-content">
+                    <h3>🧠 چت با حافظه</h3>
+                    <p>برای مکالمه‌های پیوسته، از session_id یکسان استفاده کنید:</p>
+                    <div class="code-block">
+curl -X POST https://natiq-ultimate.vercel.app/api/chat-memory \
+  -H "Content-Type: application/json" \
+  -d '{"message":"سلام", "session_id":"my_session"}'
+                    </div>
+
+                    <h3>⚡ چت ساده</h3>
+                    <p>برای درخواست‌های مستقل بدون ذخیره حافظه:</p>
+                    <div class="code-block">
+curl -X POST https://natiq-ultimate.vercel.app/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"سلام"}'
+                    </div>
+
+                    <h3>📊 بررسی سلامت</h3>
+                    <p>بررسی وضعیت سرور و API:</p>
+                    <div class="code-block">
+curl https://natiq-ultimate.vercel.app/api/health
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- فوتر -->
+        <footer class="footer">
+            <p>© 2024 ناطق اولتیمیت - ساخته شده با <i class="fas fa-heart"></i> توسط تیم توسعه</p>
+            <p class="footer-links">
+                <a href="https://github.com/tetrashop/natiq-ultimate" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <span class="separator">•</span>
+                <a href="https://vercel.com" target="_blank">
+                    <i class="fas fa-cloud"></i> Vercel
+                </a>
+                <span class="separator">•</span>
+                <a href="https://fastapi.tiangolo.com" target="_blank">
+                    <i class="fas fa-bolt"></i> FastAPI
+                </a>
+            </p>
+        </footer>
     </div>
+
+    <!-- اعلان -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
