@@ -1,69 +1,239 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>داشبورد مدیریت | natiq-ultimate</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>داشبورد مدیریت - ناطق اولتیمیت</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .api-tester {
+            background: #f1f8ff;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        button {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .response-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
-<body class="light-mode">
-    <div class="app-container">
-        <nav class="navbar">
-            <div class="nav-brand">
-                <i class="fas fa-brain"></i>
-                <h1>natiq-ultimate <span class="version">v6.0</span></h1>
-            </div>
-            <div class="nav-links">
-                <a href="/"><i class="fas fa-comment"></i> چت هوشمند</a>
-                <a href="/dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> داشبورد</a>
-                <a href="/api/health" target="_api"><i class="fas fa-heartbeat"></i> سلامت سیستم</a>
-            </div>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fas fa-moon"></i>
-            </button>
-        </nav>
-
-        <div class="main-content">
-            <div class="dashboard-container">
-                <h2><i class="fas fa-tachometer-alt"></i> داشبورد مدیریت سیستم</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3><i class="fas fa-database"></i> مفاهیم دانش</h3>
-                        <p id="dashboardKnowledgeCount">10</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3><i class="fas fa-comments"></i> کل مکالمات</h3>
-                        <p id="totalConversations">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3><i class="fas fa-clock"></i> زمان فعالیت</h3>
-                        <p>24/7</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3><i class="fas fa-check-circle"></i> موفقیت</h3>
-                        <p>98%</p>
-                    </div>
-                </div>
-                
-                <div class="api-testing">
-                    <h3><i class="fas fa-vial"></i> تست API</h3>
-                    <div class="test-buttons">
-                        <button onclick="testAPI('/api/health')">تست سلامت</button>
-                        <button onclick="testAPI('/api/knowledge')">تست دانش</button>
-                        <button onclick="testAPI('/api/debug')">تست دیباگ</button>
-                    </div>
-                    <div class="api-response">
-                        <pre id="apiResponse">پاسخ API اینجا نمایش داده می‌شود...</pre>
-                    </div>
-                </div>
+<body>
+    <h1>📊 داشبورد مدیریت ناطق اولتیمیت</h1>
+    
+    <div class="dashboard">
+        <div class="card stat-card">
+            <h3>آمار کلی</h3>
+            <div id="totalRequests">در حال بارگذاری...</div>
+            <div id="activeSessions">در حال بارگذاری...</div>
+            <div id="responseTimeAvg">در حال بارگذاری...</div>
+        </div>
+        
+        <div class="card api-tester">
+            <h3>🛠️ تستر API</h3>
+            <select id="endpointSelect">
+                <option value="/api/chat">مکالمه (chat)</option>
+                <option value="/api/health">سلامت (health)</option>
+                <option value="/api/status">وضعیت (status)</option>
+                <option value="/api/analyze-text">تحلیل متن</option>
+            </select>
+            
+            <textarea id="requestBody" placeholder='{"message": "سلام"}' rows="4"></textarea>
+            <button onclick="testApi()">ارسال درخواست</button>
+            
+            <div class="response-box" id="apiResponse"></div>
+        </div>
+        
+        <div class="card">
+            <h3>🎓 مدیریت پاسخ‌ها</h3>
+            <input id="newQuestion" placeholder="سوال جدید">
+            <textarea id="newAnswer" placeholder="پاسخ" rows="3"></textarea>
+            <button onclick="learnResponse()">یادگیری پاسخ</button>
+            <button onclick="listResponses()">نمایش پاسخ‌ها</button>
+            
+            <div class="response-box" id="responsesList"></div>
+        </div>
+        
+        <div class="card">
+            <h3>⚙️ تنظیمات سیستم</h3>
+            <button onclick="clearAllMemory()">پاکسازی تمام حافظه</button>
+            <button onclick="restartServer()">راه‌اندازی مجدد (نمایشی)</button>
+            
+            <div style="margin-top: 20px;">
+                <label>میزان حافظه مکالمه:</label>
+                <input type="range" id="memoryLimit" min="1" max="50" value="10">
+                <span id="limitValue">10 پیام</span>
             </div>
         </div>
     </div>
 
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/dashboard.js"></script>
+    <script>
+        // بارگذاری اولیه آمار
+        loadStats();
+        
+        async function loadStats() {
+            try {
+                const [healthRes, statusRes] = await Promise.all([
+                    fetch('/api/health'),
+                    fetch('/api/status')
+                ]);
+                
+                const health = await healthRes.json();
+                const status = await statusRes.json();
+                
+                document.getElementById('totalRequests').innerHTML = 
+                    `<div style="font-size: 24px">${status.endpoints_active || 8}</div>API فعال`;
+                
+                document.getElementById('activeSessions').innerHTML = 
+                    `<div style="font-size: 24px">${health.version}</div>نسخه سیستم`;
+                
+                document.getElementById('responseTimeAvg').innerHTML = 
+                    `<div style="font-size: 24px">${health.ai_enabled ? 'فعال' : 'شبیه‌سازی'}</div>حالت AI`;
+                
+            } catch (error) {
+                console.error('خطا در بارگذاری آمار:', error);
+            }
+        }
+        
+        async function testApi() {
+            const endpoint = document.getElementById('endpointSelect').value;
+            const requestBody = document.getElementById('requestBody').value;
+            const responseBox = document.getElementById('apiResponse');
+            
+            responseBox.textContent = 'در حال ارسال...';
+            
+            try {
+                let response;
+                if (requestBody) {
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: requestBody
+                    });
+                } else {
+                    response = await fetch(endpoint);
+                }
+                
+                const data = await response.json();
+                responseBox.textContent = JSON.stringify(data, null, 2);
+                responseBox.style.color = 'green';
+                
+            } catch (error) {
+                responseBox.textContent = 'خطا: ' + error.message;
+                responseBox.style.color = 'red';
+            }
+        }
+        
+        async function learnResponse() {
+            const question = document.getElementById('newQuestion').value;
+            const answer = document.getElementById('newAnswer').value;
+            
+            if (!question || !answer) {
+                alert('لطفاً سوال و پاسخ را وارد کنید');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/learn-response', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question, answer})
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                document.getElementById('newQuestion').value = '';
+                document.getElementById('newAnswer').value = '';
+                
+            } catch (error) {
+                alert('خطا در یادگیری پاسخ');
+            }
+        }
+        
+        async function listResponses() {
+            try {
+                const response = await fetch('/api/list-responses');
+                const data = await response.json();
+                
+                const responsesList = document.getElementById('responsesList');
+                let html = '<h4>پاسخ‌های یادگرفته شده:</h4>';
+                
+                for (const [question, answer] of Object.entries(data.responses || {})) {
+                    html += `<p><strong>${question}:</strong> ${answer}</p>`;
+                }
+                
+                responsesList.innerHTML = html;
+                
+            } catch (error) {
+                alert('خطا در دریافت لیست پاسخ‌ها');
+            }
+        }
+        
+        function clearAllMemory() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام حافظه سیستم را پاک کنید؟')) {
+                alert('این قابلیت نیاز به پیاده‌سازی در سمت سرور دارد.');
+                // در آینده: فراخوانی API برای پاکسازی حافظه
+            }
+        }
+        
+        function restartServer() {
+            alert('این عملکرد نمادین است. در نسخه‌های بعدی پیاده‌سازی می‌شود.');
+        }
+        
+        // کنترل محدودیت حافظه
+        document.getElementById('memoryLimit').addEventListener('input', function() {
+            const value = this.value;
+            document.getElementById('limitValue').textContent = value + ' پیام';
+        });
+    </script>
 </body>
 </html>
