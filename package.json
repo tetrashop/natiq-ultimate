@@ -1,0 +1,14 @@
+{
+  "name": "natiq-ultimate",
+  "version": "4.0.0",
+  "description": "سیستم یکپارچه هوش مصنوعی فارسی",
+  "main": "api/index.js",
+  "scripts": {
+    "deploy": "./deploy.sh",
+    "backup": "./backup.sh",
+    "dev": "vercel dev",
+    "start": "node api/index.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

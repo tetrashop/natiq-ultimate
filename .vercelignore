@@ -1,70 +1,13 @@
-# فایل‌های پایتون
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# محیط مجازی
-venv/
-env/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# سیستم‌عامل
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# لاگ‌ها
+# فایل‌های غیرضروری برای استقرار
+backups/
+logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# تست
-test_*.py
-tests/
-test_data/
-
-# موقت
+*.pyc
+__pycache__/
 *.tmp
-*.temp
-
-# شخصی
-personal/
-private/
-secrets/
-config/private/
-*.key
-*.pem
-.env
-.env.local
+test_*
+*.md
+*.txt
+!api/requirements.txt
+!api/runtime.txt
+!api/pyproject.toml
