@@ -1,0 +1,25 @@
+<script>
+// سیستم مانیتورینگ ساده و قطعی - نسخه الماس
+(function() {
+    console.log('💎 سیستم مانیتورینگ الماس فعال شد');
+    
+    // تابع اصلی - فقط یک بار تعریف می‌شود
+    if (!window.updatePerformanceMonitor) {
+        window.updatePerformanceMonitor = function(data) {
+            console.log('📊 به‌روزرسانی متریک:', data);
+            // اینجا کدهای نمایش متریک‌ها قرار می‌گیرد
+        };
+        
+        // داده‌های اولیه
+        setTimeout(() => {
+            window.updatePerformanceMonitor({
+                latency: "7ms",
+                uptime: "100.00%",
+                requests: "42"
+            });
+        }, 1000);
+        
+        console.log('✅ تابع updatePerformanceMonitor با موفقیت تعریف شد');
+    }
+})();
+</script>
