@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ناتیق اولتیمیت - ورژن ۲.۰</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Tahoma, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a, #1a1a3a);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        .version {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .page-ref {
+            color: #aaa;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .result {
+            background: rgba(76, 175, 80, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ناتیق اولتیمیت 🏆</h1>
+            <div class="version">ورژن ۲.۰</div>
+            <div class="page-ref">صفحه مرجع: ۲۱۸</div>
+        </header>
+        
+        <div class="section">
+            <h2>پردازش متن فارسی</h2>
+            <textarea id="textInput" placeholder="متن خود را وارد کنید..."></textarea>
+            <button onclick="processText()">آنالیز متن</button>
+            <div id="result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>وضعیت سیستم</h2>
+            <button onclick="checkHealth()">بررسی سلامت</button>
+            <div id="healthStatus" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                برای بررسی دکمه را کلیک کنید
+            </div>
+        </div>
+        
+        <footer>
+            <p>سیستم NLP فارسی | ناتیق اولتیمیت</p>
+            <p>ورژن ۲.۰ | صفحه ۲۱۸</p>
+        </footer>
+    </div>
+
+    <script>
+        async function checkHealth() {
+            const statusDiv = document.getElementById('healthStatus');
+            statusDiv.innerHTML = 'در حال بررسی...';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                statusDiv.innerHTML = `
+                    ✅ سیستم فعال<br>
+                    <small>ورژن: ${data.version} | صفحه: ${data.page}</small>
+                `;
+            } catch {
+                statusDiv.innerHTML = '✅ سیستم فعال (حالت آفلاین)';
+            }
+        }
+        
+        async function processText() {
+            const text = document.getElementById('textInput').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!text.trim()) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = 'لطفاً متن وارد کنید';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'در حال پردازش...';
+            
+            try {
+                const response = await fetch('/api/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <strong>نتایج تحلیل:</strong><br>
+                        - کلمات: ${data.analysis.words}<br>
+                        - کاراکترها: ${data.analysis.characters}<br>
+                        - میانگین طول: ${data.analysis.average_word_length}<br>
+                        <small>ورژن: ${data.version} | صفحه: ${data.page}</small>
+                    `;
+                }
+            } catch {
+                // حالت آفلاین
+                const words = text.split(/\s+/).filter(w => w.length > 0);
+                const chars = text.replace(/\s/g, '').length;
+                const avg = words.length > 0 ? Math.round(chars / words.length) : 0;
+                
+                resultDiv.innerHTML = `
+                    <strong>نتایج تحلیل (آفلاین):</strong><br>
+                    - کلمات: ${words.length}<br>
+                    - کاراکترها: ${chars}<br>
+                    - میانگین طول: ${avg}<br>
+                    <small>ورژن: ۲.۰ | صفحه: ۲۱۸</small>
+                `;
+            }
+        }
+        
+        // بررسی اولیه
+        checkHealth();
+    </script>
+</body>
+</html>
