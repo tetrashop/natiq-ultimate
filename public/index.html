@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناتیق اولتیمیت | پردازش متن فارسی</title>
+    <title>ناتیق اولتیمیت ۳.۰ | تحلیل عمیق متن فارسی</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
         :root {
-            --bg: #0f172a;
+            --bg: #0a0a1a;
             --card: rgba(255,255,255,0.05);
-            --border: rgba(255,255,255,0.08);
-            --text: #e2e8f0;
-            --primary: #38bdf8;
-            --success: #4ade80;
-            --danger: #f87171;
-            --accent: #a78bfa;
-            --shadow: 0 8px 32px rgba(0,0,0,0.4);
-            --radius: 24px;
+            --border: rgba(255,255,255,0.1);
+            --text: #e0e0e0;
+            --primary: #00d4ff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+            --accent: #aa88ff;
+            --shadow: 0 8px 32px rgba(0,0,0,0.6);
+            --radius: 20px;
         }
         .light-mode {
-            --bg: #f1f5f9;
-            --card: rgba(255,255,255,0.8);
-            --border: rgba(0,0,0,0.08);
-            --text: #1e293b;
+            --bg: #f0f4ff;
+            --card: rgba(255,255,255,0.9);
+            --border: rgba(0,0,0,0.1);
+            --text: #1a1a2e;
             --shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -36,11 +37,11 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            transition: background 0.3s, color 0.3s;
+            transition: all 0.3s;
         }
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             background: var(--card);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border);
@@ -56,7 +57,7 @@
         }
         h1 {
             font-size: 2.5rem;
-            font-weight: 800;
+            font-weight: 900;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -72,9 +73,9 @@
         .badge {
             background: rgba(255,255,255,0.1);
             border: 1px solid var(--border);
-            padding: 6px 18px;
+            padding: 6px 16px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -86,6 +87,11 @@
             background: var(--success);
             border-radius: 50%;
             display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
         .theme-toggle {
             position: absolute;
@@ -108,22 +114,22 @@
         }
         .theme-toggle:hover { opacity: 1; }
         .input-section {
-            background: rgba(0,0,0,0.1);
-            border-radius: 20px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 16px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
         }
         textarea {
             width: 100%;
-            height: 180px;
+            height: 160px;
             padding: 1rem;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.25);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 12px;
             color: var(--text);
             font: inherit;
-            font-size: 1.05rem;
+            font-size: 1rem;
             resize: vertical;
             transition: 0.3s;
             line-height: 1.8;
@@ -131,7 +137,7 @@
         textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.2);
         }
         .live-stats {
             display: flex;
@@ -144,7 +150,7 @@
         }
         .action-buttons {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             margin-bottom: 1.5rem;
         }
@@ -153,42 +159,50 @@
             min-width: 120px;
             padding: 14px 20px;
             border: none;
-            border-radius: 16px;
+            border-radius: 14px;
             font: inherit;
             font-weight: 600;
             cursor: pointer;
-            background: var(--primary);
-            color: #0f172a;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 4px 12px rgba(56,189,248,0.3);
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(56,189,248,0.4); }
-        button.secondary {
+        .btn-primary {
+            background: var(--primary);
+            color: #0a0a1a;
+            box-shadow: 0 4px 16px rgba(0,212,255,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,0.5); }
+        .btn-deep {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(170,136,255,0.3);
+        }
+        .btn-deep:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(170,136,255,0.5); }
+        .btn-secondary {
             background: rgba(255,255,255,0.1);
             border: 1px solid var(--border);
             color: var(--text);
-            box-shadow: none;
         }
-        button.secondary:hover { background: rgba(255,255,255,0.15); }
-        button.danger {
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-danger {
             background: var(--danger);
             color: white;
-            box-shadow: 0 4px 12px rgba(248,113,113,0.3);
+            box-shadow: 0 4px 16px rgba(255,68,68,0.3);
         }
+        .btn-danger:hover { transform: translateY(-2px); }
         .result-card {
             background: rgba(0,0,0,0.2);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 1.5rem;
             border: 1px solid var(--border);
             display: none;
-            animation: fadeSlide 0.4s ease;
+            animation: fadeSlide 0.5s ease;
         }
         @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .result-header {
@@ -196,6 +210,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .copy-btn {
             background: none;
@@ -203,34 +219,34 @@
             color: var(--primary);
             cursor: pointer;
             font-size: 1.2rem;
-            padding: 5px;
+            padding: 8px;
             border-radius: 8px;
         }
         .copy-btn:hover { background: rgba(255,255,255,0.1); }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 1rem 0;
         }
         .stat-item {
             background: rgba(255,255,255,0.03);
             border-radius: 12px;
-            padding: 12px;
+            padding: 14px;
             text-align: center;
             border: 1px solid var(--border);
         }
         .stat-value {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--primary);
         }
-        .stat-label { font-size: 0.85rem; opacity: 0.8; }
+        .stat-label { font-size: 0.8rem; opacity: 0.8; margin-top: 4px; }
         .freq-table {
             width: 100%;
             margin-top: 1rem;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .freq-table th, .freq-table td {
             padding: 8px 12px;
@@ -243,24 +259,35 @@
             background: rgba(255,255,255,0.1);
             border-radius: 3px;
             overflow: hidden;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         .progress-fill {
             height: 100%;
             background: var(--primary);
             border-radius: 3px;
             width: 0%;
-            transition: width 0.4s;
+            transition: width 0.5s ease;
         }
+        .badge-result {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 4px;
+        }
+        .badge-positive { background: rgba(0,255,136,0.2); color: var(--success); }
+        .badge-negative { background: rgba(255,68,68,0.2); color: var(--danger); }
+        .badge-neutral { background: rgba(255,255,255,0.1); color: var(--text); }
         footer {
             text-align: center;
             margin-top: 2rem;
-            opacity: 0.6;
-            font-size: 0.9rem;
+            opacity: 0.5;
+            font-size: 0.85rem;
         }
         @media (max-width: 600px) {
-            .container { padding: 1.5rem; }
-            h1 { font-size: 1.8rem; }
+            .container { padding: 1.2rem; }
+            h1 { font-size: 1.7rem; }
+            button { font-size: 0.85rem; padding: 12px; }
         }
     </style>
 </head>
@@ -268,11 +295,12 @@
     <div class="container">
         <header>
             <button class="theme-toggle" id="themeToggle" title="تغییر تم">🌓</button>
-            <h1>ناتیق اولتیمیت 🏆</h1>
+            <h1>ناتیق اولتیمیت ۳.۰ 🧠</h1>
             <div class="meta-badges">
                 <span class="badge status-dot" id="statusBadge">فعال</span>
-                <span class="badge">ورژن ۲.۰</span>
+                <span class="badge">ورژن ۳.۰</span>
                 <span class="badge">صفحه ۲۱۸</span>
+                <span class="badge">Deep Learning</span>
             </div>
         </header>
 
@@ -281,31 +309,35 @@
             <div class="live-stats">
                 <span id="liveChars">۰ کاراکتر</span>
                 <span id="liveWords">۰ کلمه</span>
+                <span id="liveSentences">۰ جمله</span>
             </div>
         </div>
 
         <div class="action-buttons">
-            <button id="analyzeBtn">✨ تحلیل متن</button>
-            <button id="healthBtn" class="secondary">💚 سلامت سیستم</button>
-            <button id="clearBtn" class="danger">🗑️ پاکسازی</button>
+            <button class="btn-primary" id="analyzeBtn">✨ تحلیل پایه</button>
+            <button class="btn-deep" id="deepAnalyzeBtn">🧠 تحلیل عمیق</button>
+            <button class="btn-secondary" id="healthBtn">💚 سلامت</button>
+            <button class="btn-danger" id="clearBtn">🗑️ پاک</button>
         </div>
 
         <div class="result-card" id="resultCard">
             <div class="result-header">
-                <strong style="font-size:1.2rem;">📊 نتایج تحلیل</strong>
+                <strong style="font-size:1.2rem;">📊 نتایج</strong>
                 <button class="copy-btn" id="copyResult" title="کپی نتایج">📋</button>
             </div>
             <div id="resultContent"></div>
         </div>
 
-        <footer>سیستم پردازش زبان فارسی | ناتیق اولتیمیت</footer>
+        <footer>سیستم تحلیل عمیق زبان فارسی | ناتیق اولتیمیت ۳.۰ | صفحه ۲۱۸</footer>
     </div>
 
     <script>
         const textInput = document.getElementById('textInput');
         const liveChars = document.getElementById('liveChars');
         const liveWords = document.getElementById('liveWords');
+        const liveSentences = document.getElementById('liveSentences');
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const deepAnalyzeBtn = document.getElementById('deepAnalyzeBtn');
         const healthBtn = document.getElementById('healthBtn');
         const clearBtn = document.getElementById('clearBtn');
         const resultCard = document.getElementById('resultCard');
@@ -314,177 +346,160 @@
         const themeToggle = document.getElementById('themeToggle');
         const statusBadge = document.getElementById('statusBadge');
 
-        const getTextStats = (text) => {
+        // ---------- آمار زنده ----------
+        function updateLiveStats() {
+            const text = textInput.value;
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const chars = text.replace(/\s/g, '').length;
+            const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0).length;
+            liveChars.textContent = `${chars.toLocaleString('fa-IR')} کاراکتر`;
+            liveWords.textContent = `${words.toLocaleString('fa-IR')} کلمه`;
+            liveSentences.textContent = `${sentences.toLocaleString('fa-IR')} جمله`;
+        }
+        textInput.addEventListener('input', updateLiveStats);
+
+        // ---------- تحلیل آفلاین ----------
+        function offlineAnalyze(text) {
             const words = text.trim().split(/\s+/).filter(w => w.length > 0);
-            const charsNoSpace = text.replace(/\s/g, '').length;
+            const chars = text.replace(/\s/g, '').length;
             const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
             const longest = words.reduce((a,b) => a.length > b.length ? a : b, '');
             const shortest = words.reduce((a,b) => a.length < b.length ? a : b, '');
-            const avgLen = words.length ? (charsNoSpace / words.length).toFixed(1) : 0;
+            const avgLen = words.length ? (chars / words.length).toFixed(1) : 0;
             const readingTime = Math.ceil(words.length / 200);
-            const uniqueWords = new Set(words.map(w => w.replace(/[،؛,.?!]/g, ''))).size;
+            const uniqueWords = new Set(words.map(w => w.replace(/[،؛,.?!:؛«»()"']/g, '').trim()).filter(w => w.length > 0));
             const freqMap = {};
             words.forEach(w => {
-                const clean = w.replace(/[،؛,.?!]/g, '');
+                const clean = w.replace(/[،؛,.?!:؛«»()"']/g, '').trim();
                 if (clean.length >= 2) freqMap[clean] = (freqMap[clean] || 0) + 1;
             });
-            const sortedFreq = Object.entries(freqMap)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0, 5);
-            return { words: words.length, chars: charsNoSpace, sentences: sentences.length,
-                avgLen, longest, shortest, readingTime, uniqueWords, freq: sortedFreq };
-        };
+            const sortedFreq = Object.entries(freqMap).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            const ttr = words.length > 0 ? uniqueWords.size / words.length : 0;
+            let textType = 'عمومی';
+            if (avgLen > 7) textType = 'رسمی / علمی';
+            else if (avgLen > 5) textType = 'نیمه‌رسمی';
+            else if (avgLen > 3) textType = 'محاوره‌ای';
+            return { words: words.length, chars, sentences: sentences.length, avgLen, longest, shortest, readingTime, uniqueWords: uniqueWords.size, freq: sortedFreq, ttr, textType };
+        }
 
-        const renderResults = (apiData = null, offlineStats = null) => {
-            let html = '';
-            if (apiData && apiData.success) {
-                const a = apiData.analysis;
-                const stats = getTextStats(textInput.value);
-                html = `
+        // ---------- رندر نتایج پایه ----------
+        function renderBasicResult(data) {
+            const a = data.analysis;
+            const stats = offlineAnalyze(textInput.value);
+            return `
                 <div class="grid">
                     <div class="stat-item"><div class="stat-value">${a.words}</div><div class="stat-label">کلمات</div></div>
                     <div class="stat-item"><div class="stat-value">${a.characters}</div><div class="stat-label">کاراکتر (بدون فاصله)</div></div>
-                    <div class="stat-item"><div class="stat-value">${a.sentences || stats.sentences}</div><div class="stat-label">جمله</div></div>
-                    <div class="stat-item"><div class="stat-value">${a.average_word_length}</div><div class="stat-label">طول میانگین کلمه</div></div>
+                    <div class="stat-item"><div class="stat-value">${a.sentences}</div><div class="stat-label">جملات</div></div>
+                    <div class="stat-item"><div class="stat-value">${a.average_word_length}</div><div class="stat-label">میانگین طول کلمه</div></div>
                     <div class="stat-item"><div class="stat-value">${stats.readingTime} دقیقه</div><div class="stat-label">زمان مطالعه</div></div>
                     <div class="stat-item"><div class="stat-value">${stats.uniqueWords}</div><div class="stat-label">کلمات یکتا</div></div>
                 </div>
-                <p style="margin-top:1rem;"><strong>بلندترین کلمه:</strong> ${a.longest_word || stats.longest} | <strong>کوتاه‌ترین:</strong> ${a.shortest_word || stats.shortest}</p>
-                <h3 style="margin-top:1.5rem;">🔠 پرتکرارترین کلمات</h3>
-                <table class="freq-table">
-                    <thead><tr><th>کلمه</th><th>تعداد</th><th>درصد</th></tr></thead>
-                    <tbody>
-                        ${stats.freq.map(([word, count]) => {
-                            const percent = ((count / stats.words)*100).toFixed(1);
-                            return `<tr>
-                                <td>${word}</td>
-                                <td>${count}</td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:8px;">
-                                        <span>${percent}%</span>
-                                        <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:${percent}%"></div></div>
-                                    </div>
-                                </td>
-                            </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>
-                <p style="font-size:0.8rem;margin-top:0.5rem;">(${stats.freq.length} کلمه از ${stats.uniqueWords} کلمه یکتا)</p>
-                <p style="opacity:0.7;margin-top:1rem;"><small>ورژن ${apiData.version} | صفحه ${apiData.page} | تحلیل آنلاین</small></p>`;
-            } else if (offlineStats) {
-                const s = offlineStats;
-                html = `
-                <div class="grid">
-                    <div class="stat-item"><div class="stat-value">${s.words}</div><div class="stat-label">کلمات</div></div>
-                    <div class="stat-item"><div class="stat-value">${s.chars}</div><div class="stat-label">کاراکتر</div></div>
-                    <div class="stat-item"><div class="stat-value">${s.sentences}</div><div class="stat-label">جمله</div></div>
-                    <div class="stat-item"><div class="stat-value">${s.avgLen}</div><div class="stat-label">میانگین طول</div></div>
-                    <div class="stat-item"><div class="stat-value">${s.readingTime} دقیقه</div><div class="stat-label">زمان مطالعه</div></div>
-                    <div class="stat-item"><div class="stat-value">${s.uniqueWords}</div><div class="stat-label">کلمات یکتا</div></div>
-                </div>
-                <p style="margin-top:1rem;"><strong>بلندترین کلمه:</strong> ${s.longest} | <strong>کوتاه‌ترین:</strong> ${s.shortest}</p>
-                <h3 style="margin-top:1.5rem;">🔠 پرتکرارترین کلمات</h3>
-                <table class="freq-table">
-                    <thead><tr><th>کلمه</th><th>تعداد</th><th>درصد</th></tr></thead>
-                    <tbody>
-                        ${s.freq.map(([word, count]) => {
-                            const percent = ((count / s.words)*100).toFixed(1);
-                            return `<tr><td>${word}</td><td>${count}</td><td>${percent}%</td></tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>
-                <p style="opacity:0.7;margin-top:1rem;"><small>تحلیل آفلاین (سرور در دسترس نیست) | ورژن ۲.۰ | صفحه ۲۱۸</small></p>`;
-            } else {
-                html = '<p style="color:var(--danger);">خطا در دریافت نتایج.</p>';
-            }
-            resultContent.innerHTML = html;
-            resultCard.style.display = 'block';
-        };
+                <p style="margin-top:1rem;"><strong>بلندترین:</strong> ${a.longest_word} | <strong>کوتاه‌ترین:</strong> ${a.shortest_word}</p>
+                <p style="opacity:0.7;margin-top:0.5rem;"><small>ورژن ${data.version} | صفحه ${data.page}</small></p>`;
+        }
 
-        const analyzeText = async () => {
+        // ---------- رندر نتایج عمیق ----------
+        function renderDeepResult(data) {
+            const d = data;
+            const sentimentClass = d.sentiment.label === 'مثبت' ? 'badge-positive' : d.sentiment.label === 'منفی' ? 'badge-negative' : 'badge-neutral';
+            return `
+                <h3 style="color:var(--accent);margin-bottom:1rem;">🧠 تحلیل عمیق</h3>
+                <div class="grid">
+                    <div class="stat-item"><div class="stat-value">${d.analysis.words}</div><div class="stat-label">کلمات</div></div>
+                    <div class="stat-item"><div class="stat-value">${d.analysis.characters}</div><div class="stat-label">کاراکتر</div></div>
+                    <div class="stat-item"><div class="stat-value">${d.sentence_analysis.count}</div><div class="stat-label">جملات</div></div>
+                    <div class="stat-item"><div class="stat-value">${d.analysis.average_word_length}</div><div class="stat-label">میانگین طول کلمه</div></div>
+                    <div class="stat-item"><div class="stat-value">${d.unique_word_count}</div><div class="stat-label">کلمات یکتا</div></div>
+                    <div class="stat-item"><div class="stat-value">${d.reading_time_minutes} دقیقه</div><div class="stat-label">زمان مطالعه</div></div>
+                </div>
+                <div style="margin:1rem 0;">
+                    <span class="badge-result">📝 نوع متن: ${d.text_type}</span>
+                    <span class="badge-result ${sentimentClass}">💬 احساس: ${d.sentiment.label} (${d.sentiment.positive_words}+ / ${d.sentiment.negative_words}-)</span>
+                    <span class="badge-result">📖 خوانایی: ${d.readability.level} (${d.readability.score}%)</span>
+                    <span class="badge-result">📊 غنای واژگانی: ${d.lexical_richness.interpretation} (TTR: ${d.lexical_richness.ttr})</span>
+                </div>
+                <h4 style="margin-top:1rem;">🔠 پرتکرارترین کلمات</h4>
+                <table class="freq-table">
+                    <thead><tr><th>کلمه</th><th>تعداد</th><th>درصد</th></tr></thead>
+                    <tbody>
+                        ${d.frequency.map(([word, count]) => {
+                            const percent = ((count / d.analysis.words)*100).toFixed(1);
+                            return `<tr><td>${word}</td><td>${count}</td><td><div style="display:flex;align-items:center;gap:8px;"><span>${percent}%</span><div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:${percent}%"></div></div></div></td></tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <h4 style="margin-top:1rem;">🔤 پرتکرارترین حروف</h4>
+                <p>${d.top_characters.map(([c, n]) => `${c}: ${n}`).join(' | ')}</p>
+                <h4 style="margin-top:1rem;">📏 تحلیل جملات</h4>
+                <p>بلندترین جمله: ${d.sentence_analysis.longest} کلمه | کوتاه‌ترین: ${d.sentence_analysis.shortest} | میانگین: ${d.sentence_analysis.average_length}</p>
+                <p style="opacity:0.7;margin-top:1rem;"><small>ورژن ${d.metadata.version} | صفحه ${d.metadata.page} | ${d.metadata.processed_at}</small></p>`;
+        }
+
+        // ---------- فراخوانی API پایه ----------
+        async function analyzeText() {
             const text = textInput.value.trim();
-            if (!text) {
-                alert('لطفاً متنی وارد کنید.');
-                return;
-            }
+            if (!text) { alert('لطفاً متنی وارد کنید.'); return; }
             resultCard.style.display = 'none';
             try {
-                const res = await fetch('/api/process', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
-                });
+                const res = await fetch('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
                 const data = await res.json();
-                if (data.success) {
-                    renderResults(data);
-                } else {
-                    const stats = getTextStats(text);
-                    renderResults(null, stats);
-                }
+                resultContent.innerHTML = data.success ? renderBasicResult(data) : renderBasicResult({ analysis: offlineAnalyze(text), version: 'آفلاین', page: '۲۱۸' });
+                resultCard.style.display = 'block';
             } catch (e) {
-                const stats = getTextStats(text);
-                renderResults(null, stats);
+                resultContent.innerHTML = renderBasicResult({ analysis: offlineAnalyze(text), version: 'آفلاین', page: '۲۱۸' });
+                resultCard.style.display = 'block';
             }
-        };
+        }
 
-        const checkHealth = async () => {
+        // ---------- فراخوانی API عمیق ----------
+        async function deepAnalyzeText() {
+            const text = textInput.value.trim();
+            if (!text) { alert('لطفاً متنی وارد کنید.'); return; }
+            resultCard.style.display = 'none';
+            try {
+                const res = await fetch('/api/deep', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+                const data = await res.json();
+                resultContent.innerHTML = data.success ? renderDeepResult(data) : '<p style="color:var(--danger);">خطا در تحلیل عمیق.</p>';
+                resultCard.style.display = 'block';
+            } catch (e) {
+                resultContent.innerHTML = '<p style="color:var(--danger);">⚠️ ارتباط با سرور برقرار نشد. تحلیل عمیق نیاز به سرور دارد.</p>';
+                resultCard.style.display = 'block';
+            }
+        }
+
+        // ---------- سلامت ----------
+        async function checkHealth() {
             resultCard.style.display = 'none';
             try {
                 const res = await fetch('/api/health');
                 const data = await res.json();
                 statusBadge.innerHTML = '✅ فعال';
-                statusBadge.style.color = 'var(--success)';
-                resultContent.innerHTML = `<p>✅ سرور فعال است</p>
-                    <p><strong>نام:</strong> ${data.name} | <strong>ورژن:</strong> ${data.version} | <strong>صفحه:</strong> ${data.page}</p>
-                    <p><strong>زمان سرور:</strong> ${data.timestamp}</p>
-                    <p><strong>وضعیت:</strong> ${data.status}</p>`;
+                resultContent.innerHTML = `<p>✅ سرور فعال | ${data.name} | ورژن ${data.version} | صفحه ${data.page}</p><p>زمان: ${data.timestamp}</p>`;
                 resultCard.style.display = 'block';
             } catch (e) {
                 statusBadge.innerHTML = '⚠️ آفلاین';
-                statusBadge.style.color = 'var(--danger)';
-                resultContent.innerHTML = '<p style="color:var(--danger);">⚠️ ارتباط با سرور برقرار نشد. تحلیل‌ها به صورت محلی انجام می‌شود.</p>';
+                resultContent.innerHTML = '<p style="color:var(--danger);">⚠️ سرور در دسترس نیست.</p>';
                 resultCard.style.display = 'block';
             }
-        };
-
-        analyzeBtn.addEventListener('click', analyzeText);
-        healthBtn.addEventListener('click', checkHealth);
-        clearBtn.addEventListener('click', () => {
-            textInput.value = '';
-            resultCard.style.display = 'none';
-            updateLiveStats();
-        });
-
-        textInput.addEventListener('input', updateLiveStats);
-        function updateLiveStats() {
-            const text = textInput.value;
-            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-            const chars = text.replace(/\s/g, '').length;
-            liveChars.textContent = `${chars.toLocaleString('fa-IR')} کاراکتر`;
-            liveWords.textContent = `${words.toLocaleString('fa-IR')} کلمه`;
         }
 
+        // ---------- event listeners ----------
+        analyzeBtn.addEventListener('click', analyzeText);
+        deepAnalyzeBtn.addEventListener('click', deepAnalyzeText);
+        healthBtn.addEventListener('click', checkHealth);
+        clearBtn.addEventListener('click', () => { textInput.value = ''; resultCard.style.display = 'none'; updateLiveStats(); });
         copyBtn.addEventListener('click', () => {
-            const textToCopy = resultContent.innerText;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('نتایج با موفقیت کپی شد.');
-            }).catch(() => alert('خطا در کپی نتایج.'));
+            navigator.clipboard.writeText(resultContent.innerText).then(() => alert('نتایج کپی شد!')).catch(() => alert('خطا در کپی'));
         });
-
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
             const isLight = document.body.classList.contains('light-mode');
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             themeToggle.textContent = isLight ? '☀️' : '🌙';
         });
-
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-mode');
-            themeToggle.textContent = '☀️';
-        } else {
-            document.body.classList.remove('light-mode');
-            themeToggle.textContent = '🌙';
-        }
+        if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); themeToggle.textContent = '☀️'; }
+        else { themeToggle.textContent = '🌙'; }
 
         checkHealth();
         updateLiveStats();
