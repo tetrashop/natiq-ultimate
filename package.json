@@ -1,20 +1,12 @@
 {
   "name": "natiq-ultimate",
-  "version": "9.0.0",
-  "description": "ناتیق ۹.۰ — ویرایشگر حرفه‌ای فارسی | ۴۵۰+ الگو | دقت ≈۹۹٪",
+  "version": "10.0.0",
+  "description": "ناتیق ۱۰.۰ — الگوریتم فوق‌حرفه‌ای فارسی | ۵۰۰+ الگو | ۱۱ گام | دقت ≈۹۹٪",
   "main": "api/index.js",
-  "scripts": {
-    "start": "node api/index.js",
-    "dev": "node api/index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  },
-  "keywords": ["natiq","farsi","persian","spell-checker","professional"],
+  "scripts": { "start": "node api/index.js", "dev": "node api/index.js" },
+  "dependencies": { "express": "^4.18.2" },
+  "keywords": ["natiq","farsi","persian","spell-checker","professional","ultimate"],
   "author": "Ramin Ejlal",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tetrashop/natiq-ultimate.git"
-  }
+  "repository": { "type": "git", "url": "https://github.com/tetrashop/natiq-ultimate.git" }
 }

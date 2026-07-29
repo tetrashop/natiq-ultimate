@@ -3,187 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناتیق ۹.۰ | ویرایشگر حرفه‌ای فارسی</title>
+    <title>ناتیق ۱۰.۰ | الگوریتم فوق‌حرفه‌ای فارسی</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
         :root {
-            --bg: #0a0a1a;
-            --card: rgba(255,255,255,0.05);
-            --border: rgba(255,255,255,0.1);
-            --text: #e0e0e0;
-            --primary: #00d4ff;
-            --success: #00ff88;
-            --warning: #ffaa00;
-            --danger: #ff4444;
-            --accent: #aa88ff;
+            --bg: #0a0a1a; --card: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1);
+            --text: #e0e0e0; --primary: #00d4ff; --success: #00ff88; --warning: #ffaa00;
+            --danger: #ff4444; --accent: #aa88ff;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Vazirmatn', Tahoma, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
+            background: var(--bg); color: var(--text);
+            height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px;
         }
         .app {
-            width: 100%;
-            max-width: 900px;
-            height: 95vh;
-            background: var(--card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
+            width: 100%; max-width: 900px; height: 95vh;
+            background: var(--card); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            display: flex; flex-direction: column; overflow: hidden;
         }
         .header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
         }
         .logo {
-            font-size: 1.5rem;
-            font-weight: 900;
+            font-size: 1.5rem; font-weight: 900;
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .badge {
-            background: var(--success);
-            color: #000;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            background: var(--success); color: #000; padding: 4px 12px;
+            border-radius: 20px; font-size: 0.8rem; font-weight: bold;
         }
         .version-badge {
-            background: var(--accent);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            margin: 0 5px;
+            background: var(--accent); color: #fff; padding: 4px 12px;
+            border-radius: 20px; font-size: 0.75rem; margin: 0 5px;
         }
         .chat-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            flex: 1; overflow-y: auto; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1rem;
         }
         .message {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 16px;
-            line-height: 1.8;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-            white-space: pre-wrap;
+            max-width: 85%; padding: 12px 18px; border-radius: 16px;
+            line-height: 1.8; word-wrap: break-word;
+            animation: fadeIn 0.3s ease; white-space: pre-wrap;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .bot-message {
-            align-self: flex-start;
-            background: rgba(0,212,255,0.1);
-            border: 1px solid var(--primary);
-        }
-        .user-message {
-            align-self: flex-end;
-            background: var(--primary);
-            color: #000;
-            font-weight: 500;
-        }
-        .corrected-message {
-            align-self: flex-start;
-            background: rgba(0,255,136,0.15);
-            border: 2px solid var(--success);
-        }
-        .message .time {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-top: 6px;
-            text-align: left;
-        }
+        .bot-message { align-self: flex-start; background: rgba(0,212,255,0.1); border: 1px solid var(--primary); }
+        .user-message { align-self: flex-end; background: var(--primary); color: #000; font-weight: 500; }
+        .corrected-message { align-self: flex-start; background: rgba(0,255,136,0.15); border: 2px solid var(--success); }
+        .message .time { font-size: 0.7rem; opacity: 0.6; margin-top: 6px; text-align: left; }
         .input-area {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: center;
         }
         textarea {
-            flex: 1;
-            height: 50px;
-            max-height: 120px;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.25);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            color: var(--text);
-            font: inherit;
-            resize: none;
-            outline: none;
-            transition: 0.3s;
+            flex: 1; height: 50px; max-height: 120px; padding: 12px 16px;
+            background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+            border-radius: 25px; color: var(--text); font: inherit;
+            resize: none; outline: none; transition: 0.3s;
         }
-        textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0,212,255,0.2);
-        }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,212,255,0.2); }
         .send-btn {
-            background: var(--primary);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
+            background: var(--primary); border: none; width: 50px; height: 50px;
+            border-radius: 50%; font-size: 1.5rem; cursor: pointer; color: #000;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
         .send-btn:hover { transform: scale(1.05); }
-        .action-row {
-            display: flex;
-            gap: 8px;
-            padding: 0 1.5rem 1rem;
-            flex-wrap: wrap;
-        }
+        .action-row { display: flex; gap: 8px; padding: 0 1.5rem 1rem; flex-wrap: wrap; }
         .action-row button {
-            flex: 1;
-            min-width: 70px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font: inherit;
-            font-weight: 600;
-            background: rgba(255,255,255,0.1);
-            color: var(--text);
-            border: 1px solid var(--border);
-            transition: 0.2s;
-            font-size: 0.8rem;
+            flex: 1; min-width: 70px; padding: 8px 10px; border-radius: 12px;
+            border: none; cursor: pointer; font: inherit; font-weight: 600;
+            background: rgba(255,255,255,0.1); color: var(--text);
+            border: 1px solid var(--border); transition: 0.2s; font-size: 0.8rem;
         }
         .action-row button:hover { background: rgba(255,255,255,0.2); }
-        .btn-spell {
-            background: var(--warning) !important;
-            color: #000 !important;
-            border-color: var(--warning) !important;
-        }
+        .btn-spell { background: var(--warning) !important; color: #000 !important; border-color: var(--warning) !important; }
         @media (max-width: 600px) {
             .app { height: 100vh; border-radius: 0; }
             .action-row button { font-size: 0.7rem; padding: 6px; }
@@ -194,21 +95,24 @@
     <div class="app">
         <div class="header">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="logo">🧠 ناتیق ۹.۰</span>
+                <span class="logo">🧠 ناتیق ۱۰.۰</span>
                 <span class="badge" id="statusBadge">فعال</span>
                 <span class="version-badge">ص ۲۱۸</span>
             </div>
-            <div style="font-size:0.75rem;opacity:0.7;">✍️ ۴۵۰+ الگو | ۵۰۰+ واژه | دقت ≈۹۹٪</div>
+            <div style="font-size:0.75rem;opacity:0.7;">۵۰۰+ الگو | ۵۵۰+ واژه | ۱۱ گام | دقت ≈۹۹٪</div>
         </div>
         <div class="chat-area" id="chatArea">
             <div class="message bot-message">
-                👋 سلام! من <b>ناتیق ۹.۰</b> هستم — الگوریتم نهایی.
+                👋 سلام! من <b>ناتیق ۱۰.۰</b> هستم — الگوریتم فوق‌حرفه‌ای.
                 
                 ✨ <b>پوشش کامل:</b>
-                • ۴۵۰+ الگوی املایی
-                • ۵۰۰+ واژهٔ صحیح
-                • همهٔ حالات «می/نمی» با فاصله/نیم‌فاصله
-                • افعال مرکب و محاوره‌ای
+                • ۵۰۰+ الگوی املایی
+                • ۵۵۰+ واژهٔ صحیح
+                • ۱۱ گام پردازش
+                • تبدیل حروف عربی
+                • نیم‌فاصلهٔ هوشمند
+                • افعال محاوره‌ای و امر
+                • عبارات مذهبی و رسمی
                 
                 📝 متن بفرست یا
                 ✍️ <b>«ویرایش: متن»</b> بفرست.
@@ -234,7 +138,7 @@
         const statusBadge = document.getElementById('statusBadge');
         let lastAnalysis = null;
         let lastCorrectedText = null;
-        const STORAGE_KEY = 'natiq_v9_history';
+        const STORAGE_KEY = 'natiq_v10_history';
 
         function getHistory() {
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
@@ -279,7 +183,7 @@
 
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message bot-message';
-            typingDiv.textContent = isSpellRequest ? '🔍 در حال ویرایش...' : '📊 در حال تحلیل...';
+            typingDiv.textContent = isSpellRequest ? '🔍 در حال ویرایش (۱۱ گام)...' : '📊 در حال تحلیل...';
             chatArea.appendChild(typingDiv);
             chatArea.scrollTop = chatArea.scrollHeight;
 
@@ -342,7 +246,7 @@
             const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = 'natiq-v9-history.json'; a.click();
+            a.href = url; a.download = 'natiq-v10-history.json'; a.click();
             URL.revokeObjectURL(url);
             alert('📥 دانلود شد!');
         }
