@@ -1,7 +1,7 @@
 {
   "name": "natiq-ultimate",
-  "version": "4.2.0",
-  "description": "سیستم تحلیل هوشمند متن فارسی - آماده برای Vercel",
+  "version": "5.0.0",
+  "description": "ناتیق ۵.۰ - چت‌بات هوشمند فارسی با ویرایشگر املایی",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
@@ -10,11 +10,6 @@
   "dependencies": {
     "express": "^4.18.2"
   },
-  "keywords": ["natiq", "farsi", "nlp", "persian", "chatbot"],
-  "author": "",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tetrashop/natiq-ultimate.git"
-  }
+  "keywords": ["natiq", "farsi", "nlp", "persian", "spell-checker"],
+  "license": "MIT"
 }
