@@ -10,7 +10,7 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "VERSION": "5.0.0",
+    "VERSION": "7.0.0",
     "PAGE_REF": "218"
   }
 }

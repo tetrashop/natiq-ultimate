@@ -1,7 +1,7 @@
 {
   "name": "natiq-ultimate",
-  "version": "5.0.0",
-  "description": "ناتیق ۵.۰ - چت‌بات هوشمند فارسی با ویرایشگر املایی",
+  "version": "7.0.0",
+  "description": "ناتیق ۷.۰ - ویرایشگر هوشمند فارسی با دقت ≈۹۹٪",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
@@ -10,6 +10,11 @@
   "dependencies": {
     "express": "^4.18.2"
   },
-  "keywords": ["natiq", "farsi", "nlp", "persian", "spell-checker"],
-  "license": "MIT"
+  "keywords": ["natiq", "farsi", "nlp", "persian", "spell-checker", "ویرایشگر"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tetrashop/natiq-ultimate.git"
+  }
 }

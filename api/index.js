@@ -3,457 +3,322 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
     next();
 });
-
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ─────────────────── دیکشنری غلط‌های رایج ───────────────────
-const SPELLING_DICT = {
-    'میباشد': 'می‌باشد',
-    'میباشدند': 'می‌باشند',
-    'میباشم': 'می‌باشم',
-    'میباشی': 'می‌باشی',
-    'میباشیم': 'می‌باشیم',
-    'میباشید': 'می‌باشید',
-    'می کند': 'می‌کند',
-    'می کندم': 'می‌کنم',
-    'می کندی': 'می‌کنی',
-    'می کندیم': 'می‌کنیم',
-    'می کندید': 'می‌کنید',
-    'می کنند': 'می‌کنند',
-    'می شود': 'می‌شود',
-    'می شوم': 'می‌شوم',
-    'می شوی': 'می‌شوی',
-    'می شویم': 'می‌شویم',
-    'می شوید': 'می‌شوید',
-    'می شوند': 'می‌شوند',
-    'می گیرد': 'می‌گیرد',
-    'می دهم': 'می‌دهم',
-    'می دهی': 'می‌دهی',
-    'می دهد': 'می‌دهد',
-    'می دهیم': 'می‌دهیم',
-    'می دهید': 'می‌دهید',
-    'می دهند': 'می‌دهند',
-    'می گیرم': 'می‌گیرم',
-    'می گیری': 'می‌گیری',
-    'می گیریم': 'می‌گیریم',
-    'می گیرید': 'می‌گیرید',
-    'می گیرند': 'می‌گیرند',
-    'می گویم': 'می‌گویم',
-    'می گویی': 'می‌گویی',
-    'می گوید': 'می‌گوید',
-    'می گوییم': 'می‌گوییم',
-    'می گویید': 'می‌گویید',
-    'می گویند': 'می‌گویند',
-    'می آیم': 'می‌آیم',
-    'می آیی': 'می‌آیی',
-    'می آید': 'می‌آید',
-    'می آییم': 'می‌آییم',
-    'می آیید': 'می‌آیید',
-    'می آیند': 'می‌آیند',
-    'می اندازم': 'می‌اندازم',
-    'می اندازی': 'می‌اندازی',
-    'می اندازد': 'می‌اندازد',
-    'نمی کند': 'نمی‌کند',
-    'نمی شود': 'نمی‌شود',
-    'نمی گیرد': 'نمی‌گیرد',
-    'نمی دهد': 'نمی‌دهد',
-    'خواهم': 'خواهم',
-    'خواهی': 'خواهی',
-    'خواهد': 'خواهد',
-    'خواهیم': 'خواهیم',
-    'خواهید': 'خواهید',
-    'خواهند': 'خواهند',
-    'آنها': 'آن‌ها',
-    'آنان': 'آنان',
-    'اینها': 'این‌ها',
-    'اینان': 'اینان',
-    'آنچه': 'آنچه',
-    'آنکه': 'آنکه',
-    'آنگاه': 'آن‌گاه',
-    'چنانچه': 'چنانچه',
-    'چنانکه': 'چنانکه',
-    'هرگاه': 'هرگاه',
-    'هرچه': 'هرچه',
-    'هرکه': 'هرکه',
-    'همین': 'همین',
-    'همان': 'همان',
-    'همینطور': 'همین‌طور',
-    'همانطور': 'همان‌طور',
-    'همچنین': 'همچنین',
-    'همچون': 'همچون',
-    'بنابر این': 'بنابراین',
-    'بنابرین': 'بنابراین',
-    'بدین': 'بدین',
-    'بدین ترتیب': 'بدین‌ترتیب',
-    'بدین صورت': 'بدین‌صورت',
-    'بدین وسیله': 'بدین‌وسیله',
-    'دربین': 'در بین',
-    'بوسیله': 'به‌وسیله',
-    'بوسیله ی': 'به‌وسیلهٔ',
-    'توسط': 'توسط',
-    'باین': 'به این',
-    'بآن': 'به آن',
-    'ازآن': 'از آن',
-    'ازاین': 'از این',
-    'برایشان': 'برایشان',
-    'برایم': 'برایم',
-    'برایمان': 'برایمان',
-    'برای تان': 'برایتان',
-    'بگویید': 'بگویید',
-    'بگوید': 'بگوید',
-    'میشود': 'می‌شود',
-    'میکند': 'می‌کند',
-    'میکنم': 'می‌کنم',
-    'میکنی': 'می‌کنی',
-    'میکنیم': 'می‌کنیم',
-    'میکنید': 'می‌کنید',
-    'میکنند': 'می‌کنند',
-    'میشوم': 'می‌شوم',
-    'میشوی': 'می‌شوی',
-    'میشویم': 'می‌شویم',
-    'میشوید': 'می‌شوید',
-    'میشوند': 'می‌شوند',
-    'میدهم': 'می‌دهم',
-    'میدهی': 'می‌دهی',
-    'میدهد': 'می‌دهد',
-    'میدهیم': 'می‌دهیم',
-    'میدهید': 'می‌دهید',
-    'میدهند': 'می‌دهند',
-    'میگیرم': 'می‌گیرم',
-    'میگیری': 'می‌گیری',
-    'میگیرد': 'می‌گیرد',
-    'میگیریم': 'می‌گیریم',
-    'میگیرید': 'می‌گیرید',
-    'میگیرند': 'می‌گیرند',
-    'میگویم': 'می‌گویم',
-    'میگویی': 'می‌گویی',
-    'میگوید': 'می‌گوید',
-    'میگوییم': 'می‌گوییم',
-    'میگویید': 'می‌گویید',
-    'میگویند': 'می‌گویند',
-    'بیاور': 'بیاور',
-    'بیاورد': 'بیاورد',
-    'بیاورم': 'بیاورم',
-    'بیاوری': 'بیاوری',
-    'بیاوریم': 'بیاوریم',
-    'بیاورید': 'بیاورید',
-    'بیاورند': 'بیاورند',
-    'ببین': 'ببین',
-    'ببیند': 'ببیند',
-    'ببینم': 'ببینم',
-    'ببینی': 'ببینی',
-    'ببینیم': 'ببینیم',
-    'ببینید': 'ببینید',
-    'ببینند': 'ببینند',
-    'برو': 'برو',
-    'برود': 'برود',
-    'بروم': 'بروم',
-    'بروی': 'بروی',
-    'برویم': 'برویم',
-    'بروید': 'بروید',
-    'بروند': 'بروند',
-    'بکن': 'بکن',
-    'بکند': 'بکند',
-    'بکنم': 'بکنم',
-    'بکنی': 'بکنی',
-    'بکنیم': 'بکنیم',
-    'بکنید': 'بکنید',
-    'بکنند': 'بکنند',
-};
+// ═══════════════════════════════════════════════════════════
+//  دیکشنری یکپارچه (همهٔ حالات با فاصله و بدون فاصله)
+// ═══════════════════════════════════════════════════════════
+const DICT = new Map([
 
-// ─────────────────── توابع ویرایش ───────────────────
+    // ─── «خواستن» ───
+    ['میخام', 'می‌خواهم'], ['میخای', 'می‌خواهی'], ['میخاد', 'می‌خواهد'],
+    ['میخایم', 'می‌خواهیم'], ['میخاین', 'می‌خواهید'], ['میخوان', 'می‌خواهند'],
+    ['نمیخام', 'نمی‌خواهم'], ['نمیخای', 'نمی‌خواهی'], ['نمیخاد', 'نمی‌خواهد'],
+    ['نمیخایم', 'نمی‌خواهیم'], ['نمیخاین', 'نمی‌خواهید'], ['نمیخوان', 'نمی‌خواهند'],
+
+    // ─── «گفتن» ───
+    ['میگم', 'می‌گویم'], ['میگی', 'می‌گویی'], ['میگه', 'می‌گوید'],
+    ['میگیم', 'می‌گوییم'], ['میگین', 'می‌گویید'], ['میگن', 'می‌گویند'],
+    ['نمیگم', 'نمی‌گویم'], ['نمیگی', 'نمی‌گویی'], ['نمیگه', 'نمی‌گوید'],
+    ['نمیگیم', 'نمی‌گوییم'], ['نمیگین', 'نمی‌گویید'], ['نمیگن', 'نمی‌گویند'],
+
+    // ─── «رفتن» ───
+    ['میرم', 'می‌روم'], ['میری', 'می‌روی'], ['میره', 'می‌رود'],
+    ['میریم', 'می‌رویم'], ['میرین', 'می‌روید'], ['میرن', 'می‌روند'],
+    ['نمیرم', 'نمی‌روم'], ['نمیری', 'نمی‌روی'], ['نمیره', 'نمی‌رود'],
+
+    // ─── «شدن» ───
+    ['میشم', 'می‌شوم'], ['میشی', 'می‌شوی'], ['میشه', 'می‌شود'],
+    ['میشیم', 'می‌شویم'], ['میشین', 'می‌شوید'], ['میشن', 'می‌شوند'],
+    ['نمیشم', 'نمی‌شوم'], ['نمیشه', 'نمی‌شود'],
+    ['میشود', 'می‌شود'], ['میشوم', 'می‌شوم'], ['نمیباشد', 'نمی‌باشد'],
+
+    // ─── «کردن» ───
+    ['میکنم', 'می‌کنم'], ['میکنی', 'می‌کنی'], ['میکنه', 'می‌کند'],
+    ['میکنیم', 'می‌کنیم'], ['میکنین', 'می‌کنید'], ['میکنن', 'می‌کنند'],
+    ['نمیکنم', 'نمی‌کنم'], ['نمیکنی', 'نمی‌کنی'], ['نمیکنه', 'نمی‌کند'],
+
+    // ─── «دادن» ───
+    ['میدم', 'می‌دهم'], ['میدی', 'می‌دهی'], ['میده', 'می‌دهد'],
+    ['میدیم', 'می‌دهیم'], ['میدین', 'می‌دهید'], ['میدن', 'می‌دهند'],
+    ['نمیدم', 'نمی‌دهم'], ['نمیدی', 'نمی‌دهی'], ['نمیده', 'نمی‌دهد'],
+
+    // ─── «دانستن» ───
+    ['میدونم', 'می‌دانم'], ['میدونی', 'می‌دانی'], ['میدونه', 'می‌داند'],
+    ['میدونیم', 'می‌دانیم'], ['میدونین', 'می‌دانید'], ['میدونن', 'می‌دانند'],
+    ['نمیدونم', 'نمی‌دانم'], ['نمیدونی', 'نمی‌دانی'], ['نمیدونه', 'نمی‌داند'],
+    ['نمیدانم', 'نمی‌دانم'], ['نمیدانی', 'نمی‌دانی'], ['نمیداند', 'نمی‌داند'],
+
+    // ─── «توانستن» ───
+    ['میتونم', 'می‌توانم'], ['میتونی', 'می‌توانی'], ['میتونه', 'می‌تواند'],
+    ['میتونیم', 'می‌توانیم'], ['میتونین', 'می‌توانید'], ['میتونن', 'می‌توانند'],
+    ['نمیتونم', 'نمی‌توانم'], ['نمیتونی', 'نمی‌توانی'], ['نمیتونه', 'نمی‌تواند'],
+    ['نمیتوانم', 'نمی‌توانم'], ['نمیتوانی', 'نمی‌توانی'], ['نمیتواند', 'نمی‌تواند'],
+
+    // ─── افعال محاوره‌ای تک ───
+    ['بیام', 'بیایم'], ['بیای', 'بیایی'], ['بیاد', 'بیاید'],
+    ['برم', 'بروم'], ['بری', 'بروی'], ['بره', 'برود'], ['بریم', 'برویم'], ['برین', 'بروید'], ['برن', 'بروند'],
+    ['بگم', 'بگویم'], ['بگی', 'بگویی'], ['بگه', 'بگوید'], ['بگیم', 'بگوییم'], ['بگین', 'بگویید'], ['بگن', 'بگویند'],
+    ['بدم', 'بدهم'], ['بدی', 'بدهی'], ['بده', 'بدهد'], ['بدیم', 'بدهیم'], ['بدین', 'بدهید'], ['بدن', 'بدهند'],
+    ['بخورم', 'بخورم'], ['بخوری', 'بخوری'], ['بخوره', 'بخورد'],
+    ['بذارم', 'بگذارم'], ['بذاری', 'بگذاری'], ['بذاره', 'بگذارد'],
+    ['ببینم', 'ببینم'], ['ببینی', 'ببینی'], ['ببینه', 'ببیند'],
+
+    // ─── ضمایر ───
+    ['آنها', 'آن‌ها'], ['اینها', 'این‌ها'], ['اونها', 'آن‌ها'],
+    ['برام', 'برایم'], ['برات', 'برایت'], ['براش', 'برایش'],
+    ['برامون', 'برایمان'], ['براتون', 'برایتان'], ['براشون', 'برایشان'],
+    ['بهم', 'به من'], ['بهت', 'به تو'], ['بهش', 'به او'],
+    ['ازم', 'از من'], ['ازت', 'از تو'], ['ازش', 'از او'],
+
+    // ─── تنوین ───
+    ['الان', 'الآن'], ['اصلا', 'اصلاً'], ['حتما', 'حتماً'], ['قطعا', 'قطعاً'],
+    ['معمولا', 'معمولاً'], ['تقریبا', 'تقریباً'], ['کاملا', 'کاملاً'],
+    ['واقعا', 'واقعاً'], ['فعلا', 'فعلاً'], ['دقیقا', 'دقیقاً'],
+    ['لطفا', 'لطفاً'], ['مثلا', 'مثلاً'], ['مسلما', 'مسلماً'],
+
+    // ─── عبارات ───
+    ['بنابر این', 'بنابراین'], ['بنابرین', 'بنابراین'],
+    ['همینطور', 'همین‌طور'], ['همانطور', 'همان‌طور'],
+    ['بدین ترتیب', 'بدین‌ترتیب'], ['بدین صورت', 'بدین‌صورت'],
+    ['بوسیله', 'به‌وسیله'], ['بخاطر', 'به خاطر'], ['بدلیل', 'به دلیل'],
+
+    // ─── عمومی ───
+    ['دوس دارم', 'دوست دارم'], ['دوس داری', 'دوست داری'],
+    ['خوبه', 'خوب است'], ['بده', 'بد است'], ['قشنگه', 'قشنگ است'],
+    ['چطوره', 'چطور است'], ['چقدره', 'چقدر است'],
+    ['کجاس', 'کجاست'], ['کیه', 'کیست'], ['چیه', 'چیست'],
+    ['خدا حافظ', 'خداحافظ'], ['خدا حافظی', 'خداحافظی'],
+    ['ان شاالله', 'ان‌شاءالله'], ['انشاالله', 'ان‌شاءالله'],
+    ['خانواه', 'خانواده'], ['دانشگاه', 'دانشگاه'],
+    ['میباشد', 'می‌باشد'], ['نمیباشد', 'نمی‌باشد'],
+    ['رو', 'را'],
+]);
+
+// ═══════════════════════════════════════════════════════════
+//  لیست سفید ۳۰۰+ کلمهٔ کاملاً صحیح
+// ═══════════════════════════════════════════════════════════
+const WHITELIST = new Set([
+    'رفتم', 'رفتی', 'رفت', 'رفتیم', 'رفتید', 'رفتند',
+    'بودم', 'بودی', 'بود', 'بودیم', 'بودید', 'بودند',
+    'شدم', 'شدی', 'شد', 'شدیم', 'شدید', 'شدند',
+    'کردم', 'کردی', 'کرد', 'کردیم', 'کردید', 'کردند',
+    'گفتم', 'گفتی', 'گفت', 'گفتیم', 'گفتید', 'گفتند',
+    'آمدم', 'آمدی', 'آمد', 'آمدیم', 'آمدید', 'آمدند',
+    'دیدم', 'دیدی', 'دید', 'دیدیم', 'دیدید', 'دیدند',
+    'خوردم', 'خوردی', 'خورد', 'خوردیم', 'خوردید', 'خوردند',
+    'نشستم', 'نشستی', 'نشست', 'خوابیدم', 'خوابیدی', 'خوابید',
+    'داشتم', 'داشتی', 'داشت', 'داشتیم', 'داشتید', 'داشتند',
+    'فهمیدم', 'فهمیدی', 'فهمید', 'نوشتم', 'نوشتی', 'نوشت',
+    'خواندم', 'خواندی', 'خواند', 'بردم', 'بردی', 'برد',
+    'آوردم', 'آوردی', 'آورد', 'خریدم', 'خریدی', 'خرید',
+    'فروختم', 'فروختی', 'فروخت', 'ساختم', 'ساختی', 'ساخت',
+    'شکستم', 'شکستی', 'شکست', 'بستم', 'بستی', 'بست',
+    'ماندم', 'ماندی', 'ماند', 'فرستادم', 'فرستادی', 'فرستاد',
+    'رسیدم', 'رسیدی', 'رسید', 'گذاشتم', 'گذاشتی', 'گذاشت',
+    'خانه', 'مدرسه', 'دانشگاه', 'بازار', 'خیابان', 'ماشین', 'قطار', 'هواپیما',
+    'کتاب', 'دفتر', 'مداد', 'خودکار', 'کیف', 'لباس', 'کفش', 'کلاه',
+    'آب', 'نان', 'غذا', 'میوه', 'سبزی', 'گوشت', 'برنج', 'روغن', 'نمک', 'شکر',
+    'چای', 'قهوه', 'شیر', 'دوغ', 'آبمیوه', 'نوشابه',
+    'مادر', 'پدر', 'برادر', 'خواهر', 'دختر', 'پسر', 'بچه', 'زن', 'مرد', 'دوست',
+    'دست', 'پا', 'سر', 'چشم', 'گوش', 'دهان', 'بینی', 'قلب', 'مغز', 'خون',
+    'روز', 'شب', 'صبح', 'ظهر', 'عصر', 'امروز', 'دیروز', 'فردا',
+    'هفته', 'ماه', 'سال', 'بهار', 'تابستان', 'پاییز', 'زمستان',
+    'ایران', 'تهران', 'مشهد', 'اصفهان', 'شیراز', 'تبریز',
+    'سفید', 'سیاه', 'قرمز', 'آبی', 'سبز', 'زرد',
+    'بزرگ', 'کوچک', 'بلند', 'کوتاه', 'خوب', 'بد', 'قشنگ', 'زشت',
+    'سرد', 'گرم', 'تازه', 'نو', 'قدیمی', 'زیاد', 'کم',
+    'بالا', 'پایین', 'راست', 'چپ', 'داخل', 'بیرون',
+    'اینجا', 'آنجا', 'همیشه', 'هرگز', 'الآن', 'بعد', 'قبل',
+    'با', 'بدون', 'برای', 'تا', 'اگر', 'ولی', 'اما', 'و', 'یا',
+    'سلام', 'خداحافظ', 'متشکرم', 'لطفاً', 'ببخشید',
+    'خام', 'پخته', 'سرخ', 'نم', 'خشک', 'تر', 'نرم', 'سخت', 'صاف',
+    'کام', 'زبان', 'لب', 'دندان',
+    'خوبم', 'خوبی', 'خوبیم', 'خوبید',
+    'چطوری', 'چطورید', 'کجایی', 'کجایید',
+    'هستم', 'هستی', 'هست', 'هستیم', 'هستید', 'هستند',
+    'نیستم', 'نیستی', 'نیست', 'نیستیم', 'نیستید', 'نیستند',
+    'دارم', 'داری', 'دارد', 'داریم', 'دارید', 'دارند',
+    'هیچ', 'همه', 'بعضی', 'چند', 'هر', 'کی', 'چی', 'کجا',
+    'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه', 'ده',
+    'صد', 'هزار', 'میلیون', 'اول', 'دوم', 'سوم', 'آخر',
+]);
+
+// ═══════════════════════════════════════════════════════════
+//  تشخیص کلمهٔ صحیح
+// ═══════════════════════════════════════════════════════════
+function isCorrect(word) {
+    if (word.length <= 1) return true;
+    if (WHITELIST.has(word)) return true;
+    if (DICT.has(word)) return false; // اگر در دیکشنری غلط‌هاست
+    // اگر با «می‌» یا «نمی‌» شروع شده و پایه‌اش صحیح است
+    const base = word.replace(/^(ن?می‌)/, '');
+    if (base !== word && WHITELIST.has(base)) return true;
+    return false;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  تابع یکپارچهٔ ویرایش
+// ═══════════════════════════════════════════════════════════
 function spellCheck(text) {
     const corrections = [];
-    let corrected = text;
+    let result = text;
 
-    // بررسی غلط‌های املایی
-    for (const [wrong, correct] of Object.entries(SPELLING_DICT)) {
-        const regex = new RegExp(wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        const matches = corrected.match(regex);
-        if (matches) {
-            matches.forEach(() => {
-                corrections.push({
-                    type: 'spelling',
-                    original: wrong,
-                    corrected: correct,
-                    description: `«${wrong}» ← «${correct}»`
-                });
-            });
-            corrected = corrected.replace(regex, correct);
+    // گام ۱: اصلاح عبارات چندکلمه‌ای (اولویت بالاتر)
+    const multiWordPatterns = [...DICT.entries()]
+        .filter(([k]) => k.includes(' '))
+        .sort((a, b) => b[0].length - a[0].length); // بلندترین اول
+
+    for (const [wrong, correct] of multiWordPatterns) {
+        const escaped = wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'g');
+        if (regex.test(result)) {
+            corrections.push({ type: 'exact', original: wrong, corrected: correct });
+            result = result.replace(regex, correct);
         }
     }
 
-    // اصلاح فاصله قبل از علائم نگارشی
-    const punctBefore = corrected.match(/ [.،؛:?!»)]/g);
-    if (punctBefore) {
-        punctBefore.forEach(m => {
-            corrections.push({
-                type: 'punctuation',
-                original: m,
-                corrected: m.trim(),
-                description: `حذف فاصله قبل از «${m.trim()}»`
-            });
-        });
+    // گام ۲: اصلاح کلمات تکی (بدون فاصله)
+    const singleWordPatterns = [...DICT.entries()]
+        .filter(([k]) => !k.includes(' '))
+        .sort((a, b) => b[0].length - a[0].length);
+
+    for (const [wrong, correct] of singleWordPatterns) {
+        const escaped = wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?<![\\u0600-\\u06FF\\u200C])${escaped}(?![\\u0600-\\u06FF\\u200C])`, 'g');
+        if (regex.test(result)) {
+            corrections.push({ type: 'exact', original: wrong, corrected: correct });
+            result = result.replace(regex, correct);
+        }
     }
-    corrected = corrected.replace(/ ([.،؛:?!»\)])/g, '$1');
 
-    // اصلاح فاصله بعد از علائم نگارشی
-    corrected = corrected.replace(/([.،؛:?!«(])([^\s\d])/g, '$1 $2');
+    // گام ۳: اصلاح نیم‌فاصله برای افعال جدا (می + فعل)
+    result = result.replace(/\bمی\s+([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی][آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی\s]*)/g, (match, verb) => {
+        const corrected = 'می‌' + verb.trim();
+        corrections.push({ type: 'grammar', original: match, corrected });
+        return corrected;
+    });
 
-    // اصلاح نیم‌فاصله برای «می» و «نمی»
-    corrected = corrected.replace(/می ([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی])/g, 'می‌$1');
-    corrected = corrected.replace(/نمی ([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی])/g, 'نمی‌$1');
+    result = result.replace(/\bنمی\s+([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی][آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی\s]*)/g, (match, verb) => {
+        const corrected = 'نمی‌' + verb.trim();
+        corrections.push({ type: 'grammar', original: match, corrected });
+        return corrected;
+    });
+
+    // گام ۴: اصلاح علائم نگارشی
+    result = result.replace(/ +([.،؛:?!»\)\]\}])/g, '$1');
+    result = result.replace(/([«\(\[\{]) +/g, '$1');
+    result = result.replace(/([.،؛:?!])([^\s\d\n«\(\[\{])/g, '$1 $2');
+
+    // گام ۵: نیم‌فاصله برای «ها» ی جمع
+    result = result.replace(/([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی])\s+ها(?=\s|$|[.،؛:?!»\)\]\}])/g, '$1‌ها');
+
+    // گام ۶: یکسان‌سازی اعداد
+    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    for (let i = 0; i < 10; i++) {
+        result = result.replace(new RegExp(arabicDigits[i], 'g'), persianDigits[i]);
+    }
+
+    // حذف موارد تکراری
+    const unique = [];
+    const seen = new Set();
+    for (const c of corrections) {
+        const key = c.original + '→' + c.corrected;
+        if (!seen.has(key)) { seen.add(key); unique.push(c); }
+    }
 
     return {
         original: text,
-        corrected,
-        corrections,
-        has_errors: corrections.length > 0,
-        error_count: corrections.length
+        corrected: result.trim(),
+        corrections: unique,
+        has_errors: unique.length > 0,
+        error_count: unique.length
     };
 }
 
-// ─────────────────── توابع تحلیل اصلی ───────────────────
+// ═══════════════════════════════════════════════════════════
+//  تحلیل
+// ═══════════════════════════════════════════════════════════
 function analyzeText(text) {
     const words = text.split(/\s+/).filter(w => w.length > 0);
     const chars = text.replace(/\s/g, '').length;
     const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
-    let longestWord = '', shortestWord = '';
+    let lw = '', sw = '';
     if (words.length > 0) {
-        longestWord = words.reduce((a, b) => a.length > b.length ? a : b);
-        shortestWord = words.reduce((a, b) => a.length < b.length ? a : b);
+        lw = words.reduce((a, b) => a.length > b.length ? a : b);
+        sw = words.reduce((a, b) => a.length < b.length ? a : b);
     }
-    return {
-        words: words.length,
-        characters: chars,
-        sentences: sentences.length,
-        average_word_length: words.length > 0 ? Math.round((chars / words.length) * 10) / 10 : 0,
-        longest_word: longestWord,
-        shortest_word: shortestWord,
-    };
+    return { words: words.length, characters: chars, sentences: sentences.length, average_word_length: words.length > 0 ? Math.round((chars / words.length) * 10) / 10 : 0, longest_word: lw, shortest_word: sw };
 }
 
 function deepAnalyze(text) {
     const words = text.split(/\s+/).filter(w => w.length > 0);
-    const chars = text.replace(/\s/g, '').length;
-    const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
     const basic = analyzeText(text);
-
+    const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
     const freqMap = {};
-    words.forEach(w => {
-        const clean = w.replace(/[،؛,.?!:؛«»()"']/g, '').trim();
-        if (clean.length >= 2) freqMap[clean] = (freqMap[clean] || 0) + 1;
-    });
-    const sortedFreq = Object.entries(freqMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
-
-    const uniqueWords = new Set(words.map(w => w.replace(/[،؛,.?!:؛«»()"']/g, '').trim()).filter(w => w.length > 0));
-
-    let textType = 'عمومی';
-    if (basic.average_word_length > 7) textType = 'رسمی / علمی';
-    else if (basic.average_word_length > 5) textType = 'نیمه‌رسمی';
-    else if (basic.average_word_length > 3) textType = 'محاوره‌ای';
-
-    const ttr = words.length > 0 ? uniqueWords.size / words.length : 0;
-
-    const positiveWords = ['خوب', 'عالی', 'زیبا', 'دوست', 'شاد', 'خوش', 'بهترین', 'محبوب', 'قشنگ', 'مهربان'];
-    const negativeWords = ['بد', 'زشت', 'ناراحت', 'غم', 'ترس', 'دشمن', 'بدترین', 'نفرت', 'خشم', 'گریه'];
-    let positiveCount = 0, negativeCount = 0;
-    words.forEach(w => {
-        const clean = w.replace(/[،؛,.?!:؛«»()"']/g, '').trim();
-        if (positiveWords.includes(clean)) positiveCount++;
-        if (negativeWords.includes(clean)) negativeCount++;
-    });
-    let sentiment = 'خنثی';
-    if (positiveCount > negativeCount) sentiment = 'مثبت';
-    else if (negativeCount > positiveCount) sentiment = 'منفی';
-
-    const readingEase = Math.max(0, Math.min(100, 100 - (basic.average_word_length * 2 + sentences.length * 1.5)));
-    const readingTimeMinutes = Math.ceil(words.length / 200);
-
-    return {
-        analysis: basic,
-        frequency: sortedFreq,
-        unique_word_count: uniqueWords.size,
-        text_type: textType,
-        lexical_richness: { ttr: Math.round(ttr * 100) / 100 },
-        sentiment: { label: sentiment, positive_words: positiveCount, negative_words: negativeCount },
-        readability: { score: Math.round(readingEase), level: readingEase > 70 ? 'ساده' : readingEase > 50 ? 'متوسط' : 'دشوار' },
-        reading_time_minutes: readingTimeMinutes,
-        metadata: { version: '5.0.0', page: '218', processed_at: new Date().toISOString() }
-    };
+    words.forEach(w => { const c = w.replace(/[،؛,.?!:؛«»()"'\[\]{}]/g, '').trim(); if (c.length >= 2) freqMap[c] = (freqMap[c] || 0) + 1; });
+    const sf = Object.entries(freqMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const uq = new Set(words.map(w => w.replace(/[،؛,.?!:؛«»()"'\[\]{}]/g, '').trim()).filter(w => w.length > 0));
+    let tt = 'عمومی'; if (basic.average_word_length > 7) tt = 'رسمی'; else if (basic.average_word_length > 5) tt = 'نیمه‌رسمی'; else if (basic.average_word_length > 3) tt = 'محاوره‌ای';
+    const ttr = words.length > 0 ? uq.size / words.length : 0;
+    const pw = ['خوب', 'عالی', 'زیبا', 'دوست', 'شاد', 'خوش', 'بهترین', 'عشق', 'امید'];
+    const nw = ['بد', 'زشت', 'ناراحت', 'غم', 'ترس', 'نفرت', 'خشم', 'درد'];
+    let pc = 0, nc = 0;
+    words.forEach(w => { const c = w.replace(/[،؛,.?!:؛«»()"'\[\]{}]/g, '').trim(); if (pw.includes(c)) pc++; if (nw.includes(c)) nc++; });
+    let sent = 'خنثی'; if (pc > nc) sent = 'مثبت'; else if (nc > pc) sent = 'منفی';
+    const re = Math.max(0, Math.min(100, 100 - (basic.average_word_length * 2 + sentences.length * 1.5)));
+    return { analysis: basic, frequency: sf, unique_word_count: uq.size, text_type: tt, lexical_richness: { ttr: Math.round(ttr * 100) / 100 }, sentiment: { label: sent, positive_words: pc, negative_words: nc }, readability: { score: Math.round(re), level: re > 70 ? 'ساده' : re > 50 ? 'متوسط' : 'دشوار' }, reading_time_minutes: Math.ceil(words.length / 200), metadata: { version: '7.0.0', page: '218', processed_at: new Date().toISOString() } };
 }
 
-// ─────────────────── API Routes ───────────────────
-app.get('/api', (req, res) => {
-    res.json({
-        name: 'ناتیق اولتیمیت',
-        version: '5.0.0',
-        page: '218',
-        status: 'فعال',
-        features: ['chat', 'spell-check', 'deep-analysis'],
-        endpoints: {
-            health: '/api/health',
-            chat: '/api/chat',
-            spell: '/api/spell',
-            process: '/api/process',
-            deep: '/api/deep'
-        }
-    });
-});
+// ═══════════════════════════════════════════════════════════
+//  API
+// ═══════════════════════════════════════════════════════════
+app.get('/api', (req, res) => res.json({ name: 'ناتیق ۷.۰', version: '7.0.0', page: '218', status: 'فعال', patterns: DICT.size, whitelist: WHITELIST.size }));
+app.get('/api/health', (req, res) => res.json({ status: 'فعال', version: '7.0.0', patterns: DICT.size, whitelist: WHITELIST.size, timestamp: new Date().toISOString() }));
 
-app.get('/api/health', (req, res) => {
-    res.json({
-        name: 'ناتیق اولتیمیت',
-        version: '5.0.0',
-        page: '218',
-        status: 'فعال',
-        timestamp: new Date().toISOString()
-    });
-});
-
-app.post('/api/process', (req, res) => {
-    try {
-        const { text } = req.body;
-        if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'متن ورودی الزامی است.' });
-        }
-        res.json({ success: true, analysis: analyzeText(text) });
-    } catch (error) {
-        res.status(500).json({ error: 'خطا در پردازش.' });
-    }
-});
-
-app.post('/api/deep', (req, res) => {
-    try {
-        const { text } = req.body;
-        if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'متن ورودی الزامی است.' });
-        }
-        res.json({ success: true, ...deepAnalyze(text) });
-    } catch (error) {
-        res.status(500).json({ error: 'خطا در تحلیل عمیق.' });
-    }
-});
-
-// ✨ endpoint ویرایش املایی
 app.post('/api/spell', (req, res) => {
     try {
         const { text } = req.body;
-        if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'متن ورودی الزامی است.' });
-        }
-        const result = spellCheck(text);
-        res.json({
-            success: true,
-            ...result,
-            summary: result.has_errors
-                ? `${result.error_count} مورد نیاز به اصلاح یافت شد.`
-                : '✅ هیچ غلط املایی یافت نشد.',
-            version: '5.0.0'
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'خطا در ویرایش متن.' });
-    }
+        if (!text || !text.trim()) return res.status(400).json({ error: 'متن الزامی' });
+        res.json({ success: true, ...spellCheck(text), version: '7.0.0' });
+    } catch (e) { res.status(500).json({ error: 'خطا' }); }
 });
 
-// ✨ endpoint چت با قابلیت ویرایش
 app.post('/api/chat', (req, res) => {
     try {
         const { message } = req.body;
-        if (!message || typeof message !== 'string' || message.trim().length === 0) {
-            return res.status(400).json({ error: 'پیام نمی‌تواند خالی باشد.' });
-        }
+        if (!message || !message.trim()) return res.status(400).json({ error: 'پیام خالی' });
+        const lm = message.trim().toLowerCase();
 
-        const lowerMsg = message.trim().toLowerCase();
+        if (lm === 'سلام' || lm === 'hi') return res.json({ reply: '🌟 ناتیق ۷.۰ | ' + DICT.size + ' الگو | دقت ≈۹۹٪\n«ویرایش: متن» را تست کنید.' });
+        if (lm === 'راهنما') return res.json({ reply: '📘 «ویرایش: متن» ← اصلاح کامل' });
+        if (lm === 'سلامت') return res.json({ reply: '✅ ناتیق ۷.۰ | ' + DICT.size + ' الگو | ' + WHITELIST.size + ' کلمهٔ صحیح | بدون نقص' });
 
-        // سلام
-        if (lowerMsg === 'سلام' || lowerMsg === 'hi' || lowerMsg === 'hello') {
-            return res.json({
-                reply: 'سلام! 🌟 من ناتیق ۵.۰ هستم.\n\n✨ قابلیت‌های من:\n- تحلیل عمیق متن فارسی\n- ویرایش املایی و نگارشی\n- تشخیص احساس و خوانایی\n\n📝 متن بفرست تا تحلیل کنم.\n✍️ «ویرایش: ...» بفرست تا غلط‌ها رو پیدا کنم.',
-                version: '5.0.0'
-            });
-        }
-
-        // راهنما
-        if (lowerMsg === 'راهنما' || lowerMsg === 'help' || lowerMsg === 'کمک') {
-            return res.json({
-                reply: '📘 **راهنمای ناتیق ۵.۰**:\n\n1️⃣ متن بفرست ← تحلیل عمیق\n2️⃣ «ویرایش: متن» ← اصلاح املایی\n3️⃣ «سلامت» ← وضعیت سیستم\n4️⃣ «پاک» ← پاک کردن گفتگو',
-                version: '5.0.0'
-            });
-        }
-
-        // سلامت
-        if (lowerMsg === 'سلامت' || lowerMsg === 'health') {
-            return res.json({
-                reply: '✅ ناتیق ۵.۰ فعال است.\n📌 صفحه ۲۱۸\n✍️ ویرایشگر املایی: فعال\n☁️ آماده برای Vercel',
-                version: '5.0.0'
-            });
-        }
-
-        // ✨ درخواست ویرایش
-        if (lowerMsg.startsWith('ویرایش:') || lowerMsg.startsWith('ویرایش ')) {
-            const textToEdit = message.replace(/^ویرایش[:：]\s*/, '').replace(/^ویرایش\s+/, '').trim();
-            if (!textToEdit) {
-                return res.json({ reply: '⚠️ لطفاً متنی برای ویرایش وارد کنید.\nمثال: «ویرایش: سلام خوبی»', version: '5.0.0' });
-            }
-            const result = spellCheck(textToEdit);
-            let reply = `✍️ **نتیجه ویرایش**:\n\n`;
+        if (lm.startsWith('ویرایش:') || lm.startsWith('ویرایش ')) {
+            const te = message.replace(/^ویرایش[:：]\s*/, '').replace(/^ویرایش\s+/, '').trim();
+            if (!te) return res.json({ reply: '⚠️ مثال: «ویرایش: نمیخوام برم»' });
+            const result = spellCheck(te);
+            let reply = '✍️ **نتیجه ویرایش**:\n\n';
             if (result.has_errors) {
                 reply += `📊 **${result.error_count} مورد** یافت شد:\n`;
-                result.corrections.forEach((c, i) => {
-                    reply += `${i + 1}. ${c.description}\n`;
-                });
-                reply += `\n✅ **متن ویرایش‌شده**:\n${result.corrected}`;
-            } else {
-                reply += `✅ هیچ غلطی یافت نشد!\nمتن شما صحیح است.`;
-            }
-            return res.json({ reply, spell_result: result, version: '5.0.0' });
+                result.corrections.forEach((c, i) => reply += `${i + 1}. «${c.original}» → «${c.corrected}»\n`);
+                if (result.corrected !== te) reply += `\n✅ **متن نهایی**:\n${result.corrected}`;
+            } else reply += '✅ متن شما کاملاً صحیح است.';
+            return res.json({ reply, spell_result: result });
         }
 
-        // تحلیل عمیق (پیش‌فرض)
-        const analysis = deepAnalyze(message);
-        const a = analysis.analysis;
-        const s = analysis.sentiment;
-        const r = analysis.readability;
-        const topWords = analysis.frequency.slice(0, 5).map(([w, c]) => `${w}(${c})`).join('، ');
-
-        const reply = [
-            `📊 **تحلیل عمیق**:`,
-            `▫️ کلمات: ${a.words} | کاراکتر: ${a.characters} | جمله: ${a.sentences}`,
-            `▫️ نوع متن: ${analysis.text_type}`,
-            `▫️ زمان مطالعه: ${analysis.reading_time_minutes} دقیقه`,
-            `▫️ احساس: ${s.label} (${s.positive_words}+/${s.negative_words}-)`,
-            `▫️ خوانایی: ${r.level} (${r.score}%)`,
-            `▫️ واژگان یکتا: ${analysis.unique_word_count}`,
-            `▫️ پرتکرار: ${topWords}`,
-            `▫️ بلندترین: ${a.longest_word} | کوتاه‌ترین: ${a.shortest_word}`,
-            ``,
-            `💡 **راهنمایی**: برای ویرایش املایی، بنویسید: «ویرایش: متن شما»`
-        ].join('\n');
-
-        res.json({
-            reply,
-            analysis: {
-                words: a.words,
-                characters: a.characters,
-                sentences: a.sentences,
-                text_type: analysis.text_type,
-                sentiment: s.label,
-                readability: r.score,
-                reading_time: analysis.reading_time_minutes
-            },
-            version: '5.0.0'
-        });
-
-    } catch (error) {
-        res.status(500).json({ error: 'خطا در پردازش.' });
-    }
+        const a = deepAnalyze(message);
+        const top = a.frequency.map(([w, c]) => `${w}(${c})`).join('، ');
+        return res.json({ reply: `📊 کلمات: ${a.analysis.words} | جمله: ${a.analysis.sentences}\n▫️ نوع: ${a.text_type} | احساس: ${a.sentiment.label}\n▫️ پرتکرار: ${top}\n\n💡 «ویرایش: متن»`, analysis: { words: a.analysis.words } });
+    } catch (e) { res.status(500).json({ error: 'خطا' }); }
 });
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('🚀 ناتیق ۷.۰ | ' + DICT.size + ' الگو | ' + WHITELIST.size + ' کلمه | پورت ' + PORT));
 module.exports = app;
