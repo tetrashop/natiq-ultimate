@@ -4,74 +4,40 @@ const app = express();
 
 app.use(express.json());
 
-// فعال‌سازی CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
     next();
 });
 
-// سرو فایل‌های استاتیک
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// مستندات API
-app.get('/api', (req, res) => {
-    res.json({
-        name: 'ناتیق اولتیمیت',
-        version: '3.0.0',
-        page: '218',
-        status: 'فعال',
-        endpoints: {
-            health: '/api/health (GET)',
-            process: '/api/process (POST)',
-            deep: '/api/deep (POST)'
-        }
-    });
-});
-
-// سلامت سیستم
-app.get('/api/health', (req, res) => {
-    res.json({
-        name: 'ناتیق اولتیمیت',
-        version: '3.0.0',
-        page: '218',
-        status: 'فعال',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// تابع تحلیل پایه
+// ---------- توابع تحلیل ----------
 function analyzeText(text) {
     const words = text.split(/\s+/).filter(w => w.length > 0);
     const chars = text.replace(/\s/g, '').length;
     const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
-
-    let longestWord = '';
-    let shortestWord = '';
+    let longestWord = '', shortestWord = '';
     if (words.length > 0) {
         longestWord = words.reduce((a, b) => a.length > b.length ? a : b);
         shortestWord = words.reduce((a, b) => a.length < b.length ? a : b);
     }
-
     return {
         words: words.length,
         characters: chars,
         sentences: sentences.length,
         average_word_length: words.length > 0 ? Math.round((chars / words.length) * 10) / 10 : 0,
         longest_word: longestWord,
-        shortest_word: shortestWord
+        shortest_word: shortestWord,
     };
 }
 
-// تحلیل عمیق
 function deepAnalyze(text) {
     const words = text.split(/\s+/).filter(w => w.length > 0);
     const chars = text.replace(/\s/g, '').length;
     const sentences = text.split(/[.!?؟\n]+/).filter(s => s.trim().length > 0);
-
     const basic = analyzeText(text);
 
-    // فراوانی کلمات
     const freqMap = {};
     words.forEach(w => {
         const clean = w.replace(/[،؛,.?!:؛«»()"']/g, '').trim();
@@ -79,38 +45,28 @@ function deepAnalyze(text) {
     });
     const sortedFreq = Object.entries(freqMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
 
-    // کلمات یکتا
     const uniqueWords = new Set(words.map(w => w.replace(/[،؛,.?!:؛«»()"']/g, '').trim()).filter(w => w.length > 0));
 
-    // نوع متن
     let textType = 'عمومی';
-    const avgWordLen = basic.average_word_length;
-    if (avgWordLen > 7) textType = 'رسمی / علمی';
-    else if (avgWordLen > 5) textType = 'نیمه‌رسمی';
-    else if (avgWordLen > 3) textType = 'محاوره‌ای';
+    if (basic.average_word_length > 7) textType = 'رسمی / علمی';
+    else if (basic.average_word_length > 5) textType = 'نیمه‌رسمی';
+    else if (basic.average_word_length > 3) textType = 'محاوره‌ای';
 
-    // غنای واژگانی
     const ttr = words.length > 0 ? uniqueWords.size / words.length : 0;
-
-    // فراوانی حروف
     const charFreq = {};
     const cleanText = text.replace(/[\s،؛,.?!:؛«»()"']/g, '');
-    for (let c of cleanText) {
-        charFreq[c] = (charFreq[c] || 0) + 1;
-    }
+    for (let c of cleanText) charFreq[c] = (charFreq[c] || 0) + 1;
     const topChars = Object.entries(charFreq).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-    // طول جملات
     const sentenceLengths = sentences.map(s => s.trim().split(/\s+/).filter(w => w.length > 0).length);
     const longestSentence = sentenceLengths.length > 0 ? Math.max(...sentenceLengths) : 0;
     const shortestSentence = sentenceLengths.length > 0 ? Math.min(...sentenceLengths) : 0;
-    const avgSentenceLength = sentenceLengths.length > 0 ? Math.round((sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length) * 10) / 10 : 0;
+    const avgSentenceLength = sentenceLengths.length > 0
+        ? Math.round((sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length) * 10) / 10 : 0;
 
-    // تشخیص لحن
     const positiveWords = ['خوب', 'عالی', 'زیبا', 'دوست', 'شاد', 'خوش', 'بهترین', 'محبوب', 'قشنگ', 'مهربان'];
     const negativeWords = ['بد', 'زشت', 'ناراحت', 'غم', 'ترس', 'دشمن', 'بدترین', 'نفرت', 'خشم', 'گریه'];
-    let positiveCount = 0;
-    let negativeCount = 0;
+    let positiveCount = 0, negativeCount = 0;
     words.forEach(w => {
         const clean = w.replace(/[،؛,.?!:؛«»()"']/g, '').trim();
         if (positiveWords.includes(clean)) positiveCount++;
@@ -120,10 +76,7 @@ function deepAnalyze(text) {
     if (positiveCount > negativeCount) sentiment = 'مثبت';
     else if (negativeCount > positiveCount) sentiment = 'منفی';
 
-    // خوانایی
-    const readingEase = Math.max(0, Math.min(100, 100 - (avgSentenceLength * 1.5 + avgWordLen * 2)));
-
-    // زمان مطالعه
+    const readingEase = Math.max(0, Math.min(100, 100 - (avgSentenceLength * 1.5 + basic.average_word_length * 2)));
     const readingTimeMinutes = Math.ceil(words.length / 200);
 
     return {
@@ -153,41 +106,119 @@ function deepAnalyze(text) {
         },
         reading_time_minutes: readingTimeMinutes,
         metadata: {
-            version: '3.0.0',
+            version: '4.2.0',
             page: '218',
             processed_at: new Date().toISOString()
         }
     };
 }
 
-// پردازش پایه
+// ---------- API Routes ----------
+app.get('/api', (req, res) => {
+    res.json({
+        name: 'ناتیق اولتیمیت',
+        version: '4.2.0',
+        page: '218',
+        status: 'فعال',
+        storage: 'localStorage (مرورگر)',
+        endpoints: {
+            health: '/api/health',
+            chat: '/api/chat',
+            process: '/api/process',
+            deep: '/api/deep'
+        }
+    });
+});
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        name: 'ناتیق اولتیمیت',
+        version: '4.2.0',
+        page: '218',
+        status: 'فعال',
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.post('/api/process', (req, res) => {
     try {
         const { text } = req.body;
         if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'متن ورودی الزامی است.', version: '3.0.0', page: '218' });
+            return res.status(400).json({ error: 'متن ورودی الزامی است.' });
         }
         const analysis = analyzeText(text);
-        res.json({ success: true, version: '3.0.0', page: '218', analysis });
+        res.json({ success: true, analysis });
     } catch (error) {
-        res.status(500).json({ error: 'خطا در پردازش متن.', version: '3.0.0', page: '218' });
+        res.status(500).json({ error: 'خطا در پردازش متن.' });
     }
 });
 
-// تحلیل عمیق
 app.post('/api/deep', (req, res) => {
     try {
         const { text } = req.body;
         if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'متن ورودی الزامی است.', version: '3.0.0', page: '218' });
+            return res.status(400).json({ error: 'متن ورودی الزامی است.' });
         }
-        const deepResult = deepAnalyze(text);
-        res.json({ success: true, version: '3.0.0', page: '218', ...deepResult });
+        const result = deepAnalyze(text);
+        res.json({ success: true, ...result });
     } catch (error) {
-        res.status(500).json({ error: 'خطا در تحلیل عمیق.', version: '3.0.0', page: '218' });
+        res.status(500).json({ error: 'خطا در تحلیل عمیق.' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`ناتیق روی پورت ${PORT} فعال است`));
+app.post('/api/chat', (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+            return res.status(400).json({ error: 'پیام نمی‌تواند خالی باشد.' });
+        }
+
+        const lowerMsg = message.trim().toLowerCase();
+        if (lowerMsg === 'سلام' || lowerMsg === 'hi' || lowerMsg === 'hello') {
+            return res.json({
+                reply: 'سلام! 🌟 من ناتیق هستم، دستیار هوشمند تحلیل متن فارسی. هر متنی بفرستی، آن را تحلیل عمیق می‌کنم.',
+                version: '4.2.0'
+            });
+        }
+
+        if (lowerMsg === 'راهنما' || lowerMsg === 'help') {
+            return res.json({
+                reply: '📘 راهنما:\n- متن بفرست تا تحلیل عمیق انجام شود.\n- دکمه «ذخیره» تحلیل را در مرورگر ذخیره می‌کند.\n- «سلامت» = وضعیت سیستم',
+                version: '4.2.0'
+            });
+        }
+
+        if (lowerMsg === 'سلامت' || lowerMsg === 'health') {
+            return res.json({
+                reply: '✅ ناتیق فعال است. ورژن ۴.۲.۰ | صفحه ۲۱۸ | ذخیره‌سازی در مرورگر',
+                version: '4.2.0'
+            });
+        }
+
+        const analysis = deepAnalyze(message);
+        const a = analysis.analysis;
+        const s = analysis.sentiment;
+        const r = analysis.readability;
+        const l = analysis.lexical_richness;
+        const topWords = analysis.frequency.slice(0, 5).map(([w, c]) => `${w}(${c})`).join('، ');
+
+        const reply = `
+📊 **نتیجه تحلیل عمیق**:
+- **کلمات**: ${a.words} | **کاراکترها**: ${a.characters} | **جملات**: ${a.sentences}
+- **میانگین طول کلمه**: ${a.average_word_length} (${analysis.text_type})
+- **زمان مطالعه**: ${analysis.reading_time_minutes} دقیقه
+- **کلمات یکتا**: ${analysis.unique_word_count}
+- **احساس**: ${s.label} (${s.positive_words}+ / ${s.negative_words}-)
+- **خوانایی**: ${r.level} (${r.score}%)
+- **غنای واژگانی**: ${l.interpretation} (TTR: ${l.ttr})
+- **پرتکرارترین**: ${topWords}
+        `.trim();
+
+        res.json({ reply, analysis: { words: a.words, characters: a.characters, sentences: a.sentences, text_type: analysis.text_type, sentiment: s.label, readability: r.score, reading_time: analysis.reading_time_minutes }, version: '4.2.0' });
+
+    } catch (error) {
+        res.status(500).json({ error: 'خطا در پردازش چت.' });
+    }
+});
+
 module.exports = app;

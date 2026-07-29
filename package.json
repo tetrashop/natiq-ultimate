@@ -1,17 +1,16 @@
 {
   "name": "natiq-ultimate",
-  "version": "2.0.0",
-  "description": "سیستم NLP فارسی ناتیق اولتیمیت",
+  "version": "4.2.0",
+  "description": "سیستم تحلیل هوشمند متن فارسی - آماده برای Vercel",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
-    "dev": "node api/index.js",
-    "deploy": "vercel --prod"
+    "dev": "node api/index.js"
   },
   "dependencies": {
     "express": "^4.18.2"
   },
-  "keywords": ["natiq", "farsi", "nlp", "persian"],
+  "keywords": ["natiq", "farsi", "nlp", "persian", "chatbot"],
   "author": "",
   "license": "MIT",
   "repository": {

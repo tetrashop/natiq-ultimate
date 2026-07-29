@@ -1,5 +1,6 @@
 node_modules/
+data/
+api/credentials.json
 .env
 .DS_Store
 *.log
-.vercel

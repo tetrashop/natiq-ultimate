@@ -17,12 +17,12 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/public/index.html"
+      "dest": "/public/$1"
     }
   ],
   "env": {
     "NODE_ENV": "production",
-    "VERSION": "2.0.0",
+    "VERSION": "4.2.0",
     "PAGE_REF": "218"
   }
 }
