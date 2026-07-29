@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناتیق ۷.۰ | ویرایشگر هوشمند فارسی</title>
+    <title>ناتیق ۸.۰ | ویرایشگر حرفه‌ای فارسی</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
@@ -194,22 +194,23 @@
     <div class="app">
         <div class="header">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="logo">🧠 ناتیق ۷.۰</span>
+                <span class="logo">🧠 ناتیق ۸.۰</span>
                 <span class="badge" id="statusBadge">فعال</span>
-                <span class="version-badge">صفحه ۲۱۸</span>
+                <span class="version-badge">ص ۲۱۸</span>
             </div>
-            <div style="font-size:0.75rem;opacity:0.7;">✍️ ۲۰۰+ الگو | دقت ≈۹۹٪ | ☁️ Vercel</div>
+            <div style="font-size:0.75rem;opacity:0.7;">✍️ ۲۲۰+ الگو | دقت ≈۹۹٪ | ☁️ Vercel</div>
         </div>
         <div class="chat-area" id="chatArea">
             <div class="message bot-message">
-                👋 سلام! من <b>ناتیق ۷.۰</b> هستم.
+                👋 سلام! من <b>ناتیق ۸.۰</b> هستم.
                 
-                ✨ <b>الگوریتم بازنویسی‌شده:</b>
-                • ۲۰۰+ الگوی املایی
-                • ۳۰۰+ کلمهٔ صحیح در حافظه
+                ✨ <b>الگوریتم حرفه‌ای:</b>
+                • ۲۲۰+ الگوی املایی
+                • ۳۵۰+ کلمهٔ صحیح
+                • نیم‌فاصلهٔ هوشمند
                 • دقت ≈۹۹٪ بدون نقص
                 
-                📝 متن بفرست تا تحلیل کنم.
+                📝 متن بفرست یا
                 ✍️ <b>«ویرایش: متن»</b> بفرست.
                 <div class="time">همین الان</div>
             </div>
@@ -222,7 +223,7 @@
             <button onclick="clearChat()">🗑️ پاک</button>
         </div>
         <div class="input-area">
-            <textarea id="userInput" placeholder="متن یا «ویرایش: متن» را وارد کنید..." rows="1"></textarea>
+            <textarea id="userInput" placeholder="متن یا «ویرایش: متن»..." rows="1"></textarea>
             <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
     </div>
@@ -233,7 +234,7 @@
         const statusBadge = document.getElementById('statusBadge');
         let lastAnalysis = null;
         let lastCorrectedText = null;
-        const STORAGE_KEY = 'natiq_v7_history';
+        const STORAGE_KEY = 'natiq_v8_history';
 
         function getHistory() {
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
@@ -320,9 +321,9 @@
         });
 
         function saveToLocal() {
-            if (!lastAnalysis && !lastCorrectedText) { alert('اول یک تحلیل یا ویرایش انجام بده!'); return; }
+            if (!lastAnalysis && !lastCorrectedText) { alert('اول تحلیل یا ویرایش انجام بده!'); return; }
             addToHistory(lastAnalysis || { text: 'ویرایش', analysis: { corrected: lastCorrectedText } });
-            alert('✅ در حافظهٔ مرورگر ذخیره شد!');
+            alert('✅ ذخیره شد!');
         }
 
         function loadHistory() {
@@ -341,14 +342,14 @@
             const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = 'natiq-v7-history.json'; a.click();
+            a.href = url; a.download = 'natiq-v8-history.json'; a.click();
             URL.revokeObjectURL(url);
-            alert('📥 تاریخچه دانلود شد!');
+            alert('📥 دانلود شد!');
         }
 
         function clearChat() {
             chatArea.innerHTML = '';
-            addMessage('گفتگو پاک شد. پیام جدید بفرستید.', 'bot');
+            addMessage('گفتگو پاک شد.', 'bot');
         }
 
         (async function healthCheck() {
