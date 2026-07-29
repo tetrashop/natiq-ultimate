@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ناتیق ۱۰.۰ | الگوریتم فوق‌حرفه‌ای فارسی</title>
+    <title>ناتیق ۱۱.۰ | ویرایشگر نهایی فارسی</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
@@ -95,24 +95,24 @@
     <div class="app">
         <div class="header">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="logo">🧠 ناتیق ۱۰.۰</span>
+                <span class="logo">🧠 ناتیق ۱۱.۰</span>
                 <span class="badge" id="statusBadge">فعال</span>
                 <span class="version-badge">ص ۲۱۸</span>
             </div>
-            <div style="font-size:0.75rem;opacity:0.7;">۵۰۰+ الگو | ۵۵۰+ واژه | ۱۱ گام | دقت ≈۹۹٪</div>
+            <div style="font-size:0.75rem;opacity:0.7;">۵۰۰+ الگو | ۶۰۰+ واژه | ۱۱ گام | بدون باگ</div>
         </div>
         <div class="chat-area" id="chatArea">
             <div class="message bot-message">
-                👋 سلام! من <b>ناتیق ۱۰.۰</b> هستم — الگوریتم فوق‌حرفه‌ای.
+                👋 سلام! من <b>ناتیق ۱۱.۰</b> هستم — نسخهٔ نهایی.
                 
-                ✨ <b>پوشش کامل:</b>
+                ✨ <b>الگوریتم بدون باگ:</b>
                 • ۵۰۰+ الگوی املایی
-                • ۵۵۰+ واژهٔ صحیح
+                • ۶۰۰+ واژهٔ صحیح
                 • ۱۱ گام پردازش
                 • تبدیل حروف عربی
                 • نیم‌فاصلهٔ هوشمند
-                • افعال محاوره‌ای و امر
-                • عبارات مذهبی و رسمی
+                • Fuzzy Matching
+                • عدم تغییر اسامی خاص
                 
                 📝 متن بفرست یا
                 ✍️ <b>«ویرایش: متن»</b> بفرست.
@@ -136,136 +136,61 @@
         const chatArea = document.getElementById('chatArea');
         const userInput = document.getElementById('userInput');
         const statusBadge = document.getElementById('statusBadge');
-        let lastAnalysis = null;
-        let lastCorrectedText = null;
-        const STORAGE_KEY = 'natiq_v10_history';
+        let lastAnalysis = null, lastCorrectedText = null;
+        const STORAGE_KEY = 'natiq_v11_history';
 
-        function getHistory() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-            catch(e) { return []; }
-        }
-
-        function addToHistory(entry) {
-            const history = getHistory();
-            history.push({ ...entry, saved_at: new Date().toISOString() });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(-50)));
-        }
+        function getHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; } }
+        function addToHistory(e) { const h = getHistory(); h.push({...e, saved_at: new Date().toISOString()}); localStorage.setItem(STORAGE_KEY, JSON.stringify(h.slice(-50))); }
 
         function addMessage(text, sender, isCorrected = false) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}-message${isCorrected ? ' corrected-message' : ''}`;
-            msgDiv.innerHTML = text.replace(/\n/g, '<br>');
-            const timeSpan = document.createElement('div');
-            timeSpan.className = 'time';
-            timeSpan.textContent = new Date().toLocaleTimeString('fa-IR');
-            msgDiv.appendChild(timeSpan);
-            chatArea.appendChild(msgDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-            return msgDiv;
+            const d = document.createElement('div');
+            d.className = `message ${sender}-message${isCorrected ? ' corrected-message' : ''}`;
+            d.innerHTML = text.replace(/\n/g, '<br>');
+            const t = document.createElement('div'); t.className = 'time'; t.textContent = new Date().toLocaleTimeString('fa-IR');
+            d.appendChild(t); chatArea.appendChild(d); chatArea.scrollTop = chatArea.scrollHeight;
+            return d;
         }
 
         function addCopyButton(text) {
-            const btn = document.createElement('button');
-            btn.textContent = '📋 کپی متن اصلاح‌شده';
-            btn.style.cssText = 'margin-top:8px;padding:8px 16px;background:var(--success);color:#000;border:none;border-radius:8px;cursor:pointer;font:inherit;font-size:0.85rem;';
-            btn.onclick = () => navigator.clipboard.writeText(text).then(() => alert('✅ کپی شد!'));
-            const lastMsg = chatArea.lastChild;
-            if (lastMsg) lastMsg.appendChild(btn);
+            const b = document.createElement('button');
+            b.textContent = '📋 کپی متن اصلاح‌شده';
+            b.style.cssText = 'margin-top:8px;padding:8px 16px;background:var(--success);color:#000;border:none;border-radius:8px;cursor:pointer;font:inherit;font-size:0.85rem;';
+            b.onclick = () => navigator.clipboard.writeText(text).then(() => alert('✅ کپی شد!'));
+            const last = chatArea.lastChild; if (last) last.appendChild(b);
         }
 
         async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-            const isSpellRequest = text.startsWith('ویرایش:') || text.startsWith('ویرایش ');
-            addMessage(text, 'user');
-            userInput.value = '';
-            userInput.style.height = 'auto';
+            const text = userInput.value.trim(); if (!text) return;
+            const isSpell = text.startsWith('ویرایش:') || text.startsWith('ویرایش ');
+            addMessage(text, 'user'); userInput.value = ''; userInput.style.height = 'auto';
 
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot-message';
-            typingDiv.textContent = isSpellRequest ? '🔍 در حال ویرایش (۱۱ گام)...' : '📊 در حال تحلیل...';
-            chatArea.appendChild(typingDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
+            const typing = document.createElement('div'); typing.className = 'message bot-message';
+            typing.textContent = isSpell ? '🔍 در حال ویرایش (۱۱ گام)...' : '📊 در حال تحلیل...';
+            chatArea.appendChild(typing); chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
-                const res = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
-                });
-                const data = await res.json();
-                chatArea.removeChild(typingDiv);
-
-                if (data.error) {
-                    addMessage('⚠️ ' + data.error, 'bot');
-                } else {
-                    const isCorrected = data.spell_result && data.spell_result.has_errors;
-                    addMessage(data.reply, 'bot', isCorrected);
-                    if (isCorrected && data.spell_result.corrected) {
-                        addCopyButton(data.spell_result.corrected);
-                        lastCorrectedText = data.spell_result.corrected;
-                    }
-                    if (data.analysis) lastAnalysis = { text, analysis: data.analysis };
+                const res = await fetch('/api/chat', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({message:text}) });
+                const data = await res.json(); chatArea.removeChild(typing);
+                if (data.error) { addMessage('⚠️ '+data.error, 'bot'); }
+                else {
+                    const isCorr = data.spell_result?.has_errors;
+                    addMessage(data.reply, 'bot', isCorr);
+                    if (isCorr && data.spell_result.corrected) { addCopyButton(data.spell_result.corrected); lastCorrectedText = data.spell_result.corrected; }
+                    if (data.analysis) lastAnalysis = {text, analysis:data.analysis};
                 }
-            } catch (err) {
-                chatArea.removeChild(typingDiv);
-                addMessage('❌ قطع ارتباط با سرور.', 'bot');
-            }
+            } catch(err) { chatArea.removeChild(typing); addMessage('❌ قطع ارتباط.', 'bot'); }
         }
 
-        function quickSpell() {
-            const text = userInput.value.trim();
-            userInput.value = text ? 'ویرایش: ' + text : 'ویرایش: ';
-            userInput.focus();
-            if (text) sendMessage();
-        }
+        function quickSpell() { const t = userInput.value.trim(); userInput.value = t ? 'ویرایش: '+t : 'ویرایش: '; userInput.focus(); if(t) sendMessage(); }
+        userInput.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        function saveToLocal() { if(!lastAnalysis && !lastCorrectedText) { alert('اول تحلیل انجام بده!'); return; } addToHistory(lastAnalysis||{text:'ویرایش',analysis:{corrected:lastCorrectedText}}); alert('✅ ذخیره شد!'); }
+        function loadHistory() { const h = getHistory(); if(!h.length) { addMessage('📭 خالی', 'bot'); return; } addMessage(`📋 <b>${h.length}</b> تحلیل:`, 'bot'); h.slice(-5).forEach((it,i) => addMessage(`${i+1}. "${it.text?.substring(0,40)||'?'}..."`, 'bot')); }
+        function exportHistory() { const h = getHistory(); if(!h.length) { alert('خالی!'); return; } const b = new Blob([JSON.stringify(h,null,2)],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='natiq-v11-history.json'; a.click(); URL.revokeObjectURL(u); alert('📥 دانلود شد!'); }
+        function clearChat() { chatArea.innerHTML=''; addMessage('پاک شد.', 'bot'); }
 
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-        });
-
-        function saveToLocal() {
-            if (!lastAnalysis && !lastCorrectedText) { alert('اول تحلیل یا ویرایش انجام بده!'); return; }
-            addToHistory(lastAnalysis || { text: 'ویرایش', analysis: { corrected: lastCorrectedText } });
-            alert('✅ ذخیره شد!');
-        }
-
-        function loadHistory() {
-            const history = getHistory();
-            if (history.length === 0) { addMessage('📭 تاریخچه خالی است.', 'bot'); return; }
-            addMessage(`📋 <b>${history.length}</b> تحلیل ذخیره شده:`, 'bot');
-            history.slice(-5).forEach((item, i) => {
-                const preview = item.text ? item.text.substring(0, 40) : 'بدون متن';
-                addMessage(`${i + 1}. "${preview}..." (${item.analysis?.words || '?'} کلمه)`, 'bot');
-            });
-        }
-
-        function exportHistory() {
-            const history = getHistory();
-            if (history.length === 0) { alert('تاریخچه خالی است!'); return; }
-            const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'natiq-v10-history.json'; a.click();
-            URL.revokeObjectURL(url);
-            alert('📥 دانلود شد!');
-        }
-
-        function clearChat() {
-            chatArea.innerHTML = '';
-            addMessage('گفتگو پاک شد.', 'bot');
-        }
-
-        (async function healthCheck() {
-            try {
-                const res = await fetch('/api/health');
-                const data = await res.json();
-                statusBadge.textContent = 'فعال ' + data.version;
-                statusBadge.style.background = 'var(--success)';
-            } catch (e) {
-                statusBadge.textContent = 'آفلاین';
-                statusBadge.style.background = 'var(--danger)';
-            }
+        (async function health() {
+            try { const r = await fetch('/api/health'); const d = await r.json(); statusBadge.textContent='فعال '+d.version; statusBadge.style.background='var(--success)'; }
+            catch(e) { statusBadge.textContent='آفلاین'; statusBadge.style.background='var(--danger)'; }
         })();
     </script>
 </body>
