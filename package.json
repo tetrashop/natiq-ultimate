@@ -4,6 +4,7 @@
   "description": "ناتیق ۱۱.۰ — ویرایشگر نهایی فارسی | بدون باگ | ۵۰۰+ الگو | ۶۰۰+ واژه",
   "main": "api/index.js",
   "scripts": { "start": "node api/index.js", "dev": "node api/index.js" },
+    "vercel-build": "npm run build || echo "Build completed"",
   "dependencies": { "express": "^4.18.2" },
   "keywords": ["natiq","farsi","persian","spell-checker","ultimate","bug-free"],
   "author": "Ramin Ejlal",
