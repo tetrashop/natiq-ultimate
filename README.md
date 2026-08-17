@@ -104,3 +104,8 @@ MIT License
   <sub>ساخته شده با ❤️ توسط تیم TetraShop</sub>
 </div>
 <!-- Trigger deploy: Mon Aug 17 01:48:49 +0330 2026 -->
+
+## 🌐 دیپلوی
+
+- **URL:** [https://natiq-ultimate.vercel.app](https://natiq-ultimate.vercel.app)
+- **وضعیت:** ✅ فعال
